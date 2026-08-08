@@ -1,0 +1,36 @@
+name: Engineering story
+description: Propose a bounded EvalGate story linked to the blueprint.
+title: "[EG-XXX] "
+labels: [story]
+body:
+  - type: input
+    id: requirement
+    attributes:
+      label: Requirement and blueprint section
+      placeholder: "FR-XX; BLUEPRINT.md section X"
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: User-visible or engineering outcome
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Observable acceptance evidence
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Security, privacy, operations, and recovery
+    validations:
+      required: true

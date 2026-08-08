@@ -1,0 +1,55 @@
+openapi: 3.1.0
+info:
+  title: EvalGate Foundation API
+  version: 0.1.0
+  description: Health-only contract. Product endpoints are not implemented by the foundation.
+servers:
+  - url: http://127.0.0.1:8000
+    description: Local loopback
+paths:
+  /health/live:
+    get:
+      operationId: getLiveness
+      tags: [health]
+      responses:
+        '200':
+          description: Process is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /health/ready:
+    get:
+      operationId: getReadiness
+      tags: [health]
+      responses:
+        '200':
+          description: Required foundation dependencies are available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: A required foundation dependency is unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [service, version, status, checks]
+      properties:
+        service:
+          const: evalgate-api
+        version:
+          type: string
+        status:
+          type: string
+          enum: [alive, ready, not_ready]
+        checks:
+          type: object
+          additionalProperties:
+            type: string

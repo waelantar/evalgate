@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:evalgate:schema:evaluation-artifact:1",
+  "title": "EvalGate evaluation artifact envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run", "versions", "environment", "metrics", "cases", "limitations"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_key", "mode", "status", "started_at", "finished_at"],
+      "properties": {
+        "run_key": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "mode": { "enum": ["fixture_contract", "retrieval", "generation"] },
+        "status": { "enum": ["completed", "failed", "cancelled"] },
+        "started_at": { "type": "string", "format": "date-time" },
+        "finished_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code_sha", "corpus_manifest_sha256", "index_key", "dataset_manifest_sha256", "policy_version"],
+      "properties": {
+        "code_sha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "corpus_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "index_key": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "dataset_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "policy_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "prompt_sha256": { "$ref": "#/$defs/sha256" },
+        "generation_model": { "type": "string", "maxLength": 160 },
+        "judge_model": { "type": "string", "maxLength": 160 }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "python", "postgres_image_digest", "numeric_tolerance"],
+      "properties": {
+        "os": { "type": "string" },
+        "architecture": { "type": "string" },
+        "python": { "type": "string" },
+        "fastembed": { "type": "string" },
+        "onnxruntime": { "type": "string" },
+        "postgres_image_digest": { "type": "string" },
+        "numeric_tolerance": { "type": "number", "minimum": 0 }
+      }
+    },
+    "metrics": { "type": "object", "additionalProperties": { "type": "number" } },
+    "cases": { "type": "array", "items": { "type": "object" } },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

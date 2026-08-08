@@ -1,0 +1,62 @@
+[project]
+name = "evalgate-api"
+version = "0.1.0"
+description = "EvalGate application core and HTTP adapter"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = "MIT"
+dependencies = [
+  "alembic>=1.16,<2",
+  "fastapi>=0.121,<1",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.11,<3",
+  "sqlalchemy>=2.0.44,<3",
+  "uvicorn[standard]>=0.38,<1",
+]
+
+[project.scripts]
+evalgate-api = "evalgate.entrypoints.http:main"
+
+[dependency-groups]
+dev = [
+  "httpx2>=2.9,<3",
+  "mypy>=1.18,<2",
+  "pytest>=8.4,<10",
+  "pytest-cov>=7,<8",
+  "pyyaml>=6.0,<7",
+  "ruff>=0.14,<1",
+  "types-PyYAML>=6.0,<7",
+]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/evalgate"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers --cov=evalgate --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "RUF", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["evalgate"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+packages = ["evalgate"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = true

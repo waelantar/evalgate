@@ -988,4 +988,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-The next executable step is EG-001: establish the repository, governance files, locked toolchain, PostgreSQL Compose service, minimal backend/web foundations, and secret-free CI without implying that product features already exist.
+EG-001 has established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. The next executable story is EG-002. EG-003 starts only after EG-002 verifies and merges the reference embedding identity and 384-dimensional schema decision. No feature branch is created by the setup commit.
