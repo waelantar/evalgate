@@ -4,6 +4,8 @@
 - Branch: `feat/eg-009-golden-evaluation`
 - Depends on: EG-005 and EG-006 merged to `main`
 - Release: R2
+- Version action: Minor `0.5.0 -> 0.6.0`
+- Codex profile: `gpt-5.5` with `high` reasoning
 - Blueprint requirements: G-04, FR-06, NFR-03, ADR-0006
 
 ## Outcome
@@ -42,4 +44,4 @@ A versioned 36-case dataset and CLI produce schema-valid JSON plus readable retr
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-009 on branch `feat/eg-009-golden-evaluation`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0006, the artifact schema, and this story. Confirm EG-005 and EG-006 are merged to clean `main`. Author/review the bounded 36-case dataset and implement tested metric definitions, real retrieval ablations, a CLI, and schema-valid JSON/Markdown evidence with full version/environment identity and declared tolerances. Do not set PR thresholds, accept a baseline, call live providers/judges, claim a secret holdout, or add a results UI. Do not merge or push. Finish with metric definitions, dataset rationale, files, exact commands/artifact paths, limitations, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.5`, reasoning effort `high`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.5.0` on the latest accepted `main`, apply only the declared minor bump to `0.6.0` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-009 on branch `feat/eg-009-golden-evaluation`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0006, the artifact schema, and this story. Confirm EG-005 and EG-006 are merged to clean `main`. Author/review the bounded 36-case dataset and implement tested metric definitions, real retrieval ablations, a CLI, and schema-valid JSON/Markdown evidence with full version/environment identity and declared tolerances. Do not set PR thresholds, accept a baseline, call live providers/judges, claim a secret holdout, or add a results UI. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, spend, tag/release, or start another story. Finish with metric definitions, dataset rationale, files, exact commands/artifact paths, limitations, version handoff, and suggested commit message.

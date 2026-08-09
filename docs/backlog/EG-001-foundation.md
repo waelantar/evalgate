@@ -4,6 +4,8 @@
 - Branch: Initial setup on `main`; future corrections use `chore/eg-001-foundation-fix`
 - Depends on: Approved R0 blueprint
 - Release: R1
+- Version action: Existing `0.1.0`; audit has no bump, correction needs an owner-approved next patch
+- Codex profile: `gpt-5.6-luna` with `low` reasoning
 - Blueprint requirements: NFR-01, NFR-02, NFR-04, CON-01, CON-02
 
 ## Outcome
@@ -41,4 +43,4 @@ A clean, truthful repository can install, lint, type-check, test, build, and val
 
 ## Copy-paste coding-agent brief
 
-> Audit or correct only the EG-001 foundation on branch `chore/eg-001-foundation-fix`. Do not add any product capability. Read `AGENTS.md`, `BLUEPRINT.md`, and this story. Reproduce every foundation check, fix only setup/governance/tooling defects, and preserve the blueprint-first history. Do not merge, push, deploy, call providers, or start EG-002. Finish with an explanation, changed files, exact commands/results, limitations, and a suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-luna`, reasoning effort `low`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: this verified foundation already established `0.1.0` and an audit has no bump. If a correction is required, stop before editing version surfaces until the repository owner assigns the next available patch and reconciles later targets. Audit or correct only the EG-001 foundation on branch `chore/eg-001-foundation-fix`. Do not add any product capability. Read `AGENTS.md`, `BLUEPRINT.md`, and this story. Reproduce every foundation check, fix only setup/governance/tooling defects, and preserve the blueprint-first history. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, call providers, tag/release, or start EG-002. Finish with an explanation, changed files, exact commands/results, limitations, version handoff, and a suggested commit message.

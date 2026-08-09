@@ -13,6 +13,25 @@ EXCLUDED_PARTS = {".git", ".venv", "node_modules", "dist", "coverage", ".cache"}
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 ACTION_REF = re.compile(r"^\s*-\s+uses:\s+[^@\s]+@([^\s#]+)", re.MULTILINE)
 SHA = re.compile(r"^[a-f0-9]{40}$")
+STORY_PROFILE = re.compile(
+    r"^- Codex profile: `([^`]+)` with `(low|medium|high)` reasoning$",
+    re.MULTILINE,
+)
+STORY_VERSION = re.compile(r"^- Version action: (.+)$", re.MULTILINE)
+SEMVER = re.compile(r"\b\d+\.\d+\.\d+\b")
+ALLOWED_STORY_PROFILES = {
+    "gpt-5.5": {"low", "medium", "high"},
+    "gpt-5.6-luna": {"low", "medium", "high"},
+    "gpt-5.6-terra": {"low", "medium", "high"},
+    "gpt-5.6-sol": {"low", "medium", "high"},
+}
+COPY_PASTE_HEADING = "## Copy-paste coding-agent brief"
+SCOPE_GUARD = (
+    "Implement only cases explicitly required by this story, accepted contracts/ADRs, "
+    "or an observed failing test. Do not invent speculative edge cases, future-proof "
+    "abstractions, new dependencies/frameworks, opportunistic refactors, later-story "
+    "work, or silent contract/architecture decisions; stop and report instead."
+)
 
 
 def is_included(path: Path) -> bool:
@@ -68,13 +87,67 @@ def validate_action_pins() -> list[str]:
     return failures
 
 
+def validate_story_briefs() -> list[str]:
+    failures: list[str] = []
+    for path in sorted((ROOT / "docs" / "backlog").glob("EG-*.md")):
+        relative = path.relative_to(ROOT)
+        content = path.read_text(encoding="utf-8")
+        profiles = STORY_PROFILE.findall(content)
+        version_actions = STORY_VERSION.findall(content)
+
+        if len(profiles) != 1:
+            failures.append(f"{relative}: expected exactly one Codex profile metadata line")
+            continue
+        if len(version_actions) != 1:
+            failures.append(f"{relative}: expected exactly one version action metadata line")
+            continue
+        if content.count(COPY_PASTE_HEADING) != 1:
+            failures.append(f"{relative}: expected exactly one copy-paste brief")
+            continue
+
+        model, effort = profiles[0]
+        if effort not in ALLOWED_STORY_PROFILES.get(model, set()):
+            failures.append(f"{relative}: unsupported Codex profile {model}/{effort}")
+
+        prompt = content.split(COPY_PASTE_HEADING, maxsplit=1)[1]
+        profile_instruction = (
+            f"Execution profile (configure before starting): `{model}`, "
+            f"reasoning effort `{effort}`."
+        )
+        if profile_instruction not in prompt:
+            failures.append(f"{relative}: prompt does not repeat its exact Codex profile")
+        if "Do not substitute the model or raise effort" not in prompt:
+            failures.append(f"{relative}: prompt lacks the model/effort escalation boundary")
+        if "Version action:" not in prompt:
+            failures.append(f"{relative}: prompt lacks its version action")
+        for version in set(SEMVER.findall(version_actions[0])):
+            if version not in prompt:
+                failures.append(
+                    f"{relative}: prompt does not repeat planned product version {version}"
+                )
+        if SCOPE_GUARD not in prompt:
+            failures.append(f"{relative}: prompt lacks the canonical bounded-scope guard")
+        if "tag/release" not in prompt:
+            failures.append(f"{relative}: prompt does not forbid agent-created releases")
+
+    return failures
+
+
 def main() -> int:
-    failures = validate_json() + validate_markdown_links() + validate_action_pins()
+    failures = (
+        validate_json()
+        + validate_markdown_links()
+        + validate_action_pins()
+        + validate_story_briefs()
+    )
     if failures:
         print("Metadata check failed:", file=sys.stderr)
         print("\n".join(failures), file=sys.stderr)
         return 1
-    print("Metadata check passed: JSON, local Markdown links, and action pins are valid.")
+    print(
+        "Metadata check passed: JSON, local Markdown links, action pins, and story "
+        "execution controls are valid."
+    )
     return 0
 
 

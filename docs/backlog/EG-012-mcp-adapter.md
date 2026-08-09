@@ -4,6 +4,8 @@
 - Branch: `feat/eg-012-mcp-adapter`
 - Depends on: EG-014 accepted and merged to `main`
 - Release: R4
+- Version action: Minor `1.0.0 -> 1.1.0`
+- Codex profile: `gpt-5.5` with `medium` reasoning
 - Blueprint requirements: G-08, FR-10, ADR-0008
 
 ## Outcome
@@ -42,4 +44,4 @@ A local MCP host can call structured search and ask tools through a separate std
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-012 on branch `feat/eg-012-mcp-adapter`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0008, current official MCP Python documentation, and this story. Confirm EG-014 is accepted and merged to clean `main`. Reverify/pin the protocol/SDK, freeze bounded tool schemas that select `index_version` and report source-corpus identity, and implement a separate local stdio adapter using existing application ports with protocol-only stdout and thorough client tests. Do not add remote transport, FastAPI coupling, side-effecting tools, provider arguments, or an agent loop. Do not merge, push, deploy, or spend. Finish with process/schema/data-flow explanation, files, exact tests, version evidence, limitations, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.5`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `1.0.0` on the latest accepted `main`, apply only the declared minor bump to `1.1.0` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-012 on branch `feat/eg-012-mcp-adapter`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0008, current official MCP Python documentation, and this story. Confirm EG-014 is accepted and merged to clean `main`. Reverify/pin the protocol/SDK, freeze bounded tool schemas that select `index_version` and report source-corpus identity, and implement a separate local stdio adapter using existing application ports with protocol-only stdout and thorough client tests. Do not add remote transport, FastAPI coupling, side-effecting tools, provider arguments, or an agent loop. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, spend, tag/release, or start another story. Finish with process/schema/data-flow explanation, files, exact tests, version evidence, limitations, version handoff, and suggested commit message.
