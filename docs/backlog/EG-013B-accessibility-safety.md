@@ -4,6 +4,8 @@
 - Branch: `feat/eg-013b-accessibility-safety`
 - Depends on: EG-008 and EG-011 merged to `main`
 - Release: R3
+- Version action: Patch `0.8.1 -> 0.8.2`
+- Codex profile: `gpt-5.6-terra` with `medium` reasoning
 - Blueprint requirements: NFR-05, NFR-06
 
 ## Outcome
@@ -42,4 +44,4 @@ The complete supported web flow meets WCAG 2.2 AA evidence expectations and rend
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-013B on branch `feat/eg-013b-accessibility-safety`. Read `AGENTS.md`, `BLUEPRINT.md`, the web/stream/results contracts, and this story. Confirm EG-008 and EG-011 are merged to clean `main`. Audit and harden the entire supported answer and results UI for keyboard/focus/live-region/zoom/contrast/reduced-motion behavior and centralized safe content/link rendering; add automated and documented manual evidence. Do not redesign the product, add a UI framework, or claim full conformance beyond evidence. Do not merge, push, or deploy. Finish with accessibility/content-safety explanation, changed files, exact results/manual checklist, limitations, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-terra`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.8.1` on the latest accepted `main`, apply only the declared patch to `0.8.2` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-013B on branch `feat/eg-013b-accessibility-safety`. Read `AGENTS.md`, `BLUEPRINT.md`, the web/stream/results contracts, and this story. Confirm EG-008 and EG-011 are merged to clean `main`. Audit and harden the entire supported answer and results UI for keyboard/focus/live-region/zoom/contrast/reduced-motion behavior and centralized safe content/link rendering; add automated and documented manual evidence. Do not redesign the product, add a UI framework, or claim full conformance beyond evidence. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, tag/release, or start another story. Finish with accessibility/content-safety explanation, changed files, exact results/manual checklist, limitations, version handoff, and suggested commit message.

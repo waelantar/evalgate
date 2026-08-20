@@ -4,6 +4,8 @@
 - Branch: `feat/eg-010-regression-gate`
 - Depends on: EG-009 merged to `main`
 - Release: R2
+- Version action: Patch `0.6.0 -> 0.6.1`
+- Codex profile: `gpt-5.6-terra` with `medium` reasoning
 - Blueprint requirements: G-04, G-05, FR-07, NFR-04
 
 ## Outcome
@@ -43,4 +45,4 @@ Pull requests receive a repeatable, secret-free retrieval regression decision ag
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-010 on branch `feat/eg-010-regression-gate`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0006, the EG-009 artifact contract, and this story. Confirm EG-009 is merged to clean `main`. Calibrate and document a reviewed retrieval baseline/policy from repeated evidence, add secret-free CI artifact comparison, and prove sensitivity with a known-bad change. Never auto-update a baseline, call a live provider/judge, expose secrets, deploy, or write to application state. Do not merge or push. Finish with threshold/tolerance rationale, CI security explanation, changed files, pass/fail evidence, residual flakiness, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-terra`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.6.0` on the latest accepted `main`, apply only the declared patch to `0.6.1` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-010 on branch `feat/eg-010-regression-gate`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0006, the EG-009 artifact contract, and this story. Confirm EG-009 is merged to clean `main`. Calibrate and document a reviewed retrieval baseline/policy from repeated evidence, add secret-free CI artifact comparison, and prove sensitivity with a known-bad change. Never auto-update a baseline, call a live provider/judge, expose secrets, deploy, or write to application state. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, tag/release, or start another story. Finish with threshold/tolerance rationale, CI security explanation, changed files, pass/fail evidence, residual flakiness, version handoff, and suggested commit message.

@@ -4,6 +4,8 @@
 - Branch: `feat/eg-004-governed-corpus`
 - Depends on: EG-002 and EG-003 merged to `main`
 - Release: R2
+- Version action: Minor `0.1.2 -> 0.2.0`
+- Codex profile: `gpt-5.6-terra` with `medium` reasoning
 - Blueprint requirements: G-01, FR-01, NFR-03, ADR-0007
 
 ## Outcome
@@ -42,4 +44,4 @@ The original Northstar Operations Handbook is licensed, manifested, chunked, emb
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-004 on branch `feat/eg-004-governed-corpus`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0004, ADR-0007, the corpus schema, and this story. Confirm EG-002 and EG-003 are merged to clean `main`. Add the full approved CC0 text, author and review the bounded synthetic corpus, validate its immutable manifest, and implement declared-source transactional idempotent ingestion with source-offset evidence. Do not build search, answers, golden evaluation, uploads, or URL ingestion. Do not merge, push, deploy, or call a paid provider. Stop on license/provenance or identity changes. Finish with corpus rationale, data flow, files, exact evidence, failure/rollback behavior, limitations, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-terra`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.1.2` on the latest accepted `main`, apply only the declared minor bump to `0.2.0` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-004 on branch `feat/eg-004-governed-corpus`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0004, ADR-0007, the corpus schema, and this story. Confirm EG-002 and EG-003 are merged to clean `main`. Add the full approved CC0 text, author and review the bounded synthetic corpus, validate its immutable manifest, and implement declared-source transactional idempotent ingestion with source-offset evidence. Do not build search, answers, golden evaluation, uploads, or URL ingestion. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, call a paid provider, tag/release, or start another story. Stop on license/provenance or identity changes. Finish with corpus rationale, data flow, files, exact evidence, failure/rollback behavior, limitations, version handoff, and suggested commit message.

@@ -4,6 +4,8 @@
 - Branch: `feat/eg-002-provider-ports`
 - Depends on: EG-001 merged to `main`
 - Release: R1
+- Version action: Patch `0.1.0 -> 0.1.1`
+- Codex profile: `gpt-5.6-terra` with `medium` reasoning
 - Blueprint requirements: NFR-01, NFR-03, ADR-0001, ADR-0004
 
 ## Outcome
@@ -43,4 +45,4 @@ The application layer defines typed embedding, generation, clock, and identity p
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-002 on branch `feat/eg-002-provider-ports`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0001, ADR-0004, and this story. Confirm EG-001 is on a clean `main`, then create the exact branch. Define framework-free typed ports and explicitly labeled deterministic fixtures; verify and record the BGE reference metadata without implementing ingestion, retrieval, persistence, or any live provider call. Add boundary and contract tests. Do not merge, push, deploy, spend, or begin EG-003. Stop if the model decision changes. Finish with a design explanation, changed files, acceptance mapping, exact commands/results, residual risk, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-terra`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.1.0` on the latest accepted `main`, apply only the declared patch to `0.1.1` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-002 on branch `feat/eg-002-provider-ports`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0001, ADR-0004, and this story. Confirm EG-001 is on a clean `main`, then create the exact branch. Define framework-free typed ports and explicitly labeled deterministic fixtures; verify and record the BGE reference metadata without implementing ingestion, retrieval, persistence, or any live provider call. Add boundary and contract tests. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, spend, tag/release, or begin EG-003. Stop if the model decision changes. Finish with a design explanation, changed files, acceptance mapping, exact commands/results, residual risk, version handoff, and suggested commit message.

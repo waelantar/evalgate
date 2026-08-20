@@ -4,6 +4,8 @@
 - Branch: `feat/eg-003-postgres-schema`
 - Depends on: EG-002 merged to `main` with the accepted reference embedding identity and 384-dimensional decision
 - Release: R1
+- Version action: Patch `0.1.1 -> 0.1.2`
+- Codex profile: `gpt-5.6-sol` with `medium` reasoning
 - Blueprint requirements: NFR-02, NFR-10, ADR-0002, ADR-0004
 
 ## Outcome
@@ -42,4 +44,4 @@ PostgreSQL has a reviewed, reversible foundation schema that separates immutable
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-003 on branch `feat/eg-003-postgres-schema`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0002, ADR-0004, and this story. Confirm EG-002 and its verified reference embedding manifest are on clean `main`. Implement the reviewed PostgreSQL/pgvector schema with a literal 384-dimensional column, separate corpus/index versions, constraints, migration-aware readiness, and real PostgreSQL tests. Do not add corpus content, embedding, search, generation, or SQLite. Do not merge, push, deploy, or start EG-004. Stop on any schema-decision conflict. Finish with an ER/migration explanation, changed files, exact test evidence, rollback/reset behavior, residual risk, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-sol`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.1.1` on the latest accepted `main`, apply only the declared patch to `0.1.2` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-003 on branch `feat/eg-003-postgres-schema`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0002, ADR-0004, and this story. Confirm EG-002 and its verified reference embedding manifest are on clean `main`. Implement the reviewed PostgreSQL/pgvector schema with a literal 384-dimensional column, separate corpus/index versions, constraints, migration-aware readiness, and real PostgreSQL tests. Do not add corpus content, embedding, search, generation, or SQLite. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, tag/release, or start EG-004. Stop on any schema-decision conflict. Finish with an ER/migration explanation, changed files, exact test evidence, rollback/reset behavior, residual risk, version handoff, and suggested commit message.

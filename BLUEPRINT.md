@@ -107,6 +107,8 @@ The first credible public product slice contains the governed corpus, idempotent
 | R4 - Integration | MCP stdio adapter | R3 cannot be delayed by R4 |
 | R5 - Optional public demo | One portable deployment with bounded live access | Explicit hosting, privacy, security, and budget approval |
 
+The serialized product-version plan is owned by the backlog and branch workflow: R3 becomes the first stable `1.0.0` only when EG-014 verifies every release gate; the additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
+
 ## 4. Success measures and quality gates
 
 ### 4.1 Release-blocking invariants
@@ -741,6 +743,7 @@ Foundation CI starts with lint, type, unit, build, and Compose validation; jobs 
 
 - Merge requires green deterministic checks and reviewed contract/ADR changes.
 - Release is a signed or annotated semantic-version tag through a protected manual workflow.
+- A coding story may prepare its declared version metadata, but only the repository owner creates a tag after manual merge and release review.
 - Build once, identify the artifact by digest, scan it, and promote the same digest.
 - Run migration compatibility checks before deployment.
 - Run post-deploy health, search, safe fixture/retrieval, limit, and kill-switch smoke tests.
@@ -833,12 +836,12 @@ Detailed implementation briefs live under `docs/backlog/`. Each brief must state
 | EG-013A | Public-mode application security and privacy | EG-008, EG-010, EG-011 | R3 | L |
 | EG-013B | Accessibility and browser-content safety across answer/results flows | EG-008, EG-011 | R3 | M |
 | EG-013C | Redacted observability and provider-neutral cost controls | EG-010, EG-011 | R3 | M |
-| EG-013D | Operational runbooks, final release image, scans, and SBOM | EG-013A, EG-013B, EG-013C, EG-015 | R3 | L |
-| EG-014 | Fresh-checkout trial, documentation reconciliation, final release evidence | EG-013D, EG-015 | R3 | M |
+| EG-013D | Operational runbooks, `0.9.0` release-candidate image, scans, and SBOM | EG-013A, EG-013B, EG-013C, EG-015 | R3 | L |
+| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015 | R3 | M |
 | EG-015 | Governed live generation/judge suite and calibrated claims | EG-006, EG-009 | R3 | L |
 | EG-016 | Optional single-host deployment, access posture, limits, smoke, and rollback | EG-014 | R5 | L |
 
-EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, image scanning, and SBOM. No one pull request implements the whole epic.
+EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. EG-014 may change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
 
 Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, CI integration, and public hardening carry the most variance.
 

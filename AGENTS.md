@@ -21,13 +21,18 @@ EvalGate is a governed RAG change-evaluation workbench. Do not turn it into a ge
 
 1. Work on one `docs/backlog/EG-*.md` story at a time.
 2. Confirm dependencies and Definition of Ready.
-3. Update contracts or ADRs before dependent implementation.
-4. Keep changes within the story's scope and stop conditions.
-5. Add success, failure, boundary, and recovery tests proportionate to the change.
-6. Run `scripts/check.ps1` or `scripts/check.sh` plus story-specific integration/evaluation checks.
-7. Update status, docs, traceability, and evidence without overstating what passed.
+3. Configure the exact Codex model and reasoning effort declared in the story before starting. Do not substitute a model or raise effort without repository-owner approval after a concrete failed check or review finding.
+4. Update contracts or ADRs before dependent implementation.
+5. Keep changes within the story's scope and stop conditions.
+6. Implement only behavior required by the story, an accepted contract/ADR, or an observed failing test. Do not add speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, or later-story work.
+7. Add success, failure, boundary, security/privacy, and recovery tests proportionate to the accepted behavior.
+8. Run `scripts/check.ps1` or `scripts/check.sh` plus story-specific integration/evaluation checks.
+9. Apply the story's version action only after pre-bump implementation checks pass and before final version-bound evidence, using the controlled product-version surfaces in `docs/WORKFLOW.md`. Never bulk-replace independent protocol, schema, corpus, index, dataset, prompt, artifact, or deployment versions.
+10. Update status, docs, traceability, changelog, and evidence without overstating what passed.
 
 Only one writer owns a canonical file or migration chain at a time. Two non-overlapping implementation writers plus one read-only reviewer is the maximum default concurrency. The integrator resolves cross-boundary changes.
+
+If the assigned model is unavailable, the predecessor product version is stale, or completing a story requires a scope/architecture decision not already accepted, stop and report the exact blocker. Do not guess, silently escalate, or broaden the story.
 
 ## Safety and publication
 

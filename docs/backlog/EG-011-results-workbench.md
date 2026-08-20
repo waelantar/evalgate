@@ -4,6 +4,8 @@
 - Branch: `feat/eg-011-results-workbench`
 - Depends on: EG-008 and EG-009 merged to `main`
 - Release: R3
+- Version action: Minor `0.6.1 -> 0.7.0`
+- Codex profile: `gpt-5.6-terra` with `medium` reasoning
 - Blueprint requirements: FR-08, FR-09, NFR-12
 
 ## Outcome
@@ -42,4 +44,4 @@ A reviewed CLI-produced artifact can be validated and imported locally, and user
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-011 on branch `feat/eg-011-results-workbench`. Read `AGENTS.md`, `BLUEPRINT.md`, the evaluation artifact schema, EG-009 output, and this story. Confirm EG-008 and EG-009 are merged to clean `main`. Implement a local reviewed-artifact import with transactional validation/idempotency, read-only paginated results API, and accessible run/case UI. Do not add evaluation triggering, background tasks, queues, CI database writes, baseline approval, WebSockets, or live polling. Do not merge, push, deploy, or start hardening. Finish with import/trust-boundary and UI explanation, files, exact tests, storage limits, recovery, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-terra`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.6.1` on the latest accepted `main`, apply only the declared minor bump to `0.7.0` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-011 on branch `feat/eg-011-results-workbench`. Read `AGENTS.md`, `BLUEPRINT.md`, the evaluation artifact schema, EG-009 output, and this story. Confirm EG-008 and EG-009 are merged to clean `main`. Implement a local reviewed-artifact import with transactional validation/idempotency, read-only paginated results API, and accessible run/case UI. Do not add evaluation triggering, background tasks, queues, CI database writes, baseline approval, WebSockets, or live polling. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, tag/release, or start hardening. Finish with import/trust-boundary and UI explanation, files, exact tests, storage limits, recovery, version handoff, and suggested commit message.

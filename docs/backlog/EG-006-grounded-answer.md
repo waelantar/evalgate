@@ -4,6 +4,8 @@
 - Branch: `feat/eg-006-grounded-answer`
 - Depends on: EG-005 merged to `main`
 - Release: R2
+- Version action: Patch `0.3.0 -> 0.3.1`
+- Codex profile: `gpt-5.6-sol` with `medium` reasoning
 - Blueprint requirements: FR-03, FR-12, NFR-01, NFR-05
 
 ## Outcome
@@ -43,4 +45,4 @@ The application core retrieves bounded evidence, invokes an explicitly selected 
 
 ## Copy-paste coding-agent brief
 
-> Work only on EG-006 on branch `feat/eg-006-grounded-answer`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0001, ADR-0006, the search contract, and this story. Confirm EG-005 is merged to clean `main`. Implement the framework-free grounded-answer use case with bounded retrieved evidence, versioned prompt policy, explicit provider mode, evidence-ID-only model output, server-derived citations, and typed failure tests. Do not add HTTP streaming, UI, live provider calls, tools, or content persistence. Do not merge, push, deploy, spend, or start EG-007. Finish with prompt/citation data-flow explanation, files, exact tests, threat/residual-risk notes, and suggested commit message.
+> Execution profile (configure before starting): `gpt-5.6-sol`, reasoning effort `medium`. Do not substitute the model or raise effort; if unavailable, stop before editing. Version action: after all acceptance checks pass, verify `0.3.0` on the latest accepted `main`, apply only the declared patch to `0.3.1` through the controlled product-version surfaces in `docs/WORKFLOW.md`, add the `Unreleased` changelog entry, and rerun affected checks; if the predecessor or a gate differs, do not bump, and stop. Work only on EG-006 on branch `feat/eg-006-grounded-answer`. Read `AGENTS.md`, `BLUEPRINT.md`, ADR-0001, ADR-0006, the search contract, and this story. Confirm EG-005 is merged to clean `main`. Implement the framework-free grounded-answer use case with bounded retrieved evidence, versioned prompt policy, explicit provider mode, evidence-ID-only model output, server-derived citations, and typed failure tests. Do not add HTTP streaming, UI, live provider calls, tools, or content persistence. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not merge, push, deploy, spend, tag/release, or start EG-007. Finish with prompt/citation data-flow explanation, files, exact tests, threat/residual-risk notes, version handoff, and suggested commit message.
