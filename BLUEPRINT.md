@@ -885,7 +885,7 @@ Repository-level `AGENTS.md` supplies implementation rules for coding agents. No
 | [ADR-0001](docs/adr/0001-application-boundaries.md) | One repository with framework-independent application core and independent inbound adapters | Accepted |
 | [ADR-0002](docs/adr/0002-postgresql-only.md) | PostgreSQL/pgvector is the only database in all environments | Accepted |
 | [ADR-0003](docs/adr/0003-hybrid-retrieval.md) | Exact lexical/vector retrieval fused with RRF; no initial ANN index or reranker | Accepted |
-| [ADR-0004](docs/adr/0004-embedding-reference.md) | 384d local BGE embedding through FastEmbed; snapshot/checksum frozen before ingestion | Accepted with EG-002 verification gate |
+| [ADR-0004](docs/adr/0004-embedding-reference.md) | 384d local BGE embedding through FastEmbed; logical and runtime identities frozen separately | Accepted; identity verified, runtime execution gated |
 | [ADR-0005](docs/adr/0005-post-fetch-sse.md) | `POST /ask` uses fetch-consumed SSE framing and AbortController cancellation | Accepted |
 | [ADR-0006](docs/adr/0006-evaluation-layers.md) | Three assurance layers separate fixtures, real retrieval, and governed generation | Accepted |
 | [ADR-0007](docs/adr/0007-governed-corpus.md) | Original synthetic operations corpus with immutable manifest and governed golden splits | Accepted with license-text gate |
@@ -991,4 +991,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 has established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. The next executable story is EG-002. EG-003 starts only after EG-002 verifies and merges the reference embedding identity and 384-dimensional schema decision. No feature branch is created by the setup commit.
+EG-001 has established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 is implemented on its review branch with provider-neutral ports, explicit fixtures, fail-closed configuration, and a verified 384-dimensional reference identity. EG-003 remains blocked until the repository owner reviews and manually merges EG-002.

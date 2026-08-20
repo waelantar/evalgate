@@ -2,12 +2,13 @@
 
 EvalGate helps AI application teams detect retrieval, grounding, and citation regressions before release.
 
-The repository currently contains the approved production blueprint and the reproducible engineering foundation. Product capabilities remain planned; the status table below is the source of truth.
+The repository currently contains the approved production blueprint, reproducible engineering foundation, and the provider-neutral application boundary. User-facing product capabilities remain planned; the status table below is the source of truth.
 
 | Capability | Status |
 |---|---|
 | Production blueprint | Approved |
 | Repository/tooling foundation | Static and code checks pass; PostgreSQL runtime and remote CI pending |
+| Provider ports and reference identity | Implemented and locally verified; fixtures only, real embedding runtime not yet provisioned |
 | Corpus and ingestion | Planned |
 | Hybrid retrieval and cited answer | Planned |
 | Evaluation gate and results UI | Planned |
@@ -52,7 +53,7 @@ npm --prefix apps/web run dev
 - API documentation: <http://127.0.0.1:8000/docs>
 - Liveness: <http://127.0.0.1:8000/health/live>
 
-Copy `.env.example` to `.env` only when overriding local defaults. No generation/provider configuration or external provider call exists in the foundation; EG-002 owns that boundary.
+Copy `.env.example` to `.env` only when overriding local defaults. Provider modes are explicit and default locally to labeled deterministic fixtures. Reference mode requires a pre-provisioned local snapshot that must pass the manifest verifier before runtime construction; live generation remains unavailable, and no external provider call exists.
 
 ## Repository map
 

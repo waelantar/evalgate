@@ -7,7 +7,7 @@ ADRs capture decisions that are expensive or unsafe to change silently. The blue
 | [0001](0001-application-boundaries.md) | Framework-independent application core | Accepted |
 | [0002](0002-postgresql-only.md) | PostgreSQL/pgvector in every environment | Accepted |
 | [0003](0003-hybrid-retrieval.md) | Exact lexical/vector retrieval fused with RRF | Accepted |
-| [0004](0004-embedding-reference.md) | Local 384d BGE reference embedding | Accepted with verification gate |
+| [0004](0004-embedding-reference.md) | Local 384d BGE reference embedding | Accepted; identity verified, runtime execution gated |
 | [0005](0005-post-fetch-sse.md) | POST plus fetch-consumed SSE framing | Accepted |
 | [0006](0006-evaluation-layers.md) | Separate fixture, retrieval, and live assurance | Accepted |
 | [0007](0007-governed-corpus.md) | Original governed operations corpus | Accepted with license-text gate |

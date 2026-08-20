@@ -8,3 +8,5 @@ All notable changes will be documented here. The project uses Semantic Versionin
 
 - Approved production blueprint.
 - Reproducible repository and local development foundation.
+- Provider-neutral embedding, generation, clock, and identity ports with explicit deterministic fixtures.
+- Fail-closed provider-mode configuration and a verified two-source reference-embedding manifest.

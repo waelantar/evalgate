@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "identity": "bge-small-en-v1.5-fastembed-0.8.0-cpu-v1",
+  "dimension": 384,
+  "model_declared_max_tokens": 512,
+  "logical_model": {
+    "repository": "BAAI/bge-small-en-v1.5",
+    "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "license": "MIT",
+    "artifact": {
+      "path": "onnx/model.onnx",
+      "size_bytes": 133093490,
+      "digest": {
+        "algorithm": "sha256",
+        "value": "828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35"
+      }
+    }
+  },
+  "runtime_model": {
+    "repository": "qdrant/bge-small-en-v1.5-onnx-q",
+    "revision": "52398278842ec682c6f32300af41344b1c0b0bb2",
+    "license": "Apache-2.0",
+    "model_file": "model_optimized.onnx",
+    "files": [
+      {
+        "path": "config.json",
+        "size_bytes": 706,
+        "digest": {
+          "algorithm": "git-sha1",
+          "value": "0d7726d0cdccb62ee17c03bd1595cff07199b8f8"
+        }
+      },
+      {
+        "path": "model_optimized.onnx",
+        "size_bytes": 66465124,
+        "digest": {
+          "algorithm": "sha256",
+          "value": "51f1bd0addd6e859e42c2c8021a5e5461385bb676a649f4b269aa445449f2431"
+        }
+      },
+      {
+        "path": "ort_config.json",
+        "size_bytes": 1272,
+        "digest": {
+          "algorithm": "git-sha1",
+          "value": "ca62fa095648efcf2709136afcd942d98744eb3f"
+        }
+      },
+      {
+        "path": "special_tokens_map.json",
+        "size_bytes": 695,
+        "digest": {
+          "algorithm": "git-sha1",
+          "value": "9bbecc17cabbcbd3112c14d6982b51403b264bfa"
+        }
+      },
+      {
+        "path": "tokenizer.json",
+        "size_bytes": 711396,
+        "digest": {
+          "algorithm": "git-sha1",
+          "value": "688882a79f44442ddc1f60d70334a7ff5df0fb47"
+        }
+      },
+      {
+        "path": "tokenizer_config.json",
+        "size_bytes": 1242,
+        "digest": {
+          "algorithm": "git-sha1",
+          "value": "75305659f7795d4549f0e23688b52fa20a32f925"
+        }
+      },
+      {
+        "path": "vocab.txt",
+        "size_bytes": 231508,
+        "digest": {
+          "algorithm": "git-sha1",
+          "value": "fb140275c155a9c7c5a3b3e0e77a9e839594a938"
+        }
+      }
+    ]
+  },
+  "runtime": {
+    "fastembed": {
+      "version": "0.8.0",
+      "source_revision": "6fa442b9603cd197c4b8cf19f072b3b9bbaac9b0"
+    },
+    "onnxruntime": {
+      "package": "onnxruntime",
+      "version": "1.29.0"
+    },
+    "execution_providers": [
+      "CPUExecutionProvider"
+    ],
+    "loading": {
+      "preverify_all_files": true,
+      "specific_model_path_required": true,
+      "local_files_only": true,
+      "explicit_application_cache_required": true
+    }
+  },
+  "text_policy": {
+    "query_prefix": "",
+    "document_prefix": "",
+    "input_transform": "same raw text for query and document roles; no application prefix",
+    "output_normalization": "FastEmbed normalized output"
+  },
+  "numeric_tolerance": {
+    "status": "unmeasured",
+    "cross_platform_max_absolute_delta": null,
+    "owner_story": "EG-009",
+    "reason": "Must be measured with the verified snapshot on each declared platform before ratification."
+  }
+}

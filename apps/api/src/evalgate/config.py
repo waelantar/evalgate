@@ -6,6 +6,13 @@ from typing import Literal
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from evalgate.application.provider_configuration import (
+    EmbeddingMode,
+    GenerationMode,
+    ProviderConfiguration,
+    validate_provider_configuration,
+)
+
 
 class Settings(BaseSettings):
     """EvalGate settings loaded from environment variables or a local .env file."""
@@ -24,10 +31,25 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=1, le=65535)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    embedding_mode: EmbeddingMode = EmbeddingMode.FIXTURE
+    generation_mode: GenerationMode = GenerationMode.FIXTURE
+    reference_embedding_snapshot: str | None = None
+
+    def provider_configuration(self) -> ProviderConfiguration:
+        """Resolve explicit provider modes or raise a typed, fail-closed error."""
+
+        return validate_provider_configuration(
+            environment=self.environment,
+            embedding_mode=self.embedding_mode,
+            generation_mode=self.generation_mode,
+            reference_snapshot_path=self.reference_embedding_snapshot,
+        )
 
 
 @lru_cache
 def get_settings() -> Settings:
-    """Return one immutable-by-convention settings instance per process."""
+    """Return one validated, immutable-by-convention settings instance per process."""
 
-    return Settings()
+    settings = Settings()
+    settings.provider_configuration()
+    return settings

@@ -5,6 +5,7 @@ Contracts are reviewed before implementation that depends on them. Their status 
 | Contract | Status | Owning story |
 |---|---|---|
 | [Foundation health OpenAPI](openapi/foundation.yaml) | Implemented in setup | EG-001 |
+| [Reference embedding manifest](manifests/reference-embedding.json) | Identity verified; runtime snapshot not provisioned | EG-002 |
 | [Answer stream wire contract](events/answer-stream.md) | Draft; not implemented | EG-007 |
 | [Corpus manifest schema](manifests/corpus.schema.json) | Draft; not implemented | EG-004 |
 | [Evaluation artifact schema](evaluation/artifact.schema.json) | Draft; not implemented | EG-009 |
