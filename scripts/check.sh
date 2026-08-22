@@ -20,10 +20,10 @@ docker compose config --quiet
 
 (
   cd apps/api
-  uv run --python 3.13.15 --locked ruff format --check src tests
-  uv run --python 3.13.15 --locked ruff check src tests
+  uv run --python 3.13.15 --locked ruff format --check migrations src tests
+  uv run --python 3.13.15 --locked ruff check migrations src tests
   uv run --python 3.13.15 --locked mypy src tests
-  uv run --python 3.13.15 --locked pytest
+  uv run --python 3.13.15 --locked pytest -m "not integration"
 )
 
 (

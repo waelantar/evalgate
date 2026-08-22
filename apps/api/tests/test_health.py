@@ -10,13 +10,22 @@ from fastapi.testclient import TestClient
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from evalgate.adapters.database import EXPECTED_ALEMBIC_HEAD
 from evalgate.config import Settings
 from evalgate.entrypoints import http
 
 
 class _FakeEngine:
-    def __init__(self, failure: Exception | None = None) -> None:
+    def __init__(
+        self,
+        failure: Exception | None = None,
+        *,
+        migration_head: str = EXPECTED_ALEMBIC_HEAD,
+        migration_failure: Exception | None = None,
+    ) -> None:
         self.failure = failure
+        self.migration_head = migration_head
+        self.migration_failure = migration_failure
         self.executed = False
         self.disposed = False
 
@@ -49,9 +58,24 @@ class _FakeConnection:
     def __init__(self, engine: _FakeEngine) -> None:
         self.engine = engine
 
-    async def execute(self, statement: object) -> None:
-        del statement
+    async def execute(self, statement: object) -> "_FakeResult":
         self.engine.executed = True
+        if "alembic_version" in str(statement):
+            if self.engine.migration_failure is not None:
+                raise self.engine.migration_failure
+            return _FakeResult((self.engine.migration_head,))
+        return _FakeResult(())
+
+
+class _FakeResult:
+    def __init__(self, values: tuple[str, ...]) -> None:
+        self.values = values
+
+    def scalars(self) -> "_FakeResult":
+        return self
+
+    def all(self) -> tuple[str, ...]:
+        return self.values
 
 
 def _settings() -> Settings:
@@ -73,7 +97,7 @@ def test_liveness_has_stable_non_sensitive_contract() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "status": "alive",
         "checks": {},
     }
@@ -91,9 +115,9 @@ def test_readiness_success_executes_probe_and_disposes_engine() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "status": "ready",
-        "checks": {"database": "available"},
+        "checks": {"database": "available", "migration": "current"},
     }
     assert engine.executed
     assert engine.disposed
@@ -108,12 +132,40 @@ def test_readiness_failure_is_non_sensitive_and_disposes_engine() -> None:
     assert response.status_code == 503
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "status": "not_ready",
-        "checks": {"database": "unavailable"},
+        "checks": {"database": "unavailable", "migration": "unknown"},
     }
     assert "database-url-marker" not in response.text
     assert engine.disposed
+
+
+def test_readiness_rejects_migration_mismatch_without_exposing_head() -> None:
+    engine = _FakeEngine(migration_head="unexpected-head")
+
+    with TestClient(_app_with_engine(engine)) as client:
+        response = client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["checks"] == {
+        "database": "available",
+        "migration": "mismatch",
+    }
+    assert "unexpected-head" not in response.text
+
+
+def test_readiness_treats_missing_migration_table_as_mismatch() -> None:
+    engine = _FakeEngine(migration_failure=RuntimeError("migration-table-marker"))
+
+    with TestClient(_app_with_engine(engine)) as client:
+        response = client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["checks"] == {
+        "database": "available",
+        "migration": "mismatch",
+    }
+    assert "migration-table-marker" not in response.text
 
 
 def test_main_disables_client_address_access_logging(

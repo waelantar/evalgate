@@ -1,6 +1,6 @@
 [project]
 name = "evalgate-api"
-version = "0.1.1"
+version = "0.1.2"
 description = "EvalGate application core and HTTP adapter"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 evalgate-api = "evalgate.entrypoints.http:main"
+evalgate-db = "evalgate.entrypoints.database:main"
 
 [dependency-groups]
 dev = [
@@ -38,6 +39,9 @@ packages = ["src/evalgate"]
 [tool.pytest.ini_options]
 addopts = "--strict-config --strict-markers --cov=evalgate --cov-report=term-missing"
 testpaths = ["tests"]
+markers = [
+  "integration: requires a real PostgreSQL 18 server with pgvector 0.8.5",
+]
 
 [tool.coverage.run]
 branch = true

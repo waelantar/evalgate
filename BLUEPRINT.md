@@ -426,6 +426,7 @@ erDiagram
     }
     CHUNK {
         uuid id PK
+        uuid corpus_version_id FK
         uuid index_version_id FK
         uuid document_id FK
         int ordinal
@@ -467,6 +468,7 @@ erDiagram
     }
     EVAL_CASE_RESULT {
         uuid id PK
+        uuid eval_dataset_id FK
         uuid eval_run_id FK
         uuid eval_case_id FK
         jsonb retrieval_evidence
@@ -478,7 +480,7 @@ erDiagram
 
 Source-corpus identity and derived-index identity are intentionally separate: the same immutable corpus can be evaluated with multiple chunking, lexical, or embedding configurations. Search, ask, MCP, and evaluation inputs select an `index_version`; responses report both index and source-corpus versions.
 
-The relational schema enforces uniqueness for `(corpus_version_id, source_key)`, `(index_version_id, document_id, ordinal)`, and `(eval_run_id, eval_case_id)`. Source offsets and section identity make evidence-span hashes reproducible even when a later index changes chunking. Large raw run artifacts live in versioned files or artifact storage rather than an unbounded database JSON field. Public questions and answers are not persisted by default.
+The relational schema enforces uniqueness for `(corpus_version_id, source_key)`, `(index_version_id, document_id, ordinal)`, and `(eval_run_id, eval_case_id)`. `CHUNK` repeats `corpus_version_id` so composite foreign keys prove that its index and document belong to the same corpus. `EVAL_CASE_RESULT` similarly repeats `eval_dataset_id` so its run and case cannot cross dataset boundaries. These denormalized parent keys are integrity witnesses, not independent identities. `search_vector` is a stored, non-generated value; EG-004 populates it using the selected index version's reviewed lexical configuration, so the schema does not silently freeze a PostgreSQL text-search configuration. Source offsets and section identity make evidence-span hashes reproducible even when a later index changes chunking. Large raw run artifacts live in versioned files or artifact storage rather than an unbounded database JSON field. Public questions and answers are not persisted by default.
 
 ### 7.4 Data lifecycle
 
@@ -991,4 +993,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 has established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 is implemented on its review branch with provider-neutral ports, explicit fixtures, fail-closed configuration, and a verified 384-dimensional reference identity. EG-003 remains blocked until the repository owner reviews and manually merges EG-002.
+EG-001 has established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 is merged and accepted with provider-neutral ports, explicit fixtures, fail-closed configuration, and a verified 384-dimensional reference identity. EG-003 is implemented and locally verified on its review branch and awaits repository-owner review and manual merge; it is not released or deployed.

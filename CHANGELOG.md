@@ -10,3 +10,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Reproducible repository and local development foundation.
 - Provider-neutral embedding, generation, clock, and identity ports with explicit deterministic fixtures.
 - Fail-closed provider-mode configuration and a verified two-source reference-embedding manifest.
+- PostgreSQL 18/pgvector foundation schema, migration-aware readiness, and guarded reset tooling.

@@ -1,6 +1,6 @@
 # EG-003: PostgreSQL/pgvector schema and migrations
 
-- Status: Planned
+- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
 - Branch: `feat/eg-003-postgres-schema`
 - Depends on: EG-002 merged to `main` with the accepted reference embedding identity and 384-dimensional decision
 - Release: R1
@@ -25,10 +25,24 @@ PostgreSQL has a reviewed, reversible foundation schema that separates immutable
 
 ## Acceptance evidence
 
-- [ ] Upgrade from empty database reaches one expected head; schema constraints are inspected in tests.
-- [ ] Re-running upgrade is safe and reset instructions reproduce an empty ready database.
-- [ ] Readiness is false on database/migration mismatch and contains no secret.
-- [ ] Tests use the pinned PostgreSQL/pgvector image, never SQLite.
+- [x] Upgrade from empty database reaches one expected head; schema constraints are inspected in tests.
+- [x] Re-running upgrade is safe and reset instructions reproduce an empty ready database.
+- [x] Readiness is false on database/migration mismatch and contains no secret.
+- [x] Tests use the pinned PostgreSQL/pgvector image, never SQLite.
+
+## Verification evidence
+
+Local verification on 2026-08-22 used Python 3.13.15, uv 0.12.3, and Node.js 24.19.0.
+
+- Publication and metadata checks passed for 120 text files and synchronized product version
+  `0.1.2`; Ruff format/lint and strict mypy passed.
+- 28 unit/contract tests passed; 2 web tests, frontend lint, and the production build passed.
+- 5 real-database tests passed against PostgreSQL 18 and pgvector 0.8.5 using the reviewed
+  registry digest `sha256:9d2e61c7352b9e9f4798df5fd9a498f043f4cda1cdacc707de3d198650f4321e`.
+- Database evidence covers one exact Alembic head, schema/catalog constraints, literal
+  `vector(384)`, stored non-generated `tsvector`, idempotent upgrade, cross-parent rejection,
+  migration mismatch, explicit reset, and restored readiness.
+- Remote GitHub Actions execution remains pending; this branch is not released or deployed.
 
 ## Required tests and review
 

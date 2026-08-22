@@ -7,8 +7,9 @@ The repository currently contains the approved production blueprint, reproducibl
 | Capability | Status |
 |---|---|
 | Production blueprint | Approved |
-| Repository/tooling foundation | Static and code checks pass; PostgreSQL runtime and remote CI pending |
+| Repository/tooling foundation | Static/code and local PostgreSQL checks pass; remote CI evidence pending |
 | Provider ports and reference identity | Implemented and locally verified; fixtures only, real embedding runtime not yet provisioned |
+| PostgreSQL schema and migration readiness | Implemented and locally verified on the EG-003 review branch; remote CI pending |
 | Corpus and ingestion | Planned |
 | Hybrid retrieval and cited answer | Planned |
 | Evaluation gate and results UI | Planned |
@@ -52,8 +53,13 @@ npm --prefix apps/web run dev
 - Web: <http://127.0.0.1:5173>
 - API documentation: <http://127.0.0.1:8000/docs>
 - Liveness: <http://127.0.0.1:8000/health/live>
+- Readiness: <http://127.0.0.1:8000/health/ready>
 
 Copy `.env.example` to `.env` only when overriding local defaults. Provider modes are explicit and default locally to labeled deterministic fixtures. Reference mode requires a pre-provisioned local snapshot that must pass the manifest verifier before runtime construction; live generation remains unavailable, and no external provider call exists.
+
+Bootstrap waits for the digest-pinned PostgreSQL 18/pgvector service and applies the forward-only
+empty-schema migration. Database reset is a separately confirmed, loopback-only recovery command;
+see [the database migration guide](apps/api/migrations/README.md).
 
 ## Repository map
 
