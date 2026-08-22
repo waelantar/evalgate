@@ -1,6 +1,6 @@
 # EG-002: Provider-neutral ports and reference embedding decision
 
-- Status: Planned
+- Status: Implemented; local verification complete, awaiting owner review and manual merge
 - Branch: `feat/eg-002-provider-ports`
 - Depends on: EG-001 merged to `main`
 - Release: R1
@@ -25,10 +25,10 @@ The application layer defines typed embedding, generation, clock, and identity p
 
 ## Acceptance evidence
 
-- [ ] Import-boundary test covers all new application modules.
-- [ ] Port/fixture contract tests prove stable outputs and explicit mode selection.
-- [ ] Missing or failed live configuration returns a typed configuration error, never fixture output.
-- [ ] Reference embedding manifest is license/revision/checksum reviewed.
+- [x] Import-boundary test covers all new application modules.
+- [x] Port/fixture contract tests prove stable outputs and explicit mode selection.
+- [x] Missing or failed live configuration returns a typed configuration error, never fixture output.
+- [x] Reference embedding manifest is license/revision/checksum reviewed.
 
 ## Required tests and review
 
@@ -42,6 +42,12 @@ The application layer defines typed embedding, generation, clock, and identity p
 
 - Model license/revision/dimension cannot be verified.
 - A different embedding model, dimension, provider, or framework is proposed.
+
+## Implementation evidence
+
+- On 2026-08-20, the locked `scripts/check.ps1` gate passed at product version `0.1.1`: publication/privacy and metadata/version checks, Compose configuration, formatting, lint, strict typing, 20 backend tests, 2 frontend tests, and the frontend production build.
+- The deterministic fixtures are labeled mechanics evidence. No model was downloaded or executed, no live adapter/provider was selected, and no numeric repeatability or quality claim was made.
+- The reference manifest records the logical and runtime model identities separately. A future real adapter remains blocked until it receives a pre-provisioned snapshot that passes the application-level verifier.
 
 ## Copy-paste coding-agent brief
 

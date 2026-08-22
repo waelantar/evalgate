@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -133,12 +134,65 @@ def validate_story_briefs() -> list[str]:
     return failures
 
 
+def validate_product_version() -> list[str]:
+    failures: list[str] = []
+    pyproject = tomllib.loads(
+        (ROOT / "apps" / "api" / "pyproject.toml").read_text(encoding="utf-8")
+    )
+    uv_lock = tomllib.loads(
+        (ROOT / "apps" / "api" / "uv.lock").read_text(encoding="utf-8")
+    )
+    api_lock_package = next(
+        package
+        for package in uv_lock["package"]
+        if package["name"] == "evalgate-api" and package.get("source") == {"editable": "."}
+    )
+    api_init = (ROOT / "apps" / "api" / "src" / "evalgate" / "__init__.py").read_text(
+        encoding="utf-8"
+    )
+    api_init_match = re.search(r'^__version__ = "([^"]+)"$', api_init, re.MULTILINE)
+    if api_init_match is None:
+        return ["apps/api/src/evalgate/__init__.py: product version is missing"]
+
+    web_package = json.loads(
+        (ROOT / "apps" / "web" / "package.json").read_text(encoding="utf-8")
+    )
+    web_lock = json.loads(
+        (ROOT / "apps" / "web" / "package-lock.json").read_text(encoding="utf-8")
+    )
+    openapi = (ROOT / "contracts" / "openapi" / "foundation.yaml").read_text(
+        encoding="utf-8"
+    )
+    openapi_match = re.search(r"^  version: (\d+\.\d+\.\d+)$", openapi, re.MULTILINE)
+    if openapi_match is None:
+        return ["contracts/openapi/foundation.yaml: product version is missing"]
+
+    versions = {
+        "apps/api/pyproject.toml": pyproject["project"]["version"],
+        "apps/api/uv.lock": api_lock_package["version"],
+        "apps/api/src/evalgate/__init__.py": api_init_match.group(1),
+        "apps/web/package.json": web_package["version"],
+        "apps/web/package-lock.json root": web_lock["version"],
+        "apps/web/package-lock.json package": web_lock["packages"][""]["version"],
+        "contracts/openapi/foundation.yaml": openapi_match.group(1),
+    }
+    distinct_versions = set(versions.values())
+    if len(distinct_versions) != 1:
+        rendered = ", ".join(f"{path}={version}" for path, version in versions.items())
+        failures.append(f"product version surfaces disagree: {rendered}")
+    elif not re.fullmatch(r"\d+\.\d+\.\d+", str(next(iter(distinct_versions)))):
+        failures.append("product version is not valid Semantic Versioning core syntax")
+
+    return failures
+
+
 def main() -> int:
     failures = (
         validate_json()
         + validate_markdown_links()
         + validate_action_pins()
         + validate_story_briefs()
+        + validate_product_version()
     )
     if failures:
         print("Metadata check failed:", file=sys.stderr)
@@ -146,7 +200,7 @@ def main() -> int:
         return 1
     print(
         "Metadata check passed: JSON, local Markdown links, action pins, and story "
-        "execution controls are valid."
+        "execution controls and product versions are valid."
     )
     return 0
 
