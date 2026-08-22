@@ -8,10 +8,10 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from evalgate import __version__
+from evalgate.adapters.database import check_database_readiness
 from evalgate.config import Settings, get_settings
 
 
@@ -85,24 +85,16 @@ def create_app(settings: Settings | None = None, engine: AsyncEngine | None = No
     )
     async def readiness(request: Request) -> HealthResponse | JSONResponse:
         database_engine = cast(AsyncEngine, request.app.state.database_engine)
-        try:
-            async with database_engine.connect() as connection:
-                await connection.execute(text("SELECT 1"))
-        except Exception:
-            payload = HealthResponse(
-                service="evalgate-api",
-                version=__version__,
-                status="not_ready",
-                checks={"database": "unavailable"},
-            )
-            return JSONResponse(status_code=503, content=payload.model_dump())
-
-        return HealthResponse(
+        state = await check_database_readiness(database_engine)
+        payload = HealthResponse(
             service="evalgate-api",
             version=__version__,
-            status="ready",
-            checks={"database": "available"},
+            status="ready" if state.ready else "not_ready",
+            checks={"database": state.database, "migration": state.migration},
         )
+        if not state.ready:
+            return JSONResponse(status_code=503, content=payload.model_dump())
+        return payload
 
     return app
 

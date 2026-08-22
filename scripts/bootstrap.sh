@@ -22,9 +22,9 @@ if [ "$uv_version" != "0.12.3" ]; then
 fi
 
 docker compose config --quiet
-docker compose up -d db
+docker compose up -d --wait db
 
-(cd apps/api && uv sync --python 3.13.15 --locked)
+(cd apps/api && uv sync --python 3.13.15 --locked && uv run --python 3.13.15 --locked evalgate-db seed-empty)
 (cd apps/web && npm ci)
 
 echo "EvalGate foundation is ready. Start the API and web app using README.md."

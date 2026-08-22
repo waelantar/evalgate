@@ -21,13 +21,15 @@ if ($uvVersion -ne "0.12.3") {
 
 docker compose config --quiet
 if ($LASTEXITCODE -ne 0) { throw "Compose validation failed with exit code $LASTEXITCODE." }
-docker compose up -d db
+docker compose up -d --wait db
 if ($LASTEXITCODE -ne 0) { throw "PostgreSQL startup failed with exit code $LASTEXITCODE." }
 
 Push-Location "apps/api"
 try {
     uv sync --python 3.13.15 --locked
     if ($LASTEXITCODE -ne 0) { throw "Python dependency sync failed with exit code $LASTEXITCODE." }
+    uv run --python 3.13.15 --locked evalgate-db seed-empty
+    if ($LASTEXITCODE -ne 0) { throw "Database migration failed with exit code $LASTEXITCODE." }
 } finally {
     Pop-Location
 }

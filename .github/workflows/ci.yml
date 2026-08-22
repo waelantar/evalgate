@@ -34,13 +34,45 @@ jobs:
           python-version: "3.13.15"
       - run: uv sync --locked
         working-directory: apps/api
-      - run: uv run ruff format --check src tests
+      - run: uv run ruff format --check migrations src tests
         working-directory: apps/api
-      - run: uv run ruff check src tests
+      - run: uv run ruff check migrations src tests
         working-directory: apps/api
       - run: uv run mypy src tests
         working-directory: apps/api
-      - run: uv run pytest
+      - run: uv run pytest -m "not integration"
+        working-directory: apps/api
+
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.5-pg18-trixie@sha256:9d2e61c7352b9e9f4798df5fd9a498f043f4cda1cdacc707de3d198650f4321e
+        env:
+          POSTGRES_DB: evalgate
+          POSTGRES_USER: evalgate
+          POSTGRES_PASSWORD: evalgate_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U evalgate -d evalgate"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      EVALGATE_TEST_ADMIN_URL: postgresql://evalgate:evalgate_ci_only@127.0.0.1:5432/evalgate
+      EVALGATE_REQUIRE_DATABASE_TESTS: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.12.3"
+          enable-cache: true
+          python-version: "3.13.15"
+      - run: uv sync --locked
+        working-directory: apps/api
+      - run: python scripts/check_database_image.py
+      - run: uv run pytest -m integration
         working-directory: apps/api
 
   frontend:

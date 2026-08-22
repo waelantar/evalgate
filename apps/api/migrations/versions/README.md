@@ -1,3 +1,5 @@
 # Migration revisions
 
-The first schema revision belongs to EG-003. Keep this directory tracked so Alembic can create that reviewed revision from a clean checkout.
+`20260822_0001_foundation_schema.py` is the single reviewed EG-003 head. Later schema changes
+must be additive Alembic revisions; do not edit an accepted migration or derive vector width
+from runtime configuration.
