@@ -72,8 +72,33 @@ jobs:
       - run: uv sync --locked
         working-directory: apps/api
       - run: python scripts/check_database_image.py
+      - run: python scripts/provision_reference_snapshot.py --destination .evalgate-cache/reference-embedding/snapshot
+      - run: uv run evalgate-db seed-empty
+        working-directory: apps/api
+        env:
+          EVALGATE_ENVIRONMENT: ci
+          EVALGATE_DATABASE_URL: postgresql+psycopg://evalgate:evalgate_ci_only@127.0.0.1:5432/evalgate
+      - run: uv run evalgate-ingest --corpus northstar-operations
+        working-directory: apps/api
+        env:
+          EVALGATE_ENVIRONMENT: ci
+          EVALGATE_EMBEDDING_MODE: reference
+          EVALGATE_GENERATION_MODE: disabled
+          EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT: ../../.evalgate-cache/reference-embedding/snapshot
+          EVALGATE_DATABASE_URL: postgresql+psycopg://evalgate:evalgate_ci_only@127.0.0.1:5432/evalgate
+      - run: uv run evalgate-ingest --corpus northstar-operations
+        working-directory: apps/api
+        env:
+          EVALGATE_ENVIRONMENT: ci
+          EVALGATE_EMBEDDING_MODE: reference
+          EVALGATE_GENERATION_MODE: disabled
+          EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT: ../../.evalgate-cache/reference-embedding/snapshot
+          EVALGATE_DATABASE_URL: postgresql+psycopg://evalgate:evalgate_ci_only@127.0.0.1:5432/evalgate
       - run: uv run pytest -m integration
         working-directory: apps/api
+        env:
+          EVALGATE_REQUIRE_REFERENCE_TESTS: "1"
+          EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT: ../../.evalgate-cache/reference-embedding/snapshot
 
   frontend:
     runs-on: ubuntu-latest

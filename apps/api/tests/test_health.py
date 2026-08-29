@@ -97,7 +97,7 @@ def test_liveness_has_stable_non_sensitive_contract() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "status": "alive",
         "checks": {},
     }
@@ -115,7 +115,7 @@ def test_readiness_success_executes_probe_and_disposes_engine() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "status": "ready",
         "checks": {"database": "available", "migration": "current"},
     }
@@ -132,7 +132,7 @@ def test_readiness_failure_is_non_sensitive_and_disposes_engine() -> None:
     assert response.status_code == 503
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.1.2",
+        "version": "0.2.0",
         "status": "not_ready",
         "checks": {"database": "unavailable", "migration": "unknown"},
     }

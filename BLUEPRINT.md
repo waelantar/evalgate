@@ -890,16 +890,15 @@ Repository-level `AGENTS.md` supplies implementation rules for coding agents. No
 | [ADR-0004](docs/adr/0004-embedding-reference.md) | 384d local BGE embedding through FastEmbed; logical and runtime identities frozen separately | Accepted; identity verified, runtime execution gated |
 | [ADR-0005](docs/adr/0005-post-fetch-sse.md) | `POST /ask` uses fetch-consumed SSE framing and AbortController cancellation | Accepted |
 | [ADR-0006](docs/adr/0006-evaluation-layers.md) | Three assurance layers separate fixtures, real retrieval, and governed generation | Accepted |
-| [ADR-0007](docs/adr/0007-governed-corpus.md) | Original synthetic operations corpus with immutable manifest and governed golden splits | Accepted with license-text gate |
+| [ADR-0007](docs/adr/0007-governed-corpus.md) | Original synthetic operations corpus with immutable manifest and governed provenance and chunk identities | Accepted |
 | [ADR-0008](docs/adr/0008-mcp-stdio.md) | MCP is a separate stdio adapter after the core public cut | Accepted |
 | [ADR-0009](docs/adr/0009-public-mode.md) | Public mutation is disabled and public ask is bounded or access-controlled | Accepted; final posture gated |
 | [ADR-0010](docs/adr/0010-defer-external-services.md) | Cloud/provider selection is deferred to verified release gates | Accepted |
 
 Remaining owner decisions are limited to external resources and legal/financial approval:
 
-1. Ratify and add the full CC0-1.0 legal text before corpus content is committed; original code remains MIT licensed.
-2. Select one live generation provider and judge strategy after reviewing retention, region, model-version, and budget terms.
-3. Select one host, region, and public-access posture after current capability and cost verification.
+1. Select one live generation provider and judge strategy after reviewing retention, region, model-version, and budget terms.
+2. Select one host, region, and public-access posture after current capability and cost verification.
 
 ## 16. Risk register
 
@@ -993,4 +992,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 has established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 is merged and accepted with provider-neutral ports, explicit fixtures, fail-closed configuration, and a verified 384-dimensional reference identity. EG-003 is implemented and locally verified on its review branch and awaits repository-owner review and manual merge; it is not released or deployed.
+EG-001 established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 and EG-003 are merged and accepted with provider-neutral ports, explicit fixtures, fail-closed configuration, the verified 384-dimensional reference identity, and the PostgreSQL/pgvector foundation schema. EG-004 is implemented and locally verified on its review branch with the original governed corpus, real pinned reference embedding, and idempotent transactional ingestion; it awaits repository-owner review and manual merge and is not released or deployed.

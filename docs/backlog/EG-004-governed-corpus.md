@@ -1,6 +1,6 @@
 # EG-004: Governed corpus and idempotent ingestion
 
-- Status: Planned
+- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
 - Branch: `feat/eg-004-governed-corpus`
 - Depends on: EG-002 and EG-003 merged to `main`
 - Release: R2
@@ -25,10 +25,26 @@ The original Northstar Operations Handbook is licensed, manifested, chunked, emb
 
 ## Acceptance evidence
 
-- [ ] License and manifest validation pass; publication/privacy review finds no third-party or personal content.
-- [ ] Two identical ingestions create no duplicate corpus/index/document/chunk rows.
-- [ ] A content, chunking, or embedding identity change creates a new version rather than mutating evidence.
-- [ ] Failure rolls back transactionally and reports a typed non-sensitive error.
+- [x] License and manifest validation pass; publication/privacy review finds no third-party or personal content.
+- [x] Two identical ingestions create no duplicate corpus/index/document/chunk rows.
+- [x] A content, chunking, or embedding identity change creates a new version rather than mutating evidence.
+- [x] Failure rolls back transactionally and reports a typed non-sensitive error.
+
+## Verification evidence
+
+Local verification on 2026-08-29 used Python 3.13.15, uv 0.12.3, Node.js 24.19.0,
+FastEmbed 0.8.0, ONNX Runtime 1.29.0, PostgreSQL 18, and pgvector 0.8.5.
+
+- Publication/privacy and metadata checks passed for 160 text files; Ruff formatting/lint and
+  strict mypy passed.
+- 47 unit/contract tests, 7 real-PostgreSQL integration tests, and 2 web tests passed; frontend
+  lint and the production build also passed.
+- The 20-document CC0 corpus produced 161 reconstructive H2 chunks. The verified pinned BGE
+  runtime reported 24-63 tokens per chunk and generated finite 384-dimensional vectors.
+- Integration evidence covers created then `already_present` ingestion, document reuse across
+  changed index identity, a side-by-side content version, immutable-evidence tamper rejection,
+  and trigger-induced transactional rollback in disposable databases.
+- Remote GitHub Actions execution remains pending; this branch is not released or deployed.
 
 ## Required tests and review
 

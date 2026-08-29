@@ -34,3 +34,4 @@ Thumbs.db
 # EvalGate runtime artifacts
 artifacts/
 .cache/
+.evalgate-cache/
