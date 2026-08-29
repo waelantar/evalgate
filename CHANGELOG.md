@@ -11,3 +11,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Provider-neutral embedding, generation, clock, and identity ports with explicit deterministic fixtures.
 - Fail-closed provider-mode configuration and a verified two-source reference-embedding manifest.
 - PostgreSQL 18/pgvector foundation schema, migration-aware readiness, and guarded reset tooling.
+- Original CC0 Northstar Operations corpus, verified local FastEmbed adapter, and transactional idempotent ingestion.

@@ -1,13 +1,16 @@
 [project]
 name = "evalgate-api"
-version = "0.1.2"
+version = "0.2.0"
 description = "EvalGate application core and HTTP adapter"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 license = "MIT"
 dependencies = [
   "alembic>=1.16,<2",
+  "fastembed==0.8.0",
   "fastapi>=0.121,<1",
+  "onnxruntime==1.29.0",
+  "jsonschema>=4.25,<5",
   "psycopg[binary]>=3.2,<4",
   "pydantic-settings>=2.11,<3",
   "sqlalchemy>=2.0.44,<3",
@@ -17,6 +20,7 @@ dependencies = [
 [project.scripts]
 evalgate-api = "evalgate.entrypoints.http:main"
 evalgate-db = "evalgate.entrypoints.database:main"
+evalgate-ingest = "evalgate.entrypoints.ingestion:main"
 
 [dependency-groups]
 dev = [
@@ -55,6 +59,9 @@ select = ["B", "E", "F", "I", "RUF", "UP"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["evalgate"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/evalgate/adapters/postgres_ingestion.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.13"

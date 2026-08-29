@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "chunking_version": "northstar-heading-v1",
+  "normalization": "strict UTF-8; NFC; CRLF/CR to LF; exactly one terminal LF",
+  "offset_unit": "Python Unicode code-point index into normalized source",
+  "chunking": "each H2 begins one chunk through before the next H2; H3 remains in its parent",
+  "section_key": "source_key plus unique ASCII heading slug",
+  "token_count": "FastEmbed tokenizer count; each chunk is at most 512 tokens",
+  "lexical_regconfig": "pg_catalog.simple"
+}

@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "corpus_key": "northstar-operations",
+  "version": "1.0.0",
+  "license": "CC0-1.0",
+  "documents": [
+    {
+      "source_key": "northstar-handbook-charter",
+      "title": "Northstar Operations Handbook: Charter",
+      "path": "documents/01-handbook-charter.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "49d1f48d90ad7ff6baea1f3c4996421feebad8cb092fb14d4d40ea0aa20deba1",
+      "provenance": "Original fictional Northstar Operations Handbook content authored for EvalGate; no real, personal, proprietary, scraped, or third-party source material."
+    },
+    {
+      "source_key": "northstar-service-model",
+      "title": "Northstar Service Model",
+      "path": "documents/02-service-model.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "24c34f9bbbb5a2842f09b06533ad85cb6b3352bdbdcc1ea5436cb978e64137ec",
+      "provenance": "Original fictional Northstar Operations Handbook content authored for EvalGate; no real, personal, proprietary, scraped, or third-party source material."
+    },
+    {
+      "source_key": "northstar-event-envelope-v2",
+      "title": "Northstar Event Envelope Specification v2",
+      "path": "documents/03-event-envelope-spec.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "e6028ad13fc61f92fe68b11371768a4a745ed912aa94be29cb876e291df9e81d",
+      "provenance": "Original fictional current specification authored for EvalGate; paired with an explicit historical archive to test superseded facts."
+    },
+    {
+      "source_key": "northstar-event-envelope-v1-archive",
+      "title": "Archived Event Envelope Specification v1",
+      "path": "documents/04-event-envelope-v1-archive.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "07a61efaff42fdb87773c9eda7c2820cf44e473cf0f2c47bdebf6f3e03db06b7",
+      "provenance": "Original fictional historical archive authored for EvalGate; deliberately superseded and retained as a citation trap."
+    },
+    {
+      "source_key": "northstar-validation-policy-v3",
+      "title": "Northstar Validation Policy v3",
+      "path": "documents/05-validation-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "1176a1ad66add58069da92bab7fd9ac700cb73f0390462cfeed41297d76a9ed0",
+      "provenance": "Original fictional current policy authored for EvalGate; no external operational policy was used."
+    },
+    {
+      "source_key": "northstar-status-ledger-policy",
+      "title": "Northstar Status Ledger Policy",
+      "path": "documents/06-status-ledger-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "ba8f03bfee967d6da61b48f2325eaf2742677416df73614b35914c6863fc1cad",
+      "provenance": "Original fictional policy authored for EvalGate; includes explicit hard negatives and unanswerable boundaries."
+    },
+    {
+      "source_key": "northstar-board-api-contract-v1",
+      "title": "Northstar Board API Contract v1",
+      "path": "documents/07-board-api-contract.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "4182b6a4c938c82fdb9d6f0948e417a579d9e66f227a1492a5bfcbe257e74b5f",
+      "provenance": "Original fictional API contract authored for EvalGate; no real endpoint or credential format is described."
+    },
+    {
+      "source_key": "northstar-notification-policy",
+      "title": "Northstar Notification Policy",
+      "path": "documents/08-notification-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "63851261081e1312fe3f4a4ffd281a69817653df20ee7396431c9ace73ab5a84",
+      "provenance": "Original fictional policy authored for EvalGate; includes an intentional numeric citation trap."
+    },
+    {
+      "source_key": "northstar-oncall-runbook",
+      "title": "Northstar On-Call Runbook",
+      "path": "documents/09-oncall-runbook.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "2cda4bd1308ef5808e0c929bb5878170149c8fdcbe65e9e75b34678d055a8a9d",
+      "provenance": "Original fictional runbook authored for EvalGate; procedures deliberately avoid real-world operational claims."
+    },
+    {
+      "source_key": "northstar-ledger-recovery-runbook",
+      "title": "Northstar Ledger Recovery Runbook",
+      "path": "documents/10-ledger-recovery-runbook.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "e8ab8a911fc0619e802028e402234da266bfd323e0354ea4819479fbb5116597",
+      "provenance": "Original fictional recovery runbook authored for EvalGate; includes explicit limits on destructive recovery and unanswerable details."
+    },
+    {
+      "source_key": "northstar-change-management-policy-v2",
+      "title": "Northstar Change Management Policy v2",
+      "path": "documents/11-change-management-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "482bde0cd8e3d7d572ee567d7197af65e2befabe19f4c54b3ee3fac1a29fd87a",
+      "provenance": "Original fictional current policy authored for EvalGate; it does not authorize providers or public deployment."
+    },
+    {
+      "source_key": "northstar-release-procedure",
+      "title": "Northstar Release Procedure",
+      "path": "documents/12-release-procedure.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "d3508419a20421b414848b557f5b25d4dedf9730f03f60ade43024574357584c",
+      "provenance": "Original fictional release procedure authored for EvalGate; no external deployment system or outcome is claimed."
+    },
+    {
+      "source_key": "northstar-access-policy",
+      "title": "Northstar Access Policy",
+      "path": "documents/13-access-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "1e5c7b97bc8c1ad191831be74b44d678ed2a1133373a46acc5496e22f5421b29",
+      "provenance": "Original fictional access policy authored for EvalGate; contains no people, accounts, addresses, or credentials."
+    },
+    {
+      "source_key": "northstar-observability-policy",
+      "title": "Northstar Observability Policy",
+      "path": "documents/14-observability-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "5c8b787667f8e769acab609a4c257aaa979848636d5a9114aaa36ea901b8c4fb",
+      "provenance": "Original fictional observability policy authored for EvalGate; includes explicit content and retention boundaries."
+    },
+    {
+      "source_key": "northstar-data-handling-policy",
+      "title": "Northstar Data Handling Policy",
+      "path": "documents/15-data-handling-policy.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "2eaedf0d12390ff02b234c4e94fcb6106c3dfe4dbcb1cc37201542a503e15d5f",
+      "provenance": "Original fictional data-handling policy authored for EvalGate; it deliberately supplies no real-person or external data procedure."
+    },
+    {
+      "source_key": "northstar-source-onboarding",
+      "title": "Northstar Source Onboarding Procedure",
+      "path": "documents/16-source-onboarding.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "e438de4e7703d825f6933902cf4fc95b2c0d765ef9d3294e7c3e0888c3717bb4",
+      "provenance": "Original fictional onboarding procedure authored for EvalGate; source keys and roles are synthetic."
+    },
+    {
+      "source_key": "northstar-envelope-v2-migration-note",
+      "title": "Northstar Envelope v2 Migration Note",
+      "path": "documents/17-schema-v2-migration-note.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "9c56d733d7103da87e20739bb3faf987a29b441b58ac14713fbb79c429dd0e8e",
+      "provenance": "Original fictional migration note authored for EvalGate; it reinforces current v2 evidence and historical v1 conflicts."
+    },
+    {
+      "source_key": "northstar-adversarial-evidence-fixtures",
+      "title": "Northstar Adversarial Evidence Fixtures",
+      "path": "documents/18-injection-fixtures.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "44547a9aa0567e8e9f51abd009a83ce26c253e67dfe10e050361c4fae8ff7bd2",
+      "provenance": "Original fictional adversarial fixtures authored for EvalGate; quoted indirect-prompt-injection strings are clearly labeled untrusted test content."
+    },
+    {
+      "source_key": "northstar-release-notes-1-8-archive",
+      "title": "Archived Northstar Release Notes 1.8",
+      "path": "documents/19-release-notes-v1-archive.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "66c5f8d87ad4f89c9095d0c05cdd7f0f87ed7aafd46716bef6c036dd1878da71",
+      "provenance": "Original fictional historical release notes authored for EvalGate; deliberately obsolete to test revision-aware citations."
+    },
+    {
+      "source_key": "northstar-evidence-audit-guide",
+      "title": "Northstar Evidence Audit Guide",
+      "path": "documents/20-audit-guide.md",
+      "media_type": "text/markdown",
+      "license": "CC0-1.0",
+      "sha256": "0d0e06479f85ebf731b9337c78a3ebce61aa0004afff992b9666ac5628bb23ed",
+      "provenance": "Original fictional audit guide authored for EvalGate; it defines safe treatment of conflicts, unknowns, and adversarial evidence."
+    }
+  ]
+}

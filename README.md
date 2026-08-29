@@ -2,15 +2,15 @@
 
 EvalGate helps AI application teams detect retrieval, grounding, and citation regressions before release.
 
-The repository currently contains the approved production blueprint, reproducible engineering foundation, and the provider-neutral application boundary. User-facing product capabilities remain planned; the status table below is the source of truth.
+The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, and governed corpus ingestion slice. User-facing search and evaluation capabilities remain planned; the status table below is the source of truth.
 
 | Capability | Status |
 |---|---|
 | Production blueprint | Approved |
 | Repository/tooling foundation | Static/code and local PostgreSQL checks pass; remote CI evidence pending |
-| Provider ports and reference identity | Implemented and locally verified; fixtures only, real embedding runtime not yet provisioned |
-| PostgreSQL schema and migration readiness | Implemented and locally verified on the EG-003 review branch; remote CI pending |
-| Corpus and ingestion | Planned |
+| Provider ports and reference identity | Implemented and locally verified with fixtures and the pinned local reference runtime; remote CI pending |
+| PostgreSQL schema and migration readiness | Implemented, merged, and locally verified; remote CI pending |
+| Corpus and ingestion | Implemented and locally verified on the EG-004 review branch; remote CI pending |
 | Hybrid retrieval and cited answer | Planned |
 | Evaluation gate and results UI | Planned |
 | MCP adapter | Deferred until the core release |
@@ -76,4 +76,7 @@ scripts/            Reproducible developer and publication checks
 
 ## License
 
-Code is available under the MIT License. Corpus content will not be added until its separate data-license gate is complete.
+Code is available under the MIT License. The original fictional Northstar Operations Handbook
+files under `data/corpus/documents/` are dedicated under CC0-1.0; see the included legal text at
+`data/corpus/CC0-1.0.txt` and `NOTICE.md`. This dedication covers authored corpus content only,
+not code, dependencies, or the embedding model files.
