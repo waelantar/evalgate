@@ -1,6 +1,6 @@
 # EG-004: Governed corpus and idempotent ingestion
 
-- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
+- Status: Implemented, merged, and locally verified; remote CI pending
 - Branch: `feat/eg-004-governed-corpus`
 - Depends on: EG-002 and EG-003 merged to `main`
 - Release: R2

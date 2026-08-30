@@ -4,7 +4,7 @@
 |---|---|
 | Document | Product, architecture, delivery, and production-readiness blueprint |
 | Version | 1.0 |
-| Status | Approved for foundation work; external-service decisions remain gated |
+| Status | Approved for the R1/R2 critical path; external-service decisions remain gated |
 | Approved | 2026-08-08 |
 | Product state | Pre-production |
 | Canonical location | `BLUEPRINT.md` |
@@ -992,4 +992,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 and EG-003 are merged and accepted with provider-neutral ports, explicit fixtures, fail-closed configuration, the verified 384-dimensional reference identity, and the PostgreSQL/pgvector foundation schema. EG-004 is implemented and locally verified on its review branch with the original governed corpus, real pinned reference embedding, and idempotent transactional ingestion; it awaits repository-owner review and manual merge and is not released or deployed.
+EG-001 established the repository, governance, locked toolchain, PostgreSQL Compose definition, health/status foundations, and secret-free CI definition. EG-002 and EG-003 are merged and accepted with provider-neutral ports, explicit fixtures, fail-closed configuration, the verified 384-dimensional reference identity, and the PostgreSQL/pgvector foundation schema. EG-004 is merged and accepted with the original governed corpus, real pinned reference embedding, and idempotent transactional ingestion. EG-005 is implemented and locally verified on its review branch with bounded explainable lexical, exact-vector, and hybrid retrieval; it awaits repository-owner review and manual merge and is not released or deployed.
