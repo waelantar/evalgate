@@ -1,16 +1,14 @@
 openapi: 3.1.0
 info:
-  title: EvalGate Foundation API
-  version: 0.2.0
-  description: Health-only contract. Product endpoints are not implemented by the foundation.
-servers:
-  - url: http://127.0.0.1:8000
-    description: Local loopback
+  title: EvalGate API
+  description: Governed, explainable retrieval with operational health probes.
+  version: 0.3.0
 paths:
   /health/live:
     get:
-      operationId: getLiveness
       tags: [health]
+      summary: Liveness
+      operationId: getLiveness
       responses:
         '200':
           description: Process is alive.
@@ -20,8 +18,9 @@ paths:
                 $ref: '#/components/schemas/HealthResponse'
   /health/ready:
     get:
-      operationId: getReadiness
       tags: [health]
+      summary: Readiness
+      operationId: getReadiness
       responses:
         '200':
           description: Required foundation dependencies are available.
@@ -35,21 +34,210 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+  /api/v1/search:
+    post:
+      tags: [search]
+      summary: Search
+      operationId: searchCorpus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchBody'
+        required: true
+      responses:
+        '200':
+          description: Stable explainable evidence from the selected index.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: The search request is invalid.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: The selected index does not exist.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '409':
+          description: The retrieval configuration does not match the selected index.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: The embedding or ranked retrieval result is invalid.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '503':
+          description: A search dependency is unavailable.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
-    HealthResponse:
-      type: object
-      additionalProperties: false
-      required: [service, version, status, checks]
+    CorpusIdentityResponse:
       properties:
-        service:
-          const: evalgate-api
-        version:
-          type: string
+        version_id: {type: string, format: uuid, title: Version Id}
+        key: {type: string, title: Key}
+        version: {type: string, title: Version}
+        manifest_sha256:
+          {type: string, pattern: '^[a-f0-9]{64}$', title: Manifest Sha256}
+      additionalProperties: false
+      type: object
+      required: [version_id, key, version, manifest_sha256]
+      title: CorpusIdentityResponse
+    EmbeddingIdentityResponse:
+      properties:
+        model: {type: string, title: Model}
+        revision: {type: string, title: Revision}
+        checksum: {type: string, pattern: '^[a-f0-9]{64}$', title: Checksum}
+        dimension: {type: integer, const: 384, title: Dimension}
+      additionalProperties: false
+      type: object
+      required: [model, revision, checksum, dimension]
+      title: EmbeddingIdentityResponse
+    HealthResponse:
+      properties:
+        service: {type: string, const: evalgate-api, title: Service}
+        version: {type: string, title: Version}
         status:
           type: string
           enum: [alive, ready, not_ready]
+          title: Status
         checks:
+          additionalProperties: {type: string}
           type: object
-          additionalProperties:
-            type: string
+          title: Checks
+      additionalProperties: false
+      type: object
+      required: [service, version, status, checks]
+      title: HealthResponse
+      description: Stable health response without sensitive configuration.
+    IndexIdentityResponse:
+      properties:
+        version_id: {type: string, format: uuid, title: Version Id}
+        key: {type: string, title: Key}
+        chunking_version: {type: string, title: Chunking Version}
+        chunking_policy_sha256:
+          {type: string, pattern: '^[a-f0-9]{64}$', title: Chunking Policy Sha256}
+        lexical_config_sha256:
+          {type: string, pattern: '^[a-f0-9]{64}$', title: Lexical Config Sha256}
+        embedding: {$ref: '#/components/schemas/EmbeddingIdentityResponse'}
+      additionalProperties: false
+      type: object
+      required:
+        - version_id
+        - key
+        - chunking_version
+        - chunking_policy_sha256
+        - lexical_config_sha256
+        - embedding
+      title: IndexIdentityResponse
+    ProblemDetails:
+      properties:
+        type: {type: string, title: Type}
+        title: {type: string, title: Title}
+        status: {type: integer, title: Status}
+        detail: {type: string, title: Detail}
+        instance: {type: string, title: Instance}
+        code: {$ref: '#/components/schemas/SearchErrorCode'}
+        request_id: {type: string, format: uuid, title: Request Id}
+      additionalProperties: false
+      type: object
+      required: [type, title, status, detail, instance, code, request_id]
+      title: ProblemDetails
+      description: RFC 9457 response with stable EvalGate extensions.
+    SearchBody:
+      properties:
+        query: {type: string, maxLength: 1000, minLength: 1, title: Query}
+        index_version: {type: string, format: uuid, title: Index Version}
+        limit:
+          {type: integer, maximum: 20.0, minimum: 1.0, title: Limit, default: 10}
+      additionalProperties: false
+      type: object
+      required: [query, index_version]
+      title: SearchBody
+      description: Strict bounded JSON body for the public search operation.
+    SearchErrorCode:
+      type: string
+      enum:
+        - request.invalid
+        - retrieval.index_not_found
+        - retrieval.embedding_mismatch
+        - retrieval.configuration_mismatch
+        - retrieval.embedding_unavailable
+        - system.database_unavailable
+        - retrieval.invalid_embedding
+        - retrieval.invalid_result
+      title: SearchErrorCode
+      description: Stable, content-free search failure categories.
+    SearchEvidenceResponse:
+      properties:
+        rank: {type: integer, minimum: 1.0, title: Rank}
+        evidence_id: {type: string, format: uuid, title: Evidence Id}
+        document_id: {type: string, format: uuid, title: Document Id}
+        source_key: {type: string, title: Source Key}
+        title: {type: string, title: Title}
+        license_id: {type: string, title: License Id}
+        provenance: {type: string, title: Provenance}
+        section_key: {type: string, title: Section Key}
+        source_start: {type: integer, minimum: 0.0, title: Source Start}
+        source_end: {type: integer, minimum: 1.0, title: Source End}
+        content: {type: string, title: Content}
+        content_sha256:
+          {type: string, pattern: '^[a-f0-9]{64}$', title: Content Sha256}
+        lexical_rank:
+          anyOf:
+            - {type: integer, minimum: 1.0}
+            - {type: 'null'}
+          title: Lexical Rank
+        vector_rank:
+          anyOf:
+            - {type: integer, minimum: 1.0}
+            - {type: 'null'}
+          title: Vector Rank
+        rrf_score: {type: number, exclusiveMinimum: 0.0, title: Rrf Score}
+      additionalProperties: false
+      type: object
+      required:
+        - rank
+        - evidence_id
+        - document_id
+        - source_key
+        - title
+        - license_id
+        - provenance
+        - section_key
+        - source_start
+        - source_end
+        - content
+        - content_sha256
+        - lexical_rank
+        - vector_rank
+        - rrf_score
+      title: SearchEvidenceResponse
+    SearchResponse:
+      properties:
+        schema_version: {type: string, const: '1.0', title: Schema Version}
+        request_id: {type: string, format: uuid, title: Request Id}
+        retrieval_policy: {type: string, const: hybrid-rrf-v1, title: Retrieval Policy}
+        index: {$ref: '#/components/schemas/IndexIdentityResponse'}
+        source_corpus: {$ref: '#/components/schemas/CorpusIdentityResponse'}
+        results:
+          items: {$ref: '#/components/schemas/SearchEvidenceResponse'}
+          type: array
+          maxItems: 20
+          title: Results
+      additionalProperties: false
+      type: object
+      required: [schema_version, request_id, retrieval_policy, index, source_corpus, results]
+      title: SearchResponse

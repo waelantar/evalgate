@@ -1,18 +1,32 @@
-"""FastAPI application factory and foundation health endpoints."""
+"""FastAPI application factory, health probes, and bounded search endpoint."""
 
-from collections.abc import AsyncIterator
+import sys
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
-from typing import Literal, cast
+from typing import Any, Literal, cast
+from uuid import UUID, uuid4
 
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from evalgate import __version__
 from evalgate.adapters.database import check_database_readiness
+from evalgate.application.search import (
+    SearchEmbeddingPort,
+    SearchError,
+    SearchErrorCode,
+    SearchRepositoryPort,
+    SearchRequest,
+    search_corpus,
+)
 from evalgate.config import Settings, get_settings
+from evalgate.domain.search import SearchResult
+from evalgate.entrypoints.retrieval_runtime import build_reference_retrieval, database_event_loop
 
 
 class HealthResponse(BaseModel):
@@ -26,6 +40,151 @@ class HealthResponse(BaseModel):
     checks: dict[str, str]
 
 
+class SearchBody(BaseModel):
+    """Strict bounded JSON body for the public search operation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    query: str = Field(min_length=1, max_length=1000)
+    index_version: UUID
+    limit: int = Field(default=10, ge=1, le=20)
+
+    @field_validator("query")
+    @classmethod
+    def query_must_contain_non_whitespace(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("query must contain a non-whitespace character")
+        return value
+
+
+class EmbeddingIdentityResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    model: str
+    revision: str
+    checksum: str = Field(pattern="^[a-f0-9]{64}$")
+    dimension: Literal[384]
+
+
+class IndexIdentityResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    version_id: UUID
+    key: str
+    chunking_version: str
+    chunking_policy_sha256: str = Field(pattern="^[a-f0-9]{64}$")
+    lexical_config_sha256: str = Field(pattern="^[a-f0-9]{64}$")
+    embedding: EmbeddingIdentityResponse
+
+
+class CorpusIdentityResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    version_id: UUID
+    key: str
+    version: str
+    manifest_sha256: str = Field(pattern="^[a-f0-9]{64}$")
+
+
+class SearchEvidenceResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    rank: int = Field(ge=1)
+    evidence_id: UUID
+    document_id: UUID
+    source_key: str
+    title: str
+    license_id: str
+    provenance: str
+    section_key: str
+    source_start: int = Field(ge=0)
+    source_end: int = Field(ge=1)
+    content: str
+    content_sha256: str = Field(pattern="^[a-f0-9]{64}$")
+    lexical_rank: int | None = Field(ge=1)
+    vector_rank: int | None = Field(ge=1)
+    rrf_score: float = Field(gt=0)
+
+
+class SearchResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["1.0"]
+    request_id: UUID
+    retrieval_policy: Literal["hybrid-rrf-v1"]
+    index: IndexIdentityResponse
+    source_corpus: CorpusIdentityResponse
+    results: list[SearchEvidenceResponse] = Field(max_length=20)
+
+
+class ProblemDetails(BaseModel):
+    """RFC 9457 response with stable EvalGate extensions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    type: str
+    title: str
+    status: int
+    detail: str
+    instance: str
+    code: SearchErrorCode
+    request_id: UUID
+
+
+_ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
+    400: {"model": ProblemDetails, "description": "The search request is invalid."},
+    404: {"model": ProblemDetails, "description": "The selected index does not exist."},
+    409: {
+        "model": ProblemDetails,
+        "description": "The retrieval configuration does not match the selected index.",
+    },
+    500: {
+        "model": ProblemDetails,
+        "description": "The embedding or ranked retrieval result is invalid.",
+    },
+    503: {"model": ProblemDetails, "description": "A search dependency is unavailable."},
+}
+
+_ERROR_METADATA: dict[SearchErrorCode, tuple[int, str, str]] = {
+    SearchErrorCode.REQUEST_INVALID: (400, "Invalid request", "The search request is invalid."),
+    SearchErrorCode.INDEX_NOT_FOUND: (
+        404,
+        "Index not found",
+        "The selected index does not exist.",
+    ),
+    SearchErrorCode.EMBEDDING_MISMATCH: (
+        409,
+        "Embedding mismatch",
+        "The configured embedding does not match the selected index.",
+    ),
+    SearchErrorCode.RETRIEVAL_CONFIGURATION_MISMATCH: (
+        409,
+        "Retrieval configuration mismatch",
+        "The retrieval policy does not match the selected index.",
+    ),
+    SearchErrorCode.INVALID_EMBEDDING: (
+        500,
+        "Invalid embedding",
+        "The query embedding result is invalid.",
+    ),
+    SearchErrorCode.INVALID_RESULT: (
+        500,
+        "Invalid retrieval result",
+        "The ranked retrieval result is invalid.",
+    ),
+    SearchErrorCode.EMBEDDING_UNAVAILABLE: (
+        503,
+        "Embedding unavailable",
+        "The query embedding service is unavailable.",
+    ),
+    SearchErrorCode.DATABASE_UNAVAILABLE: (
+        503,
+        "Database unavailable",
+        "The search database is unavailable.",
+    ),
+}
+
+
 def _build_engine(settings: Settings) -> AsyncEngine:
     return create_async_engine(
         settings.database_url.get_secret_value(),
@@ -34,26 +193,140 @@ def _build_engine(settings: Settings) -> AsyncEngine:
     )
 
 
-def create_app(settings: Settings | None = None, engine: AsyncEngine | None = None) -> FastAPI:
+def _problem_response(*, request: Request, request_id: UUID, code: SearchErrorCode) -> JSONResponse:
+    status, title, detail = _ERROR_METADATA[code]
+    payload = ProblemDetails(
+        type=f"urn:evalgate:problem:{code}",
+        title=title,
+        status=status,
+        detail=detail,
+        instance=request.url.path,
+        code=code,
+        request_id=request_id,
+    )
+    return JSONResponse(
+        status_code=status,
+        content=payload.model_dump(mode="json"),
+        media_type="application/problem+json",
+    )
+
+
+def _search_response(result: SearchResult, request_id: UUID) -> SearchResponse:
+    if result.policy_id != "hybrid-rrf-v1":
+        raise ValueError("HTTP search requires the accepted hybrid retrieval policy")
+    index = result.index
+    return SearchResponse(
+        schema_version="1.0",
+        request_id=request_id,
+        retrieval_policy=cast(Literal["hybrid-rrf-v1"], result.policy_id),
+        index=IndexIdentityResponse(
+            version_id=index.index_version_id,
+            key=index.index_key,
+            chunking_version=index.chunking_version,
+            chunking_policy_sha256=index.chunking_policy_sha256,
+            lexical_config_sha256=index.lexical_config_sha256,
+            embedding=EmbeddingIdentityResponse(
+                model=index.embedding_model,
+                revision=index.embedding_revision,
+                checksum=index.embedding_checksum,
+                dimension=384,
+            ),
+        ),
+        source_corpus=CorpusIdentityResponse(
+            version_id=index.corpus_version_id,
+            key=index.corpus_key,
+            version=index.corpus_version,
+            manifest_sha256=index.corpus_manifest_sha256,
+        ),
+        results=[
+            SearchEvidenceResponse(
+                rank=item.rank,
+                evidence_id=item.evidence.evidence_id,
+                document_id=item.evidence.document_id,
+                source_key=item.evidence.source_key,
+                title=item.evidence.title,
+                license_id=item.evidence.license_id,
+                provenance=item.evidence.provenance,
+                section_key=item.evidence.section_key,
+                source_start=item.evidence.source_start,
+                source_end=item.evidence.source_end,
+                content=item.evidence.content,
+                content_sha256=item.evidence.content_sha256,
+                lexical_rank=item.lexical_rank,
+                vector_rank=item.vector_rank,
+                rrf_score=item.rrf_score,
+            )
+            for item in result.evidence
+        ],
+    )
+
+
+class _EvalGateApp(FastAPI):
+    """FastAPI application with the reviewed Problem Details OpenAPI shape."""
+
+    def openapi(self) -> dict[str, Any]:
+        if self.openapi_schema is None:
+            schema = get_openapi(
+                title=self.title,
+                version=self.version,
+                description=self.description,
+                routes=self.routes,
+            )
+            responses = schema["paths"]["/api/v1/search"]["post"]["responses"]
+            responses.pop("422", None)
+            for status in ("400", "404", "409", "500", "503"):
+                content = responses[status]["content"]
+                content["application/problem+json"] = content.pop("application/json")
+            schemas = schema["components"]["schemas"]
+            schemas.pop("HTTPValidationError", None)
+            schemas.pop("ValidationError", None)
+            self.openapi_schema = schema
+        return self.openapi_schema
+
+
+def create_app(
+    settings: Settings | None = None,
+    engine: AsyncEngine | None = None,
+    *,
+    search_repository: SearchRepositoryPort | None = None,
+    search_embedding: SearchEmbeddingPort | None = None,
+    request_id_factory: Callable[[], UUID] = uuid4,
+) -> FastAPI:
     """Build an application instance with explicit, testable dependencies."""
 
     resolved_settings = settings or get_settings()
     resolved_engine = engine or _build_engine(resolved_settings)
+    if resolved_settings.embedding_mode.value == "reference" and (
+        search_repository is None or search_embedding is None
+    ):
+        default_repository, default_embedding = build_reference_retrieval(
+            settings=resolved_settings, engine=resolved_engine
+        )
+        search_repository = search_repository or default_repository
+        search_embedding = search_embedding or default_embedding
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         yield
         await resolved_engine.dispose()
 
-    app = FastAPI(
-        title="EvalGate Foundation API",
+    app = _EvalGateApp(
+        title="EvalGate API",
         version=__version__,
-        description=(
-            "Health-only contract. Product endpoints are not implemented by the foundation."
-        ),
+        description="Governed, explainable retrieval with operational health probes.",
         lifespan=lifespan,
     )
     app.state.database_engine = resolved_engine
+    app.state.search_repository = search_repository
+    app.state.search_embedding = search_embedding
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request: Request, _: RequestValidationError) -> JSONResponse:
+        return _problem_response(
+            request=request,
+            request_id=request_id_factory(),
+            code=SearchErrorCode.REQUEST_INVALID,
+        )
 
     @app.get(
         "/health/live",
@@ -96,6 +369,44 @@ def create_app(settings: Settings | None = None, engine: AsyncEngine | None = No
             return JSONResponse(status_code=503, content=payload.model_dump())
         return payload
 
+    @app.post(
+        "/api/v1/search",
+        response_model=SearchResponse,
+        operation_id="searchCorpus",
+        response_description="Stable explainable evidence from the selected index.",
+        responses=_ERROR_RESPONSES,
+        tags=["search"],
+    )
+    async def search(request: Request, body: SearchBody) -> SearchResponse | JSONResponse:
+        request_id = request_id_factory()
+        repository = cast(SearchRepositoryPort | None, request.app.state.search_repository)
+        embedding = cast(SearchEmbeddingPort | None, request.app.state.search_embedding)
+        if repository is None:
+            return _problem_response(
+                request=request,
+                request_id=request_id,
+                code=SearchErrorCode.DATABASE_UNAVAILABLE,
+            )
+        if embedding is None:
+            return _problem_response(
+                request=request,
+                request_id=request_id,
+                code=SearchErrorCode.EMBEDDING_UNAVAILABLE,
+            )
+        try:
+            result = await search_corpus(
+                request=SearchRequest(
+                    query=body.query,
+                    index_version=body.index_version,
+                    limit=body.limit,
+                ),
+                embedding=embedding,
+                repository=repository,
+            )
+        except SearchError as error:
+            return _problem_response(request=request, request_id=request_id, code=error.code)
+        return _search_response(result, request_id)
+
     return app
 
 
@@ -103,6 +414,7 @@ def main() -> None:
     """Run the local API without exposing it beyond loopback by default."""
 
     settings = get_settings()
+    loop = database_event_loop if sys.platform == "win32" else "auto"
     uvicorn.run(
         "evalgate.entrypoints.http:create_app",
         factory=True,
@@ -110,4 +422,5 @@ def main() -> None:
         port=settings.port,
         log_level=settings.log_level.lower(),
         access_log=False,
+        loop=cast(Any, loop),
     )

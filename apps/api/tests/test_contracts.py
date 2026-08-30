@@ -9,7 +9,15 @@ import yaml
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from evalgate.application.search import (
+    DEFAULT_RESULT_LIMIT,
+    MAX_QUERY_CODE_POINTS,
+    MAX_QUERY_TOKENS,
+    MAX_RESULT_LIMIT,
+    MIN_RESULT_LIMIT,
+)
 from evalgate.config import Settings
+from evalgate.domain.search import HYBRID_RRF_V1
 from evalgate.entrypoints.http import create_app
 
 REPOSITORY_ROOT = Path(__file__).parents[3]
@@ -45,34 +53,53 @@ def test_foundation_openapi_matches_the_running_application() -> None:
         engine=cast(AsyncEngine, object()),
     ).openapi()
 
-    assert generated["info"]["title"] == contract["info"]["title"]
-    assert generated["info"]["version"] == contract["info"]["version"]
+    assert generated == contract
 
-    for path in ("/health/live", "/health/ready"):
-        expected_operation = contract["paths"][path]["get"]
-        actual_operation = generated["paths"][path]["get"]
-        assert actual_operation["operationId"] == expected_operation["operationId"]
-        assert actual_operation["tags"] == expected_operation["tags"]
-        assert set(actual_operation["responses"]) == set(expected_operation["responses"])
-        for status in expected_operation["responses"]:
-            actual_response = actual_operation["responses"][status]
-            expected_response = expected_operation["responses"][status]
-            assert actual_response["description"] == expected_response["description"]
-            assert (
-                actual_response["content"]["application/json"]["schema"]
-                == expected_response["content"]["application/json"]["schema"]
-            )
 
-    expected_schema = contract["components"]["schemas"]["HealthResponse"]
-    actual_schema = generated["components"]["schemas"]["HealthResponse"]
-    assert actual_schema["additionalProperties"] is expected_schema["additionalProperties"]
-    assert set(actual_schema["required"]) == set(expected_schema["required"])
-    assert actual_schema["properties"]["service"]["const"] == "evalgate-api"
-    assert actual_schema["properties"]["status"]["enum"] == [
-        "alive",
-        "ready",
-        "not_ready",
-    ]
+def test_hybrid_retrieval_contract_matches_the_domain_policy() -> None:
+    contract = json.loads(
+        (REPOSITORY_ROOT / "contracts" / "retrieval" / "hybrid-rrf-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert contract == {
+        "schema_version": "1.0",
+        "policy_id": HYBRID_RRF_V1.policy_id,
+        "query": {
+            "maximum_code_points": MAX_QUERY_CODE_POINTS,
+            "maximum_tokens": MAX_QUERY_TOKENS,
+            "normalization": "NFC; CRLF/CR to LF; trim outer Unicode whitespace",
+            "lexical_parser": "plainto_tsquery",
+            "lexical_regconfig": "pg_catalog.simple",
+            "lexical_config_sha256": HYBRID_RRF_V1.lexical_config_sha256,
+        },
+        "result_limit": {
+            "default": DEFAULT_RESULT_LIMIT,
+            "minimum": MIN_RESULT_LIMIT,
+            "maximum": MAX_RESULT_LIMIT,
+        },
+        "components": {
+            "lexical": {
+                "candidate_depth": HYBRID_RRF_V1.lexical_candidate_depth,
+                "score": "ts_rank_cd descending",
+                "tie_break": "evidence UUID ascending",
+            },
+            "vector": {
+                "candidate_depth": HYBRID_RRF_V1.vector_candidate_depth,
+                "score": "exact cosine distance ascending",
+                "tie_break": "evidence UUID ascending",
+            },
+        },
+        "fusion": {
+            "algorithm": "reciprocal-rank-fusion",
+            "rank_origin": 1,
+            "constant": HYBRID_RRF_V1.rrf_constant,
+            "missing_component_contribution": 0,
+            "formula": "sum(1 / (60 + component_rank)) for each present component",
+            "order": "RRF score descending, then evidence UUID ascending",
+        },
+    }
 
 
 def test_corpus_manifest_path_pattern_accepts_only_markdown_documents() -> None:

@@ -1,5 +1,6 @@
 """Foundation health contract tests."""
 
+import sys
 from types import TracebackType
 from typing import cast
 
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from evalgate.adapters.database import EXPECTED_ALEMBIC_HEAD
 from evalgate.config import Settings
 from evalgate.entrypoints import http
+from evalgate.entrypoints.retrieval_runtime import database_event_loop
 
 
 class _FakeEngine:
@@ -97,7 +99,7 @@ def test_liveness_has_stable_non_sensitive_contract() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "status": "alive",
         "checks": {},
     }
@@ -115,7 +117,7 @@ def test_readiness_success_executes_probe_and_disposes_engine() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "status": "ready",
         "checks": {"database": "available", "migration": "current"},
     }
@@ -132,7 +134,7 @@ def test_readiness_failure_is_non_sensitive_and_disposes_engine() -> None:
     assert response.status_code == 503
     assert response.json() == {
         "service": "evalgate-api",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "status": "not_ready",
         "checks": {"database": "unavailable", "migration": "unknown"},
     }
@@ -168,8 +170,14 @@ def test_readiness_treats_missing_migration_table_as_mismatch() -> None:
     assert "migration-table-marker" not in response.text
 
 
-def test_main_disables_client_address_access_logging(
+@pytest.mark.parametrize(
+    ("platform", "expected_loop"),
+    [("win32", database_event_loop), ("linux", "auto")],
+)
+def test_main_disables_access_logging_and_selects_database_compatible_loop(
     monkeypatch: pytest.MonkeyPatch,
+    platform: str,
+    expected_loop: object,
 ) -> None:
     invocation: dict[str, object] = {}
 
@@ -179,9 +187,11 @@ def test_main_disables_client_address_access_logging(
 
     monkeypatch.setattr(http, "get_settings", _settings)
     monkeypatch.setattr(uvicorn, "run", capture_run)
+    monkeypatch.setattr(sys, "platform", platform)
 
     http.main()
 
     assert invocation["app"] == "evalgate.entrypoints.http:create_app"
     assert invocation["factory"] is True
     assert invocation["access_log"] is False
+    assert invocation["loop"] == expected_loop

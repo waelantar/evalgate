@@ -1,6 +1,6 @@
 [project]
 name = "evalgate-api"
-version = "0.2.0"
+version = "0.3.0"
 description = "EvalGate application core and HTTP adapter"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -21,6 +21,7 @@ dependencies = [
 evalgate-api = "evalgate.entrypoints.http:main"
 evalgate-db = "evalgate.entrypoints.database:main"
 evalgate-ingest = "evalgate.entrypoints.ingestion:main"
+evalgate-retrieval-ablation = "evalgate.entrypoints.retrieval_ablation:main"
 
 [dependency-groups]
 dev = [

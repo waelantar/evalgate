@@ -2,7 +2,7 @@
 
 EvalGate helps AI application teams detect retrieval, grounding, and citation regressions before release.
 
-The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, and governed corpus ingestion slice. User-facing search and evaluation capabilities remain planned; the status table below is the source of truth.
+The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, and an explainable hybrid-retrieval slice. Answer generation and evaluation capabilities remain planned; the status table below is the source of truth.
 
 | Capability | Status |
 |---|---|
@@ -10,8 +10,9 @@ The repository currently contains the approved production blueprint, reproducibl
 | Repository/tooling foundation | Static/code and local PostgreSQL checks pass; remote CI evidence pending |
 | Provider ports and reference identity | Implemented and locally verified with fixtures and the pinned local reference runtime; remote CI pending |
 | PostgreSQL schema and migration readiness | Implemented, merged, and locally verified; remote CI pending |
-| Corpus and ingestion | Implemented and locally verified on the EG-004 review branch; remote CI pending |
-| Hybrid retrieval and cited answer | Planned |
+| Corpus and ingestion | Implemented, merged, and locally verified; remote CI pending |
+| Hybrid retrieval | Implemented and locally verified on the EG-005 review branch; remote CI pending |
+| Cited answer | Planned |
 | Evaluation gate and results UI | Planned |
 | MCP adapter | Deferred until the core release |
 | Public deployment | Not selected or deployed |
@@ -54,6 +55,10 @@ npm --prefix apps/web run dev
 - API documentation: <http://127.0.0.1:8000/docs>
 - Liveness: <http://127.0.0.1:8000/health/live>
 - Readiness: <http://127.0.0.1:8000/health/ready>
+
+The bounded search endpoint and content-free ablation workflow are documented in
+[docs/retrieval.md](docs/retrieval.md). Queries are accepted only in POST bodies or through
+standard input; they are not placed in URLs or access logs.
 
 Copy `.env.example` to `.env` only when overriding local defaults. Provider modes are explicit and default locally to labeled deterministic fixtures. Reference mode requires a pre-provisioned local snapshot that must pass the manifest verifier before runtime construction; live generation remains unavailable, and no external provider call exists.
 
