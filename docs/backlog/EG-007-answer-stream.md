@@ -1,6 +1,6 @@
 # EG-007: Versioned answer stream and cancellation
 
-- Status: Planned
+- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
 - Branch: `feat/eg-007-answer-stream`
 - Depends on: EG-006 merged to `main`
 - Release: R2
@@ -26,10 +26,30 @@
 
 ## Acceptance evidence
 
-- [ ] Contract tests cover split UTF-8, partial/multiple frames, ordering, duplicates, malformed data, heartbeats, terminal enforcement, pre/post-header errors.
-- [ ] Browser/client abort reaches provider cleanup and no later work is retained.
-- [ ] Backpressure never silently drops/reorders answer deltas.
-- [ ] Proxy buffering/idle behavior is documented for local tests; host verification remains EG-016.
+- [x] Contract tests cover split UTF-8, partial/multiple frames, ordering, duplicates, malformed data, heartbeats, terminal enforcement, pre/post-header errors.
+- [x] Browser/client abort reaches provider cleanup and no later work is retained.
+- [x] Backpressure never silently drops/reorders answer deltas.
+- [x] Proxy buffering/idle behavior is documented for local tests; host verification remains EG-016.
+
+## Verification evidence
+
+Local pre-bump verification on 2026-08-30 used Windows, Python 3.13.15, uv 0.12.3,
+Node.js 24.19.0, FastAPI 0.141.1, Starlette 1.5.0, and Vitest 4.1.10.
+
+- The complete repository gate passed publication and metadata validation, Ruff formatting and
+  lint, strict mypy across 51 source files, 143 non-integration API tests, 21 web tests, frontend
+  lint, and the production web build.
+- The complete post-bump gate passed with synchronized product version `0.4.0`, 144
+  non-integration API tests, 21 web tests, and publication validation over 189 text files.
+- The focused Python stream/answer/OpenAPI/contract suite passed 57 tests. A real ASGI request
+  cancellation test proves HTTP task cancellation reaches and awaits generation cleanup.
+- The dedicated browser transport suite passed 19 tests with 100% branch coverage (55/55) and
+  100% function/line coverage for the strict UTF-8 stream parser.
+- The server uses no event queue: each frame is yielded only when the ASGI sender requests it.
+  Read-only retrieval may retry once only for typed transient dependency errors before headers;
+  provider and post-byte work never retries.
+- No live provider was called. Local tests verify buffering headers and heartbeats, but real proxy
+  buffering and idle-timeout behavior remains an EG-016 host gate. Nothing is released or deployed.
 
 ## Required tests and review
 

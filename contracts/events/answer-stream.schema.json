@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evalgate.dev/contracts/answer-stream.schema.json",
+  "title": "EvalGate answer stream event",
+  "oneOf": [
+    {"$ref": "#/$defs/started"},
+    {"$ref": "#/$defs/retrieval"},
+    {"$ref": "#/$defs/delta"},
+    {"$ref": "#/$defs/citations"},
+    {"$ref": "#/$defs/completed"},
+    {"$ref": "#/$defs/failed"},
+    {"$ref": "#/$defs/cancelled"}
+  ],
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "properties": {
+        "schema_version": {"const": "1.0"},
+        "request_id": {"type": "string", "format": "uuid"},
+        "sequence": {"type": "integer", "minimum": 1},
+        "type": {"type": "string"}
+      },
+      "required": ["schema_version", "request_id", "sequence", "type"]
+    },
+    "promptPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"const": "grounded-answer-v1"},
+        "version": {"const": "1.0.0"},
+        "sha256": {"const": "90ac611326090b7d2f78affd6d6b7d3a0f8151a79759f38aa4eda80c3f66d40b"}
+      },
+      "required": ["id", "version", "sha256"]
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"const": "fixture"},
+        "name": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1}
+      },
+      "required": ["mode", "name", "revision"]
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "answer_start": {"type": "integer", "minimum": 0},
+        "answer_end": {"type": "integer", "minimum": 1},
+        "claim": {"type": "string", "minLength": 1},
+        "evidence_id": {"type": "string", "format": "uuid"},
+        "document_id": {"type": "string", "format": "uuid"},
+        "source_key": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "license_id": {"type": "string", "minLength": 1},
+        "provenance": {"type": "string", "minLength": 1},
+        "section_key": {"type": "string", "minLength": 1},
+        "source_start": {"type": "integer", "minimum": 0},
+        "source_end": {"type": "integer", "minimum": 1},
+        "span_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "quote": {"type": "string", "minLength": 1, "maxLength": 240}
+      },
+      "required": ["answer_start", "answer_end", "claim", "evidence_id", "document_id", "source_key", "title", "license_id", "provenance", "section_key", "source_start", "source_end", "span_sha256", "quote"]
+    },
+    "started": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "answer.started"}, "mode": {"const": "fixture"}, "prompt_policy": {"$ref": "#/$defs/promptPolicy"}}, "required": ["mode", "prompt_policy"]}
+      ],
+      "unevaluatedProperties": false
+    },
+    "retrieval": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "retrieval.completed"}, "index_version": {"type": "string", "format": "uuid"}, "corpus_version": {"type": "string", "format": "uuid"}, "evidence_count": {"type": "integer", "minimum": 0, "maximum": 10}, "evidence_ids": {"type": "array", "maxItems": 10, "uniqueItems": true, "items": {"type": "string", "format": "uuid"}}}, "required": ["index_version", "corpus_version", "evidence_count", "evidence_ids"]}
+      ],
+      "unevaluatedProperties": false
+    },
+    "delta": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "answer.delta"}, "text": {"type": "string", "minLength": 1, "maxLength": 256}}, "required": ["text"]}
+      ],
+      "unevaluatedProperties": false
+    },
+    "citations": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "citations.completed"}, "citations": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/citation"}}}, "required": ["citations"]}
+      ],
+      "unevaluatedProperties": false
+    },
+    "completed": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "answer.completed"}, "status": {"enum": ["answered", "insufficient_support"]}, "provider": {"$ref": "#/$defs/provider"}}, "required": ["status", "provider"]}
+      ],
+      "unevaluatedProperties": false
+    },
+    "failed": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "answer.failed"}, "code": {"enum": ["provider.mode_invalid", "provider.unavailable", "provider.timeout", "provider.malformed_output", "citation.missing", "citation.spoofed", "answer.context_invalid", "answer.evidence_invalid"]}}, "required": ["code"]}
+      ],
+      "unevaluatedProperties": false
+    },
+    "cancelled": {
+      "allOf": [
+        {"$ref": "#/$defs/envelope"},
+        {"type": "object", "properties": {"type": {"const": "answer.cancelled"}, "code": {"const": "stream.cancelled"}}, "required": ["code"]}
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

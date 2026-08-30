@@ -14,3 +14,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Original CC0 Northstar Operations corpus, verified local FastEmbed adapter, and transactional idempotent ingestion.
 - Explainable PostgreSQL lexical and exact-vector retrieval fused with versioned reciprocal-rank fusion, exposed through bounded search and content-free ablation interfaces.
 - Framework-free grounded-answer orchestration with a versioned bounded prompt, explicit fixture and retrieval-only modes, evidence-ID-only provider output, and server-validated citations.
+- Frozen POST/fetch/SSE answer streaming with typed ordered events, awaited backpressure, pre-header Problem Details, downstream cancellation, and a strict UTF-8 browser parser.

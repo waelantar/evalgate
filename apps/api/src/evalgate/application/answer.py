@@ -22,7 +22,7 @@ from evalgate.application.search import (
 )
 from evalgate.domain.answer import AnswerMode, AnswerResult, AnswerStatus, Citation
 from evalgate.domain.providers import GenerationInput, GenerationOutput, ProviderMode
-from evalgate.domain.search import SearchEvidence
+from evalgate.domain.search import IndexIdentity, SearchEvidence
 
 SYSTEM_PROMPT = (
     "You are EvalGate's grounded-answer generator. Use only the evidence records supplied in "
@@ -137,6 +137,16 @@ class AnswerRequest:
     index_version: UUID
     mode: AnswerMode
     retrieval_limit: int = 5
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedAnswer:
+    """Validated retrieval output ready for explicit generation or retrieval-only return."""
+
+    request: AnswerRequest
+    policy: AnswerPolicy
+    index: IndexIdentity
+    evidence: tuple[SearchEvidence, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -332,15 +342,14 @@ def _validated_citations(
     return tuple(validated)
 
 
-async def answer_question(
+async def prepare_answer(
     *,
     request: AnswerRequest,
     embedding: SearchEmbeddingPort,
     repository: SearchRepositoryPort,
-    generation: GenerationPort | None,
     policy: AnswerPolicy = GROUNDED_ANSWER_V1,
-) -> AnswerResult:
-    """Retrieve bounded evidence and validate all provider citation claims server-side."""
+) -> PreparedAnswer:
+    """Validate policy and retrieve the bounded evidence needed for an answer."""
 
     _validate_policy(policy)
     if not 1 <= request.retrieval_limit <= policy.maximum_retrieval_limit:
@@ -355,12 +364,22 @@ async def answer_question(
         repository=repository,
     )
     evidence = _select_evidence(search.evidence, embedding=embedding, policy=policy)
+    return PreparedAnswer(request=request, policy=policy, index=search.index, evidence=evidence)
+
+
+async def complete_prepared_answer(
+    *, prepared: PreparedAnswer, generation: GenerationPort | None
+) -> AnswerResult:
+    """Generate and validate an answer from already retrieved, bounded evidence."""
+
+    request = prepared.request
+    policy = prepared.policy
     common: dict[str, Any] = {
         "prompt_policy_id": policy.policy_id,
         "prompt_policy_version": policy.version,
         "prompt_policy_sha256": policy.content_sha256,
-        "index": search.index,
-        "evidence": evidence,
+        "index": prepared.index,
+        "evidence": prepared.evidence,
     }
     if request.mode is AnswerMode.RETRIEVAL_ONLY:
         return AnswerResult(
@@ -382,7 +401,7 @@ async def answer_question(
     if identity.mode is not ProviderMode.FIXTURE:
         raise AnswerError(AnswerErrorCode.MODE_INVALID, "answer provider mode is invalid")
 
-    prompt = _build_prompt(question=request.question, evidence=evidence, policy=policy)
+    prompt = _build_prompt(question=request.question, evidence=prepared.evidence, policy=policy)
     try:
         output = await asyncio.wait_for(
             generation.generate(GenerationInput(prompt)), timeout=policy.provider_timeout_seconds
@@ -406,7 +425,7 @@ async def answer_question(
             AnswerErrorCode.PROVIDER_MALFORMED_OUTPUT, "answer provider output is invalid"
         ) from error
     citations = _validated_citations(
-        provider_answer=provider_answer, evidence=evidence, policy=policy
+        provider_answer=provider_answer, evidence=prepared.evidence, policy=policy
     )
     return AnswerResult(
         mode=request.mode,
@@ -416,3 +435,22 @@ async def answer_question(
         generation_identity=identity,
         **common,
     )
+
+
+async def answer_question(
+    *,
+    request: AnswerRequest,
+    embedding: SearchEmbeddingPort,
+    repository: SearchRepositoryPort,
+    generation: GenerationPort | None,
+    policy: AnswerPolicy = GROUNDED_ANSWER_V1,
+) -> AnswerResult:
+    """Retrieve bounded evidence and validate all provider citation claims server-side."""
+
+    prepared = await prepare_answer(
+        request=request,
+        embedding=embedding,
+        repository=repository,
+        policy=policy,
+    )
+    return await complete_prepared_answer(prepared=prepared, generation=generation)

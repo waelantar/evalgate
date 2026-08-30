@@ -2,20 +2,27 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 from collections.abc import Sequence
+from hashlib import sha256
 from typing import cast
 from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from evalgate.application.ports import GenerationPort
 from evalgate.application.search import SearchEmbeddingPort, SearchRepositoryPort
 from evalgate.config import Settings
 from evalgate.domain.providers import (
     EmbeddingInput,
     EmbeddingVector,
+    GenerationInput,
+    GenerationOutput,
     ProviderIdentity,
     ProviderMode,
 )
@@ -28,6 +35,7 @@ from evalgate.domain.search import (
 from evalgate.entrypoints.http import create_app
 
 SHA = "a" * 64
+EVIDENCE_SHA = sha256(b"status evidence").hexdigest()
 INDEX_ID = UUID("10000000-0000-0000-0000-000000000001")
 CORPUS_ID = UUID("20000000-0000-0000-0000-000000000001")
 EVIDENCE_ID = UUID("30000000-0000-0000-0000-000000000001")
@@ -123,7 +131,7 @@ def _evidence() -> EvidenceChunk:
         source_start=10,
         source_end=26,
         content="status evidence",
-        content_sha256=SHA,
+        content_sha256=EVIDENCE_SHA,
     )
 
 
@@ -131,12 +139,14 @@ def _client(
     *,
     repository: SearchRepositoryPort | None = None,
     embedding: SearchEmbeddingPort | None = None,
+    generation: GenerationPort | None = None,
 ) -> TestClient:
     app = create_app(
         settings=_settings(),
         engine=cast(AsyncEngine, _Engine()),
         search_repository=repository,
         search_embedding=embedding,
+        answer_generation=generation,
         request_id_factory=lambda: REQUEST_ID,
     )
     return TestClient(app)
@@ -187,7 +197,7 @@ def test_search_success_returns_strict_evidence_and_full_version_identity() -> N
                 "source_start": 10,
                 "source_end": 26,
                 "content": "status evidence",
-                "content_sha256": SHA,
+                "content_sha256": EVIDENCE_SHA,
                 "lexical_rank": 1,
                 "vector_rank": 1,
                 "rrf_score": pytest.approx(2 / 61),
@@ -336,3 +346,177 @@ def test_openapi_search_has_problem_json_and_no_default_422() -> None:
         "retrieval.invalid_embedding",
         "retrieval.invalid_result",
     }
+
+
+def _stream_data(response_text: str) -> list[dict[str, object]]:
+    frames = [frame for frame in response_text.split("\n\n") if frame and not frame.startswith(":")]
+    return [
+        cast(
+            dict[str, object],
+            json.loads(next(line[6:] for line in frame.splitlines() if line.startswith("data: "))),
+        )
+        for frame in frames
+    ]
+
+
+def test_ask_success_streams_ordered_frames_and_trusted_citation_metadata() -> None:
+    with _client(repository=_Repository(), embedding=_Embedding()) as client:
+        response = client.post(
+            "/api/v1/ask",
+            json={
+                "question": "status ledger",
+                "index_version": str(INDEX_ID),
+                "mode": "fixture",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.headers["cache-control"] == "no-cache, no-transform"
+    assert response.headers["x-accel-buffering"] == "no"
+    assert response.headers["x-request-id"] == str(REQUEST_ID)
+    events = _stream_data(response.text)
+    assert [event["type"] for event in events] == [
+        "answer.started",
+        "retrieval.completed",
+        "answer.delta",
+        "citations.completed",
+        "answer.completed",
+    ]
+    assert [event["sequence"] for event in events] == [1, 2, 3, 4, 5]
+    citation = cast(list[dict[str, object]], events[3]["citations"])[0]
+    assert citation["source_key"] == "status-ledger"
+    assert citation["quote"] == "status evidence"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"question": " ", "index_version": str(INDEX_ID), "mode": "fixture"},
+        {"question": "x" * 1001, "index_version": str(INDEX_ID), "mode": "fixture"},
+        {"question": "question", "index_version": "bad", "mode": "fixture"},
+        {"question": "question", "index_version": str(INDEX_ID), "mode": "live"},
+        {
+            "question": "question",
+            "index_version": str(INDEX_ID),
+            "mode": "fixture",
+            "unexpected": True,
+        },
+    ],
+)
+def test_ask_validation_is_pre_header_problem_json(body: dict[str, object]) -> None:
+    with _client(repository=_Repository(), embedding=_Embedding()) as client:
+        response = client.post("/api/v1/ask", json=body)
+
+    assert response.status_code == 400
+    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.json()["code"] == "request.invalid"
+    question = str(body.get("question", ""))
+    if question.strip():
+        assert question not in response.text
+
+
+def test_ask_retrieval_failure_is_problem_json_before_stream_headers() -> None:
+    with _client(repository=_Repository(), embedding=_Embedding()) as client:
+        response = client.post(
+            "/api/v1/ask",
+            json={
+                "question": "private question",
+                "index_version": str(UUID(int=999)),
+                "mode": "fixture",
+            },
+        )
+
+    assert response.status_code == 404
+    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.json()["code"] == "retrieval.index_not_found"
+    assert "private question" not in response.text
+
+
+def test_ask_provider_failure_after_headers_is_terminal_event_without_content() -> None:
+    marker = "private-provider-marker"
+
+    class _FailingGeneration:
+        identity = ProviderIdentity(ProviderMode.FIXTURE, "failure-fixture", "1")
+
+        async def generate(self, request: GenerationInput) -> GenerationOutput:
+            raise RuntimeError(marker)
+
+    with _client(
+        repository=_Repository(), embedding=_Embedding(), generation=_FailingGeneration()
+    ) as client:
+        response = client.post(
+            "/api/v1/ask",
+            json={
+                "question": "status ledger",
+                "index_version": str(INDEX_ID),
+                "mode": "fixture",
+            },
+        )
+
+    assert response.status_code == 200
+    events = _stream_data(response.text)
+    assert [event["type"] for event in events] == [
+        "answer.started",
+        "retrieval.completed",
+        "answer.failed",
+    ]
+    assert events[-1]["code"] == "provider.unavailable"
+    assert marker not in response.text
+
+
+def test_http_request_cancellation_reaches_and_cleans_up_generation() -> None:
+    async def exercise() -> None:
+        started = asyncio.Event()
+        cleaned = asyncio.Event()
+
+        class _CancellableGeneration:
+            identity = ProviderIdentity(ProviderMode.FIXTURE, "cancellable-fixture", "1")
+
+            async def generate(self, request: GenerationInput) -> GenerationOutput:
+                started.set()
+                try:
+                    await asyncio.Event().wait()
+                    raise AssertionError("unreachable")
+                finally:
+                    cleaned.set()
+
+        app = create_app(
+            settings=_settings(),
+            engine=cast(AsyncEngine, _Engine()),
+            search_repository=_Repository(),
+            search_embedding=_Embedding(),
+            answer_generation=_CancellableGeneration(),
+            request_id_factory=lambda: REQUEST_ID,
+        )
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://testserver"
+        ) as client:
+            request_task = asyncio.create_task(
+                client.post(
+                    "/api/v1/ask",
+                    json={
+                        "question": "status ledger",
+                        "index_version": str(INDEX_ID),
+                        "mode": "fixture",
+                    },
+                )
+            )
+            await asyncio.wait_for(started.wait(), timeout=1)
+            request_task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await request_task
+            await asyncio.wait_for(cleaned.wait(), timeout=1)
+
+    asyncio.run(exercise())
+
+
+def test_openapi_ask_freezes_sse_and_pre_header_problem_responses() -> None:
+    app = create_app(settings=_settings(), engine=cast(AsyncEngine, _Engine()))
+    operation = app.openapi()["paths"]["/api/v1/ask"]["post"]
+
+    assert set(operation["responses"]) == {"200", "400", "404", "409", "500", "503"}
+    assert set(operation["responses"]["200"]["content"]) == {"text/event-stream"}
+    for status in ("400", "404", "409", "500", "503"):
+        assert set(operation["responses"][status]["content"]) == {"application/problem+json"}
+    assert "422" not in operation["responses"]

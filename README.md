@@ -2,7 +2,7 @@
 
 EvalGate helps AI application teams detect retrieval, grounding, and citation regressions before release.
 
-The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, explainable hybrid retrieval, and a framework-free grounded-answer core. HTTP answer streaming and evaluation capabilities remain planned; the status table below is the source of truth.
+The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, explainable hybrid retrieval, a grounded-answer core, and versioned answer streaming. The inspection UI and evaluation capabilities remain planned; the status table below is the source of truth.
 
 | Capability | Status |
 |---|---|
@@ -12,7 +12,8 @@ The repository currently contains the approved production blueprint, reproducibl
 | PostgreSQL schema and migration readiness | Implemented, merged, and locally verified; remote CI pending |
 | Corpus and ingestion | Implemented, merged, and locally verified; remote CI pending |
 | Hybrid retrieval | Implemented, merged, and locally verified; remote CI pending |
-| Grounded-answer core and validated citations | Implemented and locally verified on the EG-006 review branch; HTTP exposure remains planned for EG-007 |
+| Grounded-answer core and validated citations | Implemented, merged, and locally verified; remote CI pending |
+| POST/fetch/SSE answer stream | Implemented and locally verified on the EG-007 review branch; inspection UI remains planned for EG-008 |
 | Evaluation gate and results UI | Planned |
 | MCP adapter | Deferred until the core release |
 | Public deployment | Not selected or deployed |
@@ -60,8 +61,10 @@ The bounded search endpoint and content-free ablation workflow are documented in
 [docs/retrieval.md](docs/retrieval.md). Queries are accepted only in POST bodies or through
 standard input; they are not placed in URLs or access logs.
 
-The transport-independent answer flow and its citation trust boundary are documented in
-[docs/grounded-answer.md](docs/grounded-answer.md). EG-006 exposes no answer HTTP endpoint.
+The answer flow and citation trust boundary are documented in
+[docs/grounded-answer.md](docs/grounded-answer.md). The frozen POST/fetch/SSE framing, ordering,
+retry, heartbeat, backpressure, and cancellation rules are documented in the
+[answer-stream contract](contracts/events/answer-stream.md).
 
 Copy `.env.example` to `.env` only when overriding local defaults. Provider modes are explicit and default locally to labeled deterministic fixtures. Reference mode requires a pre-provisioned local snapshot that must pass the manifest verifier before runtime construction; live generation remains unavailable, and no external provider call exists.
 
