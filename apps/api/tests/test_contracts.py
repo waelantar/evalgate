@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import cast
 
 import yaml
+from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -138,6 +139,31 @@ def test_grounded_answer_prompt_contract_matches_the_application_policy() -> Non
         "output_schema": OUTPUT_SCHEMA,
     }
     assert answer_policy_content_sha256(policy) == policy.content_sha256
+
+
+def test_answer_stream_examples_match_the_frozen_machine_schema() -> None:
+    schema = json.loads(
+        (REPOSITORY_ROOT / "contracts" / "events" / "answer-stream.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    examples = json.loads(
+        (REPOSITORY_ROOT / "contracts" / "events" / "examples" / "answer-stream.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+
+    assert [event["sequence"] for event in examples] == list(range(1, len(examples) + 1))
+    assert [event["type"] for event in examples] == [
+        "answer.started",
+        "retrieval.completed",
+        "answer.delta",
+        "citations.completed",
+        "answer.completed",
+    ]
+    for event in examples:
+        validator.validate(event)
 
 
 def test_corpus_manifest_path_pattern_accepts_only_markdown_documents() -> None:

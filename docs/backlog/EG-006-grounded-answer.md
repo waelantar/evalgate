@@ -1,6 +1,6 @@
 # EG-006: Grounded answer core and validated citations
 
-- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
+- Status: Implemented, locally verified, reviewed, and manually merged
 - Branch: `feat/eg-006-grounded-answer`
 - Depends on: EG-005 merged to `main`
 - Release: R2

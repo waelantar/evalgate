@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: EvalGate API
-  description: Governed, explainable retrieval with operational health probes.
-  version: 0.3.1
+  description: Governed retrieval and grounded-answer streaming with operational probes.
+  version: 0.4.0
 paths:
   /health/live:
     get:
@@ -82,8 +82,97 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/v1/ask:
+    post:
+      tags: [answer]
+      summary: Ask
+      operationId: askCorpus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AskBody'
+        required: true
+      responses:
+        '200':
+          description: Ordered UTF-8 SSE answer events.
+          content:
+            text/event-stream:
+              schema: {type: string}
+        '400':
+          description: The ask request is invalid.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/AskProblemDetails'
+        '404':
+          description: The selected index does not exist.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/AskProblemDetails'
+        '409':
+          description: The selected provider or retrieval configuration is incompatible.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/AskProblemDetails'
+        '500':
+          description: The bounded answer context or retrieval result is invalid.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/AskProblemDetails'
+        '503':
+          description: An ask dependency is unavailable.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/AskProblemDetails'
 components:
   schemas:
+    AskBody:
+      properties:
+        question: {type: string, maxLength: 1000, minLength: 1, title: Question}
+        index_version: {type: string, format: uuid, title: Index Version}
+        retrieval_limit:
+          {type: integer, maximum: 10.0, minimum: 1.0, title: Retrieval Limit, default: 5}
+        mode: {type: string, const: fixture, title: Mode}
+      additionalProperties: false
+      type: object
+      required: [question, index_version, mode]
+      title: AskBody
+      description: Strict bounded request for the frozen POST/fetch/SSE operation.
+    AskProblemCode:
+      type: string
+      enum:
+        - request.invalid
+        - retrieval.index_not_found
+        - retrieval.embedding_mismatch
+        - retrieval.configuration_mismatch
+        - retrieval.embedding_unavailable
+        - system.database_unavailable
+        - retrieval.invalid_embedding
+        - retrieval.invalid_result
+        - provider.mode_invalid
+        - provider.unavailable
+        - answer.context_invalid
+      title: AskProblemCode
+      description: Pre-header ask failures that remain valid Problem Details responses.
+    AskProblemDetails:
+      properties:
+        type: {type: string, title: Type}
+        title: {type: string, title: Title}
+        status: {type: integer, title: Status}
+        detail: {type: string, title: Detail}
+        instance: {type: string, title: Instance}
+        code: {$ref: '#/components/schemas/AskProblemCode'}
+        request_id: {type: string, format: uuid, title: Request Id}
+      additionalProperties: false
+      type: object
+      required: [type, title, status, detail, instance, code, request_id]
+      title: AskProblemDetails
+      description: Content-free RFC 9457 response emitted before SSE headers.
     CorpusIdentityResponse:
       properties:
         version_id: {type: string, format: uuid, title: Version Id}
