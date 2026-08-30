@@ -10,6 +10,7 @@ from evalgate.adapters.fixtures import (
     FIXTURE_EMBEDDING_DIMENSION,
     DeterministicEmbeddingFixture,
     DeterministicGenerationFixture,
+    DeterministicGroundedAnswerFixture,
 )
 from evalgate.application.ports import (
     ClockPort,
@@ -69,3 +70,18 @@ def test_generation_fixture_is_repeatable_and_explicitly_labeled() -> None:
     assert first == second
     assert first.identity.mode is ProviderMode.FIXTURE
     assert first.text.startswith("[fixture:")
+
+
+def test_grounded_answer_fixture_is_repeatable_and_explicitly_labeled() -> None:
+    adapter = DeterministicGroundedAnswerFixture()
+    request = GenerationInput(
+        text='{"evidence":[{"evidence_id":"00000000-0000-0000-0000-000000000001"}]}'
+    )
+
+    first = asyncio.run(adapter.generate(request))
+    second = asyncio.run(adapter.generate(request))
+
+    assert isinstance(adapter, GenerationPort)
+    assert first == second
+    assert first.identity.mode is ProviderMode.FIXTURE
+    assert "grounded-answer-fixture" in first.identity.name

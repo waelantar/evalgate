@@ -1,6 +1,6 @@
 # EG-005: Explainable hybrid retrieval
 
-- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
+- Status: Implemented, locally verified, reviewed, and manually merged
 - Branch: `feat/eg-005-hybrid-retrieval`
 - Depends on: EG-004 merged to `main`
 - Release: R2
@@ -52,8 +52,8 @@ Local verification on 2026-08-30 used Windows, Python 3.13.15, uv 0.12.3, Node.j
   tokenization and embedding as well as database retrieval and fusion.
 - These local timings describe one warm runtime and corpus, not a latency promise. EG-005 does
   not establish retrieval-quality metrics, thresholds, or a reviewed baseline; those remain in
-  EG-009. Remote GitHub Actions execution remains pending, and this branch is not merged,
-  released, or deployed.
+  EG-009. Remote GitHub Actions execution remains pending; the story was manually merged but is
+  not tagged, released, or deployed.
 
 ## Required tests and review
 

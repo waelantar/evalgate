@@ -13,3 +13,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - PostgreSQL 18/pgvector foundation schema, migration-aware readiness, and guarded reset tooling.
 - Original CC0 Northstar Operations corpus, verified local FastEmbed adapter, and transactional idempotent ingestion.
 - Explainable PostgreSQL lexical and exact-vector retrieval fused with versioned reciprocal-rank fusion, exposed through bounded search and content-free ablation interfaces.
+- Framework-free grounded-answer orchestration with a versioned bounded prompt, explicit fixture and retrieval-only modes, evidence-ID-only provider output, and server-validated citations.
