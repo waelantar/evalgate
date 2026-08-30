@@ -9,6 +9,12 @@ import yaml
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from evalgate.application.answer import (
+    GROUNDED_ANSWER_V1,
+    OUTPUT_SCHEMA,
+    SYSTEM_PROMPT,
+    answer_policy_content_sha256,
+)
 from evalgate.application.search import (
     DEFAULT_RESULT_LIMIT,
     MAX_QUERY_CODE_POINTS,
@@ -100,6 +106,38 @@ def test_hybrid_retrieval_contract_matches_the_domain_policy() -> None:
             "order": "RRF score descending, then evidence UUID ascending",
         },
     }
+
+
+def test_grounded_answer_prompt_contract_matches_the_application_policy() -> None:
+    contract = json.loads(
+        (REPOSITORY_ROOT / "contracts" / "prompts" / "grounded-answer-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    policy = GROUNDED_ANSWER_V1
+
+    assert contract == {
+        "schema_version": "1.0",
+        "policy_id": policy.policy_id,
+        "version": policy.version,
+        "content_sha256": policy.content_sha256,
+        "system_prompt": SYSTEM_PROMPT,
+        "budgets": {
+            "maximum_question_code_points": policy.maximum_question_code_points,
+            "maximum_question_tokens": policy.maximum_question_tokens,
+            "maximum_retrieval_limit": policy.maximum_retrieval_limit,
+            "maximum_evidence_context_code_points": policy.maximum_evidence_context_code_points,
+            "maximum_evidence_context_tokens": policy.maximum_evidence_context_tokens,
+            "maximum_generation_output_code_points": policy.maximum_generation_output_code_points,
+            "maximum_answer_code_points": policy.maximum_answer_code_points,
+            "maximum_citation_associations": policy.maximum_citation_associations,
+            "maximum_evidence_ids_per_association": policy.maximum_evidence_ids_per_association,
+            "maximum_quote_code_points": policy.maximum_quote_code_points,
+            "provider_timeout_seconds": policy.provider_timeout_seconds,
+        },
+        "output_schema": OUTPUT_SCHEMA,
+    }
+    assert answer_policy_content_sha256(policy) == policy.content_sha256
 
 
 def test_corpus_manifest_path_pattern_accepts_only_markdown_documents() -> None:

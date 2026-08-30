@@ -1,6 +1,6 @@
 # EG-006: Grounded answer core and validated citations
 
-- Status: Planned
+- Status: Implemented and locally verified; awaiting repository-owner review and manual merge
 - Branch: `feat/eg-006-grounded-answer`
 - Depends on: EG-005 merged to `main`
 - Release: R2
@@ -26,10 +26,28 @@ The application core retrieves bounded evidence, invokes an explicitly selected 
 
 ## Acceptance evidence
 
-- [ ] Unit/contract tests cover supported, multi-evidence, unanswerable, missing/spoofed citation, malformed provider output, timeout, and explicit mode selection.
-- [ ] A provider cannot inject source metadata or quote text.
-- [ ] Prompt/evidence content is absent from logs and errors.
-- [ ] Fixture failure never silently becomes a success or live response.
+- [x] Unit/contract tests cover supported, multi-evidence, unanswerable, missing/spoofed citation, malformed provider output, timeout, cancellation, and explicit mode selection.
+- [x] A provider cannot inject source metadata or quote text.
+- [x] Prompt/evidence content is absent from logs and errors.
+- [x] Fixture failure never silently becomes a success or live response.
+
+## Verification evidence
+
+Local verification on 2026-08-30 used Windows, Python 3.13.15, uv 0.12.3, and Node.js
+24.19.0.
+
+- The pre-bump repository gate passed publication and metadata validation, Ruff formatting and
+  lint, strict mypy across 47 source files, 126 non-integration API tests, 2 web tests, frontend
+  lint, and the production web build.
+- The complete post-bump gate passed the same checks with synchronized product version `0.3.1`;
+  publication validation covered 181 text files.
+- The focused grounded-answer, contract, and provider-port run passed 29 tests.
+- Tests cover supported and multi-evidence answers, insufficient support, missing and spoofed
+  citations, strict provider-output shape, metadata injection, evidence integrity, bounded
+  context and quotes, explicit modes, timeout, cancellation cleanup, redaction, and deterministic
+  fixture identity.
+- No live provider was called. EG-006 adds no HTTP answer endpoint, persistence, streaming,
+  quality metric, deployment, or release claim; remote GitHub Actions execution remains pending.
 
 ## Required tests and review
 
