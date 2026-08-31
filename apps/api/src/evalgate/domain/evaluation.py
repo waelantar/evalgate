@@ -29,10 +29,9 @@ def reciprocal_rank(retrieved: Sequence[str], relevant: set[str]) -> float:
 def ndcg_at_k(retrieved: Sequence[str], relevance: dict[str, int], k: int) -> float:
     if k <= 0:
         raise ValueError("k must be positive")
+
     def dcg(values: Iterable[int]) -> float:
-        return float(
-            sum((2**gain - 1) / math.log2(rank + 2) for rank, gain in enumerate(values))
-        )
+        return float(sum((2**gain - 1) / math.log2(rank + 2) for rank, gain in enumerate(values)))
 
     actual = dcg([relevance.get(item, 0) for item in retrieved[:k]])
     ideal = dcg(sorted(relevance.values(), reverse=True)[:k])
