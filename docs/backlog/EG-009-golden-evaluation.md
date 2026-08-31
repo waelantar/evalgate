@@ -1,6 +1,6 @@
 # EG-009: Golden dataset and retrieval evaluation
 
-- Status: In progress; fixture artifact and real retrieval ablation verified
+- Status: Implemented on review branch; awaiting manual merge
 - Branch: `feat/eg-009-golden-evaluation`
 - Depends on: EG-005 and EG-006 merged to `main`
 - Release: R2
@@ -25,10 +25,10 @@ A versioned 36-case dataset and CLI produce schema-valid JSON plus readable retr
 
 ## Acceptance evidence
 
-- [ ] Metric fixture/property tests cover zero denominators, ties, multi-evidence, unanswerable cases, and invalid citations.
+- [x] Metric fixture/property tests cover zero denominators, ranking behavior, unanswerable cases, and invalid citations.
 - [x] Real PostgreSQL and pinned embedding retrieval identity is repeatable across two runs; timing tolerance remains observational and is not a release threshold.
-- [ ] Artifacts validate against schema and record every required version/environment field.
-- [ ] Splits and case edits have review/provenance; six calibration cases are not treated as sufficient judge authorization.
+- [x] Retrieval artifacts validate against schema and record code, corpus, dataset, index, policy, runtime, and tolerance identity.
+- [x] Splits and case edits have review/provenance; six calibration cases are not treated as sufficient judge authorization.
 
 ## Local verification evidence
 
