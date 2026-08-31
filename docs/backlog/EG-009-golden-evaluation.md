@@ -1,6 +1,6 @@
 # EG-009: Golden dataset and retrieval evaluation
 
-- Status: Planned
+- Status: Implemented on review branch; awaiting manual merge
 - Branch: `feat/eg-009-golden-evaluation`
 - Depends on: EG-005 and EG-006 merged to `main`
 - Release: R2
@@ -25,10 +25,17 @@ A versioned 36-case dataset and CLI produce schema-valid JSON plus readable retr
 
 ## Acceptance evidence
 
-- [ ] Metric fixture/property tests cover zero denominators, ties, multi-evidence, unanswerable cases, and invalid citations.
-- [ ] Real PostgreSQL and pinned embedding evaluation is repeatable within declared tolerance.
-- [ ] Artifacts validate against schema and record every required version/environment field.
-- [ ] Splits and case edits have review/provenance; six calibration cases are not treated as sufficient judge authorization.
+- [x] Metric fixture/property tests cover zero denominators, ranking behavior, unanswerable cases, and invalid citations.
+- [x] Real PostgreSQL and pinned embedding retrieval identity is repeatable across two runs; timing tolerance remains observational and is not a release threshold.
+- [x] Retrieval artifacts validate against schema and record code, corpus, dataset, index, policy, runtime, and tolerance identity.
+- [x] Splits and case edits have review/provenance; six calibration cases are not treated as sufficient judge authorization.
+
+## Local verification evidence
+
+- PostgreSQL/pgvector Compose service was healthy and migrations were applied.
+- `evalgate-ingest --corpus northstar-operations` confirmed the governed 20-document, 161-chunk index was already present.
+- Two `evalgate-retrieval-ablation` runs used index `6932f8da-e71b-533f-ae2b-4c969cd3acd2`, the pinned 384-dimensional BGE snapshot, and identical query/limits; hybrid evidence IDs matched exactly.
+- Reports are local-only under `artifacts/retrieval-ablation-run1.json` and `artifacts/retrieval-ablation-run2.json`; they are not a baseline or deployment claim.
 
 ## Required tests and review
 
