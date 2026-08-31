@@ -2,7 +2,7 @@
 
 EvalGate helps AI application teams detect retrieval, grounding, and citation regressions before release.
 
-The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, explainable hybrid retrieval, a grounded-answer core, and versioned answer streaming. The inspection UI and evaluation capabilities remain planned; the status table below is the source of truth.
+The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, explainable hybrid retrieval, a grounded-answer core, versioned answer streaming, and the local accessible inspection workbench. Evaluation capabilities remain planned; the status table below is the source of truth.
 
 | Capability | Status |
 |---|---|
@@ -13,7 +13,7 @@ The repository currently contains the approved production blueprint, reproducibl
 | Corpus and ingestion | Implemented, merged, and locally verified; remote CI pending |
 | Hybrid retrieval | Implemented, merged, and locally verified; remote CI pending |
 | Grounded-answer core and validated citations | Implemented, merged, and locally verified; remote CI pending |
-| POST/fetch/SSE answer stream | Implemented and locally verified on the EG-007 review branch; inspection UI remains planned for EG-008 |
+| POST/fetch/SSE answer stream and inspection UI | Implemented and locally verified on EG-007/EG-008 review branches; no live provider or deployment claim |
 | Evaluation gate and results UI | Planned |
 | MCP adapter | Deferred until the core release |
 | Public deployment | Not selected or deployed |

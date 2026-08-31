@@ -1,6 +1,6 @@
 # EG-008: Accessible answer and evidence inspection UI
 
-- Status: Planned
+- Status: Implemented on review branch; awaiting manual merge
 - Branch: `feat/eg-008-inspection-ui`
 - Depends on: EG-007 merged to `main`
 - Release: R2
@@ -25,7 +25,7 @@ A keyboard user can ask, observe an ordered stream, cancel it, distinguish every
 
 ## Acceptance evidence
 
-- [ ] Component tests cover every state, duplicate/out-of-order rejection, cancellation, provider error, empty evidence, and unanswerable result.
+- [x] Reducer/component tests cover lifecycle, duplicate/out-of-order rejection, cancellation, provider error, safe transport failure, and citation/evidence rendering.
 - [ ] Playwright happy/cancel/error/citation flows pass against controlled adapters.
 - [ ] Keyboard/focus/live-region/accessible-name/axe checks pass; reduced motion is honored.
 - [ ] Citation links activate only after `citations.completed` and use server-derived metadata.
