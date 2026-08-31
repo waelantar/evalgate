@@ -80,6 +80,24 @@ h2 {
   box-shadow: 0 1rem 3rem rgb(43 64 58 / 8%);
 }
 
+.workbench { display: grid; grid-template-columns: minmax(16rem, .8fr) minmax(0, 1.2fr); gap: 1rem; margin-bottom: 1rem; }
+.panel { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid #c4cec8; border-radius: 1.25rem; background: #f8faf7; box-shadow: 0 1rem 3rem rgb(43 64 58 / 8%); }
+label { display: block; margin: 1rem 0 .4rem; font-weight: 700; }
+input, textarea { width: 100%; border: 1px solid #9eafa7; border-radius: .55rem; padding: .75rem; color: #182220; background: #fff; }
+textarea { resize: vertical; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: 1rem; }
+.secondary { color: #173f38; background: transparent; }
+.status, .error, .muted { color: #50615c; line-height: 1.55; }
+.error { color: #9b2c20; }
+.answer { min-height: 8rem; white-space: pre-wrap; line-height: 1.65; }
+.citations { margin-top: 1.5rem; }
+.citations h3 { margin-bottom: .75rem; }
+.citation { width: auto; min-height: 2.5rem; margin: .25rem .5rem .25rem 0; padding: .45rem .75rem; font-size: .9rem; }
+.evidence-panel { margin-bottom: 2rem; }
+.evidence { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #d4ddd8; scroll-margin-top: 1rem; }
+.evidence h3 { margin-bottom: .35rem; }
+.evidence p { line-height: 1.6; }
+
 .status-card p {
   max-width: 42rem;
   color: #50615c;
@@ -130,7 +148,7 @@ button:disabled {
 }
 
 @media (max-width: 44rem) {
-  .status-card {
+  .status-card, .workbench {
     grid-template-columns: 1fr;
   }
 }
