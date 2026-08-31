@@ -22,6 +22,7 @@ evalgate-api = "evalgate.entrypoints.http:main"
 evalgate-db = "evalgate.entrypoints.database:main"
 evalgate-ingest = "evalgate.entrypoints.ingestion:main"
 evalgate-retrieval-ablation = "evalgate.entrypoints.retrieval_ablation:main"
+evalgate-evaluate = "evalgate.entrypoints.evaluate:main"
 
 [dependency-groups]
 dev = [
