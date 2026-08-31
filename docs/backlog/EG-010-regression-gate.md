@@ -1,6 +1,6 @@
 # EG-010: Reviewed retrieval baseline and PR regression gate
 
-- Status: Implemented on review branch; awaiting manual merge
+- Status: Implementation awaiting final pinned-tool verification
 - Branch: `feat/eg-010-regression-gate`
 - Depends on: EG-009 merged to `main`
 - Release: R2

@@ -17,4 +17,3 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Frozen POST/fetch/SSE answer streaming with typed ordered events, awaited backpressure, pre-header Problem Details, downstream cancellation, and a strict UTF-8 browser parser.
 - Accessible local inspection workbench with bounded ask input, stream state reducer, cancellation, safe answer rendering, and server-derived citation-to-evidence navigation.
 - Golden evaluation dataset and deterministic retrieval metrics with schema-validated JSON/Markdown artifact generation.
-- Reviewed, secret-free retrieval baseline comparison and PR artifact gate.
