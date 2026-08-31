@@ -1,6 +1,6 @@
 [project]
 name = "evalgate-api"
-version = "0.6.0"
+version = "0.6.1"
 description = "EvalGate application core and HTTP adapter"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
