@@ -8,11 +8,12 @@ import json
 import platform
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from evalgate import __version__
 
 
-def build_artifact(dataset_path: Path) -> dict[str, object]:
+def build_artifact(dataset_path: Path) -> dict[str, Any]:
     raw = dataset_path.read_bytes()
     dataset = json.loads(raw)
     now = datetime.now(UTC).isoformat()
@@ -56,6 +57,27 @@ def build_artifact(dataset_path: Path) -> dict[str, object]:
     }
 
 
+def render_markdown(artifact: dict[str, Any]) -> str:
+    run = artifact["run"]
+    versions = artifact["versions"]
+    metrics = artifact["metrics"]
+    limitations = artifact["limitations"]
+    lines = [
+        "# EvalGate evaluation artifact",
+        "",
+        f"- Run: `{run['run_key']}` ({run['mode']})",
+        f"- Status: `{run['status']}`",
+        f"- Dataset manifest: `{versions['dataset_manifest_sha256']}`",
+        "",
+        "## Metrics",
+        "",
+    ]
+    lines.extend(f"- {key}: `{value}`" for key, value in metrics.items())
+    lines.extend(["", "## Limitations", ""])
+    lines.extend(f"- {item}" for item in limitations)
+    return "\n".join(lines) + "\n"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     repository_root = Path(__file__).resolve().parents[5]
@@ -63,10 +85,14 @@ def main() -> None:
         "--dataset", type=Path, default=repository_root / "contracts/evaluation/golden-v1.json"
     )
     parser.add_argument("--output", type=Path, default=Path("artifacts/evaluation-fixture.json"))
+    parser.add_argument("--markdown", type=Path, default=None)
     args = parser.parse_args()
     artifact = build_artifact(args.dataset)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    if args.markdown is not None:
+        args.markdown.parent.mkdir(parents=True, exist_ok=True)
+        args.markdown.write_text(render_markdown(artifact), encoding="utf-8")
     print(f"wrote {args.output} for EvalGate {__version__}")
 
 

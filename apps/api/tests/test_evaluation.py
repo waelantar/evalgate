@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 
 from evalgate.domain.evaluation import (
     citation_coverage,
@@ -12,7 +12,7 @@ from evalgate.domain.evaluation import (
     recall_at_k,
     reciprocal_rank,
 )
-from evalgate.entrypoints.evaluate import build_artifact
+from evalgate.entrypoints.evaluate import build_artifact, render_markdown
 
 
 def test_rank_metrics_and_zero_denominators() -> None:
@@ -32,7 +32,7 @@ def test_metrics_reject_invalid_k() -> None:
 
 
 def test_citation_metrics_exclude_invalid_and_uncovered_claims() -> None:
-    citations = [
+    citations: list[dict[str, object]] = [
         {"evidence_id": "e1", "claim": "supported"},
         {"evidence_id": "bad", "claim": "other"},
     ]
@@ -57,3 +57,6 @@ def test_fixture_artifact_validates_against_contract() -> None:
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     artifact = build_artifact(root / "contracts/evaluation/golden-v1.json")
     Draft202012Validator(schema).validate(artifact)
+    markdown = render_markdown(artifact)
+    assert "## Metrics" in markdown
+    assert "## Limitations" in markdown
