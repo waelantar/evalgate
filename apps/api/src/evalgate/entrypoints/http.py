@@ -13,6 +13,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from evalgate import __version__
@@ -51,6 +52,23 @@ class HealthResponse(BaseModel):
     version: str
     status: Literal["alive", "ready", "not_ready"]
     checks: dict[str, str]
+
+
+class EvaluationRunResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    run_key: str
+    mode: str
+    status: str
+    code_sha: str
+    artifact_sha256: str
+
+
+class EvaluationRunPage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[EvaluationRunResponse]
+    next_cursor: str | None
 
 
 class SearchBody(BaseModel):
@@ -658,6 +676,39 @@ def create_app(
                 "X-Accel-Buffering": "no",
                 "X-Request-ID": str(request_id),
             },
+        )
+
+    @app.get(
+        "/api/v1/evaluation-runs",
+        response_model=EvaluationRunPage,
+        operation_id="listEvaluationRuns",
+        tags=["evaluation-results"],
+    )
+    async def list_evaluation_runs(
+        request: Request, cursor: str | None = None, limit: int = 20
+    ) -> EvaluationRunPage:
+        if limit < 1 or limit > 50:
+            raise ValueError("limit must be between 1 and 50")
+        engine = cast(AsyncEngine, request.app.state.database_engine)
+        async with engine.connect() as connection:
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT run_key, mode, status, code_sha, artifact_sha256 "
+                            "FROM eval_runs WHERE (:cursor IS NULL OR run_key > :cursor) "
+                            "ORDER BY run_key LIMIT :limit"
+                        ),
+                        {"cursor": cursor, "limit": limit + 1},
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        page = rows[:limit]
+        return EvaluationRunPage(
+            items=[EvaluationRunResponse(**dict(row)) for row in page],
+            next_cursor=page[-1]["run_key"] if len(rows) > limit and page else None,
         )
 
     return app
