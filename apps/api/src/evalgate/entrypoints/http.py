@@ -71,6 +71,10 @@ class EvaluationRunPage(BaseModel):
     next_cursor: str | None
 
 
+class EvaluationRunDetail(EvaluationRunResponse):
+    version_manifest: dict[str, Any]
+
+
 class SearchBody(BaseModel):
     """Strict bounded JSON body for the public search operation."""
 
@@ -710,6 +714,34 @@ def create_app(
             items=[EvaluationRunResponse(**dict(row)) for row in page],
             next_cursor=page[-1]["run_key"] if len(rows) > limit and page else None,
         )
+
+    @app.get(
+        "/api/v1/evaluation-runs/{run_key}",
+        response_model=EvaluationRunDetail,
+        operation_id="getEvaluationRun",
+        tags=["evaluation-results"],
+    )
+    async def get_evaluation_run(request: Request, run_key: str) -> EvaluationRunDetail:
+        engine = cast(AsyncEngine, request.app.state.database_engine)
+        async with engine.connect() as connection:
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT run_key, mode, status, code_sha, artifact_sha256, "
+                            "version_manifest FROM eval_runs WHERE run_key = :run_key"
+                        ),
+                        {"run_key": run_key},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            from fastapi import HTTPException
+
+            raise HTTPException(status_code=404, detail="Evaluation run not found")
+        return EvaluationRunDetail(**dict(row))
 
     return app
 
