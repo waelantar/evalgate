@@ -73,6 +73,36 @@ def import_artifact(*, artifact_path: Path, schema_path: Path, settings: Setting
                     "sha": artifact.artifact_sha256,
                 },
             )
+            for case in artifact.cases:
+                case_key = case.get("case_id")
+                if not isinstance(case_key, str) or not case_key:
+                    raise ValueError("artifact case is missing a stable case_id")
+                case_id = uuid5(NAMESPACE_URL, f"urn:evalgate:case:{dataset_id}:{case_key}")
+                connection.execute(
+                    text(
+                        "INSERT INTO eval_cases (id, dataset_id, stable_key, split, question, "
+                        "answerable, reference_evidence, tags) VALUES (:id, :dataset, :key, "
+                        "'imported', :question, true, '[]'::jsonb, '[]'::jsonb) "
+                        "ON CONFLICT (dataset_id, stable_key) DO NOTHING"
+                    ),
+                    {"id": case_id, "dataset": dataset_id, "key": case_key, "question": case_key},
+                )
+                connection.execute(
+                    text(
+                        "INSERT INTO eval_case_results (id, eval_dataset_id, eval_run_id, "
+                        "eval_case_id, retrieval_evidence, citation_evidence, metric_values, "
+                        "status) "
+                        "VALUES (:id, :dataset, :run, :case, :retrieval::jsonb, '[]'::jsonb, "
+                        "'{}'::jsonb, 'completed')"
+                    ),
+                    {
+                        "id": uuid5(NAMESPACE_URL, f"urn:evalgate:result:{run_id}:{case_id}"),
+                        "dataset": dataset_id,
+                        "run": run_id,
+                        "case": case_id,
+                        "retrieval": json.dumps(case.get("retrieved_evidence_ids", [])),
+                    },
+                )
             return "imported"
     finally:
         engine.dispose()
