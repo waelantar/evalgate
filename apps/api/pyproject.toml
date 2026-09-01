@@ -23,6 +23,7 @@ evalgate-db = "evalgate.entrypoints.database:main"
 evalgate-ingest = "evalgate.entrypoints.ingestion:main"
 evalgate-retrieval-ablation = "evalgate.entrypoints.retrieval_ablation:main"
 evalgate-evaluate = "evalgate.entrypoints.evaluate:main"
+evalgate-import-results = "evalgate.entrypoints.import_results:main"
 
 [dependency-groups]
 dev = [
