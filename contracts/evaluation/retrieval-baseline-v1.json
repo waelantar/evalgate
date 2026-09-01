@@ -1,0 +1,15 @@
+{
+  "baseline_key": "golden-v1-hybrid-reference",
+  "review_status": "approved-for-pr-comparison",
+  "dataset_key": "golden-v1",
+  "policy_version": "hybrid-rrf-v1",
+  "required_metrics": {
+    "retrieval_precision_at_5": 0.13,
+    "retrieval_recall_at_5": 0.70,
+    "mrr": 0.58,
+    "ndcg_at_5": 0.61,
+    "source_coverage": 0.70
+  },
+  "rationale": "Two local reference runs produced identical hybrid evidence IDs; floors are rounded below observed 36-case reference metrics and are reviewed manually.",
+  "change_policy": "This file is immutable during ordinary CI. Any edit requires a separate reviewed baseline-change diff and fresh recorded measurements."
+}

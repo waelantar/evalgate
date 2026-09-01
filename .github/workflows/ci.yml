@@ -86,6 +86,27 @@ jobs:
           EVALGATE_GENERATION_MODE: disabled
           EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT: ../../.evalgate-cache/reference-embedding/snapshot
           EVALGATE_DATABASE_URL: postgresql+psycopg://evalgate:evalgate_ci_only@127.0.0.1:5432/evalgate
+      - run: >-
+          uv run evalgate-evaluate --mode retrieval
+          --index-version 6932f8da-e71b-533f-ae2b-4c969cd3acd2
+          --output ../../artifacts/retrieval-pr.json
+          --markdown ../../artifacts/retrieval-pr.md
+        working-directory: apps/api
+        env:
+          EVALGATE_ENVIRONMENT: ci
+          EVALGATE_EMBEDDING_MODE: reference
+          EVALGATE_GENERATION_MODE: disabled
+          EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT: ../../.evalgate-cache/reference-embedding/snapshot
+          EVALGATE_DATABASE_URL: postgresql+psycopg://evalgate:evalgate_ci_only@127.0.0.1:5432/evalgate
+      - run: >-
+          python scripts/check_retrieval_baseline.py
+          --artifact artifacts/retrieval-pr.json
+          --baseline contracts/evaluation/retrieval-baseline-v1.json
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: retrieval-pr-${{ github.sha }}
+          path: artifacts/retrieval-pr.*
+          if-no-files-found: error
       - run: uv run evalgate-ingest --corpus northstar-operations
         working-directory: apps/api
         env:

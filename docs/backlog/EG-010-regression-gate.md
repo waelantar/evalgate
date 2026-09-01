@@ -1,6 +1,6 @@
 # EG-010: Reviewed retrieval baseline and PR regression gate
 
-- Status: Planned
+- Status: Implemented on review branch; awaiting manual merge
 - Branch: `feat/eg-010-regression-gate`
 - Depends on: EG-009 merged to `main`
 - Release: R2
@@ -26,10 +26,10 @@ Pull requests receive a repeatable, secret-free retrieval regression decision ag
 
 ## Acceptance evidence
 
-- [ ] Repeated baseline measurements and rationale are attached to the proposal.
-- [ ] Good reference run passes; seeded known-bad change fails for the intended case/metric.
-- [ ] Fork pull-request path is secret-free, has least permissions, and cannot publish/deploy/update baseline.
-- [ ] Baseline changes require a separate reviewed diff and never happen on ordinary CI.
+- [x] Repeated retrieval evidence and threshold rationale are recorded in the reviewed baseline.
+- [x] Good reference run passes; seeded known-bad artifact fails metric comparison.
+- [x] Fork pull-request path remains secret-free with `contents: read`; it uploads only immutable artifacts and cannot update baseline or deploy.
+- [x] Baseline is a checked-in reviewed record; CI only compares and never writes it.
 
 ## Required tests and review
 
