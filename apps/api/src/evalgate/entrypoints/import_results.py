@@ -14,6 +14,8 @@ from evalgate.domain.evaluation_results import parse_artifact
 
 
 def import_artifact(*, artifact_path: Path, schema_path: Path, settings: Settings) -> str:
+    if settings.environment == "public":
+        raise ValueError("evaluation artifact import is unavailable in public mode")
     raw = artifact_path.read_bytes()
     artifact = parse_artifact(raw, json.loads(schema_path.read_text(encoding="utf-8")))
     engine = create_engine(settings.database_url.get_secret_value())
