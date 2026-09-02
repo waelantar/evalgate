@@ -8,7 +8,7 @@ from typing import Any, Literal, cast
 from uuid import UUID, uuid4
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -72,7 +72,33 @@ class EvaluationRunPage(BaseModel):
 
 
 class EvaluationRunDetail(EvaluationRunResponse):
-    version_manifest: dict[str, Any]
+    versions: dict[str, Any]
+    environment: dict[str, Any]
+    metrics: dict[str, float]
+    limitations: list[str]
+    review: dict[str, Any]
+    comparison_run_key: str | None
+    metric_deltas: dict[str, float] | None
+
+
+class EvaluationCaseResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str
+    split: str
+    question: str
+    answerable: bool
+    status: str
+    retrieved_evidence_ids: list[UUID]
+    relevant_evidence_ids: list[UUID]
+    metric_values: dict[str, float]
+
+
+class EvaluationCasePage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[EvaluationCaseResponse]
+    next_cursor: str | None
 
 
 class SearchBody(BaseModel):
@@ -689,10 +715,10 @@ def create_app(
         tags=["evaluation-results"],
     )
     async def list_evaluation_runs(
-        request: Request, cursor: str | None = None, limit: int = 20
+        request: Request,
+        cursor: str | None = Query(default=None, max_length=120),
+        limit: int = Query(default=20, ge=1, le=50),
     ) -> EvaluationRunPage:
-        if limit < 1 or limit > 50:
-            raise ValueError("limit must be between 1 and 50")
         engine = cast(AsyncEngine, request.app.state.database_engine)
         async with engine.connect() as connection:
             rows = (
@@ -700,7 +726,8 @@ def create_app(
                     await connection.execute(
                         text(
                             "SELECT run_key, mode, status, code_sha, artifact_sha256 "
-                            "FROM eval_runs WHERE (:cursor IS NULL OR run_key > :cursor) "
+                            "FROM eval_runs WHERE (CAST(:cursor AS text) IS NULL "
+                            "OR run_key > :cursor) "
                             "ORDER BY run_key LIMIT :limit"
                         ),
                         {"cursor": cursor, "limit": limit + 1},
@@ -721,7 +748,11 @@ def create_app(
         operation_id="getEvaluationRun",
         tags=["evaluation-results"],
     )
-    async def get_evaluation_run(request: Request, run_key: str) -> EvaluationRunDetail:
+    async def get_evaluation_run(
+        request: Request,
+        run_key: str,
+        compare_to: str | None = Query(default=None, max_length=120),
+    ) -> EvaluationRunDetail:
         engine = cast(AsyncEngine, request.app.state.database_engine)
         async with engine.connect() as connection:
             row = (
@@ -729,7 +760,8 @@ def create_app(
                     await connection.execute(
                         text(
                             "SELECT run_key, mode, status, code_sha, artifact_sha256, "
-                            "version_manifest FROM eval_runs WHERE run_key = :run_key"
+                            "version_manifest, eval_dataset_id FROM eval_runs "
+                            "WHERE run_key = :run_key"
                         ),
                         {"run_key": run_key},
                     )
@@ -737,11 +769,106 @@ def create_app(
                 .mappings()
                 .one_or_none()
             )
+            comparison = None
+            if compare_to is not None:
+                comparison = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT run_key, version_manifest, eval_dataset_id FROM eval_runs "
+                                "WHERE run_key = :run_key"
+                            ),
+                            {"run_key": compare_to},
+                        )
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
         if row is None:
-            from fastapi import HTTPException
-
             raise HTTPException(status_code=404, detail="Evaluation run not found")
-        return EvaluationRunDetail(**dict(row))
+        if compare_to is not None and comparison is None:
+            raise HTTPException(status_code=404, detail="Comparison evaluation run not found")
+        if comparison is not None and comparison["eval_dataset_id"] != row["eval_dataset_id"]:
+            raise HTTPException(status_code=409, detail="Evaluation runs use different datasets")
+        manifest = row["version_manifest"]
+        metrics = manifest["metrics"]
+        deltas = None
+        if comparison is not None:
+            comparison_metrics = comparison["version_manifest"]["metrics"]
+            deltas = {
+                key: value - comparison_metrics[key]
+                for key, value in metrics.items()
+                if key in comparison_metrics
+            }
+        return EvaluationRunDetail(
+            run_key=row["run_key"],
+            mode=row["mode"],
+            status=row["status"],
+            code_sha=row["code_sha"],
+            artifact_sha256=row["artifact_sha256"],
+            versions=manifest["versions"],
+            environment=manifest["environment"],
+            metrics=metrics,
+            limitations=manifest["limitations"],
+            review=manifest["review"],
+            comparison_run_key=comparison["run_key"] if comparison is not None else None,
+            metric_deltas=deltas,
+        )
+
+    @app.get(
+        "/api/v1/evaluation-runs/{run_key}/cases",
+        response_model=EvaluationCasePage,
+        operation_id="listEvaluationRunCases",
+        tags=["evaluation-results"],
+    )
+    async def list_evaluation_run_cases(
+        request: Request,
+        run_key: str,
+        cursor: str | None = Query(default=None, max_length=120),
+        limit: int = Query(default=20, ge=1, le=50),
+        status: Literal["passed", "failed"] | None = None,
+    ) -> EvaluationCasePage:
+        engine = cast(AsyncEngine, request.app.state.database_engine)
+        async with engine.connect() as connection:
+            run_exists = (
+                await connection.execute(
+                    text("SELECT 1 FROM eval_runs WHERE run_key = :run_key"),
+                    {"run_key": run_key},
+                )
+            ).scalar_one_or_none()
+            if run_exists is None:
+                raise HTTPException(status_code=404, detail="Evaluation run not found")
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            "SELECT c.stable_key AS case_id, c.split, c.question, c.answerable, "
+                            "r.status, r.retrieval_evidence AS retrieved_evidence_ids, "
+                            "c.reference_evidence AS relevant_evidence_ids, r.metric_values "
+                            "FROM eval_case_results r "
+                            "JOIN eval_runs er ON er.id = r.eval_run_id "
+                            "JOIN eval_cases c ON c.id = r.eval_case_id "
+                            "WHERE er.run_key = :run_key "
+                            "AND (CAST(:cursor AS text) IS NULL OR c.stable_key > :cursor) "
+                            "AND (CAST(:status AS text) IS NULL OR r.status = :status) "
+                            "ORDER BY c.stable_key LIMIT :limit"
+                        ),
+                        {
+                            "run_key": run_key,
+                            "cursor": cursor,
+                            "status": status,
+                            "limit": limit + 1,
+                        },
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        page = rows[:limit]
+        return EvaluationCasePage(
+            items=[EvaluationCaseResponse(**dict(item)) for item in page],
+            next_cursor=page[-1]["case_id"] if len(rows) > limit and page else None,
+        )
 
     return app
 

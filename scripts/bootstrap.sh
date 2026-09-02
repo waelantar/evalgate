@@ -25,6 +25,6 @@ docker compose config --quiet
 docker compose up -d --wait db
 
 (cd apps/api && uv sync --python 3.13.15 --locked && uv run --python 3.13.15 --locked evalgate-db seed-empty)
-(cd apps/web && npm ci)
+(cd apps/web && npm ci && npx playwright install chromium)
 
 echo "EvalGate foundation is ready. Start the API and web app using README.md."

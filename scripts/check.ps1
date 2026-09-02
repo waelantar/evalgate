@@ -40,6 +40,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Frontend lint failed with exit code $LASTEXITCODE." }
     npm.cmd run test
     if ($LASTEXITCODE -ne 0) { throw "Frontend tests failed with exit code $LASTEXITCODE." }
+    npm.cmd run test:e2e
+    if ($LASTEXITCODE -ne 0) { throw "Frontend E2E tests failed with exit code $LASTEXITCODE." }
     npm.cmd run build
     if ($LASTEXITCODE -ne 0) { throw "Frontend build failed with exit code $LASTEXITCODE." }
 } finally {

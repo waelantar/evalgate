@@ -7,6 +7,11 @@ vi.mock('./api/answerStream', () => ({
   fetchAnswerStream: async function* () { await Promise.resolve(); if (stream.fail) throw new Error('secret'); for (const event of stream.events) yield event },
 }))
 vi.mock('./api/search', () => ({ fetchSearchEvidence: vi.fn().mockResolvedValue([{ rank: 1, evidence_id: 'ev-1', document_id: 'doc-1', source_key: 'fixture', title: 'Runbook', license_id: 'internal', provenance: 'fixture', section_key: 'intro', source_start: 0, source_end: 10, content: 'Verified evidence', content_sha256: 'hash', lexical_rank: 1, vector_rank: null, rrf_score: 1 }]) }))
+vi.mock('./api/evaluationRuns', () => ({
+  fetchEvaluationRuns: vi.fn().mockResolvedValue({ items: [], next_cursor: null }),
+  fetchEvaluationRun: vi.fn(),
+  fetchEvaluationCases: vi.fn(),
+}))
 
 const envelope = (type: string, sequence: number, extra: Record<string, unknown> = {}) => ({ schema_version: '1.0', request_id: 'req-1', sequence, type, ...extra })
 
