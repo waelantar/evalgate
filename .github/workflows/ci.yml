@@ -102,7 +102,7 @@ jobs:
           python scripts/check_retrieval_baseline.py
           --artifact artifacts/retrieval-pr.json
           --baseline contracts/evaluation/retrieval-baseline-v1.json
-      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: retrieval-pr-${{ github.sha }}
           path: artifacts/retrieval-pr.*
