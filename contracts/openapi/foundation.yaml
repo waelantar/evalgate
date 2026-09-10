@@ -2,11 +2,12 @@ openapi: 3.1.0
 info:
   title: EvalGate API
   description: Governed retrieval and grounded-answer streaming with operational probes.
-  version: 0.6.1
+  version: 0.7.0
 paths:
   /health/live:
     get:
-      tags: [health]
+      tags:
+      - health
       summary: Liveness
       operationId: getLiveness
       responses:
@@ -18,7 +19,8 @@ paths:
                 $ref: '#/components/schemas/HealthResponse'
   /health/ready:
     get:
-      tags: [health]
+      tags:
+      - health
       summary: Readiness
       operationId: getReadiness
       responses:
@@ -36,7 +38,8 @@ paths:
                 $ref: '#/components/schemas/HealthResponse'
   /api/v1/search:
     post:
-      tags: [search]
+      tags:
+      - search
       summary: Search
       operationId: searchCorpus
       requestBody:
@@ -84,7 +87,8 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
   /api/v1/ask:
     post:
-      tags: [answer]
+      tags:
+      - answer
       summary: Ask
       operationId: askCorpus
       requestBody:
@@ -98,7 +102,8 @@ paths:
           description: Ordered UTF-8 SSE answer events.
           content:
             text/event-stream:
-              schema: {type: string}
+              schema:
+                type: string
         '400':
           description: The ask request is invalid.
           content:
@@ -129,204 +134,683 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/AskProblemDetails'
+  /api/v1/evaluation-runs:
+    get:
+      tags:
+      - evaluation-results
+      summary: List Evaluation Runs
+      operationId: listEvaluationRuns
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationRunPage'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/evaluation-runs/{run_key}:
+    get:
+      tags:
+      - evaluation-results
+      summary: Get Evaluation Run
+      operationId: getEvaluationRun
+      parameters:
+      - name: run_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Key
+      - name: compare_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Compare To
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationRunDetail'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/evaluation-runs/{run_key}/cases:
+    get:
+      tags:
+      - evaluation-results
+      summary: List Evaluation Run Cases
+      operationId: listEvaluationRunCases
+      parameters:
+      - name: run_key
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Key
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Cursor
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 20
+          title: Limit
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - passed
+            - failed
+            type: string
+          - type: 'null'
+          title: Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationCasePage'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     AskBody:
       properties:
-        question: {type: string, maxLength: 1000, minLength: 1, title: Question}
-        index_version: {type: string, format: uuid, title: Index Version}
+        question:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Question
+        index_version:
+          type: string
+          format: uuid
+          title: Index Version
         retrieval_limit:
-          {type: integer, maximum: 10.0, minimum: 1.0, title: Retrieval Limit, default: 5}
-        mode: {type: string, const: fixture, title: Mode}
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Retrieval Limit
+          default: 5
+        mode:
+          type: string
+          const: fixture
+          title: Mode
       additionalProperties: false
       type: object
-      required: [question, index_version, mode]
+      required:
+      - question
+      - index_version
+      - mode
       title: AskBody
       description: Strict bounded request for the frozen POST/fetch/SSE operation.
     AskProblemCode:
       type: string
       enum:
-        - request.invalid
-        - retrieval.index_not_found
-        - retrieval.embedding_mismatch
-        - retrieval.configuration_mismatch
-        - retrieval.embedding_unavailable
-        - system.database_unavailable
-        - retrieval.invalid_embedding
-        - retrieval.invalid_result
-        - provider.mode_invalid
-        - provider.unavailable
-        - answer.context_invalid
+      - request.invalid
+      - retrieval.index_not_found
+      - retrieval.embedding_mismatch
+      - retrieval.configuration_mismatch
+      - retrieval.embedding_unavailable
+      - system.database_unavailable
+      - retrieval.invalid_embedding
+      - retrieval.invalid_result
+      - provider.mode_invalid
+      - provider.unavailable
+      - answer.context_invalid
       title: AskProblemCode
       description: Pre-header ask failures that remain valid Problem Details responses.
     AskProblemDetails:
       properties:
-        type: {type: string, title: Type}
-        title: {type: string, title: Title}
-        status: {type: integer, title: Status}
-        detail: {type: string, title: Detail}
-        instance: {type: string, title: Instance}
-        code: {$ref: '#/components/schemas/AskProblemCode'}
-        request_id: {type: string, format: uuid, title: Request Id}
+        type:
+          type: string
+          title: Type
+        title:
+          type: string
+          title: Title
+        status:
+          type: integer
+          title: Status
+        detail:
+          type: string
+          title: Detail
+        instance:
+          type: string
+          title: Instance
+        code:
+          $ref: '#/components/schemas/AskProblemCode'
+        request_id:
+          type: string
+          format: uuid
+          title: Request Id
       additionalProperties: false
       type: object
-      required: [type, title, status, detail, instance, code, request_id]
+      required:
+      - type
+      - title
+      - status
+      - detail
+      - instance
+      - code
+      - request_id
       title: AskProblemDetails
       description: Content-free RFC 9457 response emitted before SSE headers.
     CorpusIdentityResponse:
       properties:
-        version_id: {type: string, format: uuid, title: Version Id}
-        key: {type: string, title: Key}
-        version: {type: string, title: Version}
+        version_id:
+          type: string
+          format: uuid
+          title: Version Id
+        key:
+          type: string
+          title: Key
+        version:
+          type: string
+          title: Version
         manifest_sha256:
-          {type: string, pattern: '^[a-f0-9]{64}$', title: Manifest Sha256}
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Manifest Sha256
       additionalProperties: false
       type: object
-      required: [version_id, key, version, manifest_sha256]
+      required:
+      - version_id
+      - key
+      - version
+      - manifest_sha256
       title: CorpusIdentityResponse
     EmbeddingIdentityResponse:
       properties:
-        model: {type: string, title: Model}
-        revision: {type: string, title: Revision}
-        checksum: {type: string, pattern: '^[a-f0-9]{64}$', title: Checksum}
-        dimension: {type: integer, const: 384, title: Dimension}
+        model:
+          type: string
+          title: Model
+        revision:
+          type: string
+          title: Revision
+        checksum:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Checksum
+        dimension:
+          type: integer
+          const: 384
+          title: Dimension
       additionalProperties: false
       type: object
-      required: [model, revision, checksum, dimension]
+      required:
+      - model
+      - revision
+      - checksum
+      - dimension
       title: EmbeddingIdentityResponse
-    HealthResponse:
+    EvaluationCasePage:
       properties:
-        service: {type: string, const: evalgate-api, title: Service}
-        version: {type: string, title: Version}
+        items:
+          items:
+            $ref: '#/components/schemas/EvaluationCaseResponse'
+          type: array
+          title: Items
+        next_cursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Cursor
+      additionalProperties: false
+      type: object
+      required:
+      - items
+      - next_cursor
+      title: EvaluationCasePage
+    EvaluationCaseResponse:
+      properties:
+        case_id:
+          type: string
+          title: Case Id
+        split:
+          type: string
+          title: Split
+        question:
+          type: string
+          title: Question
+        answerable:
+          type: boolean
+          title: Answerable
         status:
           type: string
-          enum: [alive, ready, not_ready]
+          title: Status
+        retrieved_evidence_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Retrieved Evidence Ids
+        relevant_evidence_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Relevant Evidence Ids
+        metric_values:
+          additionalProperties:
+            type: number
+          type: object
+          title: Metric Values
+      additionalProperties: false
+      type: object
+      required:
+      - case_id
+      - split
+      - question
+      - answerable
+      - status
+      - retrieved_evidence_ids
+      - relevant_evidence_ids
+      - metric_values
+      title: EvaluationCaseResponse
+    EvaluationRunDetail:
+      properties:
+        run_key:
+          type: string
+          title: Run Key
+        mode:
+          type: string
+          title: Mode
+        status:
+          type: string
+          title: Status
+        code_sha:
+          type: string
+          title: Code Sha
+        artifact_sha256:
+          type: string
+          title: Artifact Sha256
+        versions:
+          additionalProperties: true
+          type: object
+          title: Versions
+        environment:
+          additionalProperties: true
+          type: object
+          title: Environment
+        metrics:
+          additionalProperties:
+            type: number
+          type: object
+          title: Metrics
+        limitations:
+          items:
+            type: string
+          type: array
+          title: Limitations
+        review:
+          additionalProperties: true
+          type: object
+          title: Review
+        comparison_run_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comparison Run Key
+        metric_deltas:
+          anyOf:
+          - additionalProperties:
+              type: number
+            type: object
+          - type: 'null'
+          title: Metric Deltas
+      additionalProperties: false
+      type: object
+      required:
+      - run_key
+      - mode
+      - status
+      - code_sha
+      - artifact_sha256
+      - versions
+      - environment
+      - metrics
+      - limitations
+      - review
+      - comparison_run_key
+      - metric_deltas
+      title: EvaluationRunDetail
+    EvaluationRunPage:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EvaluationRunResponse'
+          type: array
+          title: Items
+        next_cursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Cursor
+      additionalProperties: false
+      type: object
+      required:
+      - items
+      - next_cursor
+      title: EvaluationRunPage
+    EvaluationRunResponse:
+      properties:
+        run_key:
+          type: string
+          title: Run Key
+        mode:
+          type: string
+          title: Mode
+        status:
+          type: string
+          title: Status
+        code_sha:
+          type: string
+          title: Code Sha
+        artifact_sha256:
+          type: string
+          title: Artifact Sha256
+      additionalProperties: false
+      type: object
+      required:
+      - run_key
+      - mode
+      - status
+      - code_sha
+      - artifact_sha256
+      title: EvaluationRunResponse
+    HealthResponse:
+      properties:
+        service:
+          type: string
+          const: evalgate-api
+          title: Service
+        version:
+          type: string
+          title: Version
+        status:
+          type: string
+          enum:
+          - alive
+          - ready
+          - not_ready
           title: Status
         checks:
-          additionalProperties: {type: string}
+          additionalProperties:
+            type: string
           type: object
           title: Checks
       additionalProperties: false
       type: object
-      required: [service, version, status, checks]
+      required:
+      - service
+      - version
+      - status
+      - checks
       title: HealthResponse
       description: Stable health response without sensitive configuration.
     IndexIdentityResponse:
       properties:
-        version_id: {type: string, format: uuid, title: Version Id}
-        key: {type: string, title: Key}
-        chunking_version: {type: string, title: Chunking Version}
+        version_id:
+          type: string
+          format: uuid
+          title: Version Id
+        key:
+          type: string
+          title: Key
+        chunking_version:
+          type: string
+          title: Chunking Version
         chunking_policy_sha256:
-          {type: string, pattern: '^[a-f0-9]{64}$', title: Chunking Policy Sha256}
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Chunking Policy Sha256
         lexical_config_sha256:
-          {type: string, pattern: '^[a-f0-9]{64}$', title: Lexical Config Sha256}
-        embedding: {$ref: '#/components/schemas/EmbeddingIdentityResponse'}
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Lexical Config Sha256
+        embedding:
+          $ref: '#/components/schemas/EmbeddingIdentityResponse'
       additionalProperties: false
       type: object
       required:
-        - version_id
-        - key
-        - chunking_version
-        - chunking_policy_sha256
-        - lexical_config_sha256
-        - embedding
+      - version_id
+      - key
+      - chunking_version
+      - chunking_policy_sha256
+      - lexical_config_sha256
+      - embedding
       title: IndexIdentityResponse
     ProblemDetails:
       properties:
-        type: {type: string, title: Type}
-        title: {type: string, title: Title}
-        status: {type: integer, title: Status}
-        detail: {type: string, title: Detail}
-        instance: {type: string, title: Instance}
-        code: {$ref: '#/components/schemas/SearchErrorCode'}
-        request_id: {type: string, format: uuid, title: Request Id}
+        type:
+          type: string
+          title: Type
+        title:
+          type: string
+          title: Title
+        status:
+          type: integer
+          title: Status
+        detail:
+          type: string
+          title: Detail
+        instance:
+          type: string
+          title: Instance
+        code:
+          $ref: '#/components/schemas/SearchErrorCode'
+        request_id:
+          type: string
+          format: uuid
+          title: Request Id
       additionalProperties: false
       type: object
-      required: [type, title, status, detail, instance, code, request_id]
+      required:
+      - type
+      - title
+      - status
+      - detail
+      - instance
+      - code
+      - request_id
       title: ProblemDetails
       description: RFC 9457 response with stable EvalGate extensions.
     SearchBody:
       properties:
-        query: {type: string, maxLength: 1000, minLength: 1, title: Query}
-        index_version: {type: string, format: uuid, title: Index Version}
+        query:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Query
+        index_version:
+          type: string
+          format: uuid
+          title: Index Version
         limit:
-          {type: integer, maximum: 20.0, minimum: 1.0, title: Limit, default: 10}
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Limit
+          default: 10
       additionalProperties: false
       type: object
-      required: [query, index_version]
+      required:
+      - query
+      - index_version
       title: SearchBody
       description: Strict bounded JSON body for the public search operation.
     SearchErrorCode:
       type: string
       enum:
-        - request.invalid
-        - retrieval.index_not_found
-        - retrieval.embedding_mismatch
-        - retrieval.configuration_mismatch
-        - retrieval.embedding_unavailable
-        - system.database_unavailable
-        - retrieval.invalid_embedding
-        - retrieval.invalid_result
+      - request.invalid
+      - retrieval.index_not_found
+      - retrieval.embedding_mismatch
+      - retrieval.configuration_mismatch
+      - retrieval.embedding_unavailable
+      - system.database_unavailable
+      - retrieval.invalid_embedding
+      - retrieval.invalid_result
       title: SearchErrorCode
       description: Stable, content-free search failure categories.
     SearchEvidenceResponse:
       properties:
-        rank: {type: integer, minimum: 1.0, title: Rank}
-        evidence_id: {type: string, format: uuid, title: Evidence Id}
-        document_id: {type: string, format: uuid, title: Document Id}
-        source_key: {type: string, title: Source Key}
-        title: {type: string, title: Title}
-        license_id: {type: string, title: License Id}
-        provenance: {type: string, title: Provenance}
-        section_key: {type: string, title: Section Key}
-        source_start: {type: integer, minimum: 0.0, title: Source Start}
-        source_end: {type: integer, minimum: 1.0, title: Source End}
-        content: {type: string, title: Content}
+        rank:
+          type: integer
+          minimum: 1.0
+          title: Rank
+        evidence_id:
+          type: string
+          format: uuid
+          title: Evidence Id
+        document_id:
+          type: string
+          format: uuid
+          title: Document Id
+        source_key:
+          type: string
+          title: Source Key
+        title:
+          type: string
+          title: Title
+        license_id:
+          type: string
+          title: License Id
+        provenance:
+          type: string
+          title: Provenance
+        section_key:
+          type: string
+          title: Section Key
+        source_start:
+          type: integer
+          minimum: 0.0
+          title: Source Start
+        source_end:
+          type: integer
+          minimum: 1.0
+          title: Source End
+        content:
+          type: string
+          title: Content
         content_sha256:
-          {type: string, pattern: '^[a-f0-9]{64}$', title: Content Sha256}
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Content Sha256
         lexical_rank:
           anyOf:
-            - {type: integer, minimum: 1.0}
-            - {type: 'null'}
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
           title: Lexical Rank
         vector_rank:
           anyOf:
-            - {type: integer, minimum: 1.0}
-            - {type: 'null'}
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
           title: Vector Rank
-        rrf_score: {type: number, exclusiveMinimum: 0.0, title: Rrf Score}
+        rrf_score:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Rrf Score
       additionalProperties: false
       type: object
       required:
-        - rank
-        - evidence_id
-        - document_id
-        - source_key
-        - title
-        - license_id
-        - provenance
-        - section_key
-        - source_start
-        - source_end
-        - content
-        - content_sha256
-        - lexical_rank
-        - vector_rank
-        - rrf_score
+      - rank
+      - evidence_id
+      - document_id
+      - source_key
+      - title
+      - license_id
+      - provenance
+      - section_key
+      - source_start
+      - source_end
+      - content
+      - content_sha256
+      - lexical_rank
+      - vector_rank
+      - rrf_score
       title: SearchEvidenceResponse
     SearchResponse:
       properties:
-        schema_version: {type: string, const: '1.0', title: Schema Version}
-        request_id: {type: string, format: uuid, title: Request Id}
-        retrieval_policy: {type: string, const: hybrid-rrf-v1, title: Retrieval Policy}
-        index: {$ref: '#/components/schemas/IndexIdentityResponse'}
-        source_corpus: {$ref: '#/components/schemas/CorpusIdentityResponse'}
+        schema_version:
+          type: string
+          const: '1.0'
+          title: Schema Version
+        request_id:
+          type: string
+          format: uuid
+          title: Request Id
+        retrieval_policy:
+          type: string
+          const: hybrid-rrf-v1
+          title: Retrieval Policy
+        index:
+          $ref: '#/components/schemas/IndexIdentityResponse'
+        source_corpus:
+          $ref: '#/components/schemas/CorpusIdentityResponse'
         results:
-          items: {$ref: '#/components/schemas/SearchEvidenceResponse'}
+          items:
+            $ref: '#/components/schemas/SearchEvidenceResponse'
           type: array
           maxItems: 20
           title: Results
       additionalProperties: false
       type: object
-      required: [schema_version, request_id, retrieval_policy, index, source_corpus, results]
+      required:
+      - schema_version
+      - request_id
+      - retrieval_policy
+      - index
+      - source_corpus
+      - results
       title: SearchResponse

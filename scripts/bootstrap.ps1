@@ -38,6 +38,8 @@ Push-Location "apps/web"
 try {
     npm.cmd ci
     if ($LASTEXITCODE -ne 0) { throw "Frontend dependency install failed with exit code $LASTEXITCODE." }
+    npx.cmd playwright install chromium
+    if ($LASTEXITCODE -ne 0) { throw "Playwright browser install failed with exit code $LASTEXITCODE." }
 } finally {
     Pop-Location
 }

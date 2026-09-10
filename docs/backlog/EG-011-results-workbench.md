@@ -1,6 +1,6 @@
 # EG-011: Read-only evaluation results workbench
 
-- Status: Planned
+- Status: Implemented and locally verified; remote CI pending
 - Branch: `feat/eg-011-results-workbench`
 - Depends on: EG-008 and EG-009 merged to `main`
 - Release: R3
@@ -25,10 +25,31 @@ A reviewed CLI-produced artifact can be validated and imported locally, and user
 
 ## Acceptance evidence
 
-- [ ] Valid reviewed artifact imports idempotently; invalid/unreviewed/oversized/tampered artifacts fail transactionally.
-- [ ] CI workflow cannot invoke import and public mode exposes read-only result routes only.
-- [ ] API pagination/contracts and UI states have integration, component, accessibility, and E2E coverage.
-- [ ] Displayed versions/limitations match the immutable artifact and large raw content is not duplicated unboundedly.
+- [x] Valid reviewed artifact imports idempotently; invalid/unreviewed/oversized/tampered artifacts fail transactionally.
+- [x] CI workflow cannot invoke import and public mode exposes read-only result routes only.
+- [x] API pagination/contracts and UI states have integration, component, accessibility, and E2E coverage.
+- [x] Displayed versions/limitations match the immutable artifact and large raw content is not duplicated unboundedly.
+
+## Implementation evidence
+
+- The local-only CLI requires a separate schema-valid approval record, verifies the artifact and
+  reviewed dataset byte hashes, enforces the exact reviewed case/evidence labels, and checks the
+  referenced index/corpus and accepted retrieval policy before opening its write transaction.
+- Real PostgreSQL tests prove exact-artifact idempotency, bounded 36-case persistence, unknown
+  reference denial, an induced mid-import foreign-key failure with full new-run/result rollback,
+  cursor pagination, metric deltas, and failed-case filtering.
+- The generated OpenAPI contract exposes only bounded GET run/detail/case routes. Environment tests
+  reject the CLI in CI and public modes before file access; no import or trigger HTTP route exists.
+- The typed React consumer runtime-validates API payloads and renders loading, empty, safe-error,
+  retry, immutable identity, metrics/deltas, limitations, and case-evidence states. Thirty Vitest
+  tests and three Chromium E2E flows pass; the loaded browser flow reports zero axe violations.
+- The raw artifact remains outside PostgreSQL. Storage is capped at 1 MB/100 cases/20 evidence IDs
+  per list, and persisted JSON contains only environment/version/metric/limitation/review metadata
+  plus bounded evidence-ID projections.
+- On 2026-09-02, the complete local repository gate passed at `0.7.0`: publication and metadata
+  validation, Compose configuration, Ruff formatting/lint, strict typing, 157 non-integration API
+  tests, 30 web tests, three Chromium E2E/accessibility tests, and the production web build. The
+  complete 14-test PostgreSQL/reference-embedding integration suite also passed locally.
 
 ## Required tests and review
 

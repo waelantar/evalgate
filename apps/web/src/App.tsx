@@ -1,6 +1,7 @@
 import { type FormEvent, useRef, useState } from 'react'
 import { fetchAnswerStream, type AskRequest } from './api/answerStream'
 import { fetchSearchEvidence } from './api/search'
+import { ResultsWorkbench } from './evaluation/ResultsWorkbench'
 import { initialInspectionState, inspectionReducer } from './inspection/state'
 
 const labels = { idle: 'Ready', submitting: 'Submitting question', retrieving: 'Retrieving evidence', streaming: 'Streaming answer', completed: 'Complete', failed: 'Failed', cancelled: 'Cancelled' } as const
@@ -53,5 +54,6 @@ export function App() {
       </div>
     </section>
     <section className="panel evidence-panel" aria-labelledby="evidence-heading"><p className="eyebrow">Inspectable sources</p><h2 id="evidence-heading">Evidence</h2>{state.evidence.length === 0 ? <p className="muted">Evidence appears after retrieval completes.</p> : state.evidence.map((item) => <article id={`evidence-${item.evidence_id}`} className="evidence" key={item.evidence_id} ref={(element) => { evidenceRefs.current[item.evidence_id] = element }}><h3>{item.title}</h3><p className="muted">{item.source_key} · {item.section_key} · rank {item.rank}</p><p>{item.content}</p><small>Evidence ID: {item.evidence_id}</small></article>)}</section>
+    <ResultsWorkbench />
   </main>
 }

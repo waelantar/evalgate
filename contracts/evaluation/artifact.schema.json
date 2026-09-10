@@ -49,10 +49,52 @@
       }
     },
     "metrics": { "type": "object", "additionalProperties": { "type": "number" } },
-    "cases": { "type": "array", "items": { "type": "object" } },
+    "cases": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["case_id", "retrieved_evidence_ids", "relevant_evidence_ids"],
+            "properties": {
+              "case_id": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "retrieved_evidence_ids": { "$ref": "#/$defs/evidence_id_array" },
+              "relevant_evidence_ids": { "$ref": "#/$defs/evidence_id_array" }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["case_id", "split", "question", "answerability", "relevant_evidence_ids", "supported_claims", "review_state"],
+            "properties": {
+              "case_id": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "split": { "enum": ["development", "calibration", "regression"] },
+              "question": { "type": "string", "minLength": 1, "maxLength": 1000 },
+              "answerability": { "enum": ["answerable", "unanswerable"] },
+              "relevant_evidence_ids": { "$ref": "#/$defs/evidence_id_array" },
+              "supported_claims": {
+                "type": "array",
+                "maxItems": 20,
+                "uniqueItems": true,
+                "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+              },
+              "review_state": { "const": "reviewed" }
+            }
+          }
+        ]
+      }
+    },
     "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } }
   },
   "$defs": {
-    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "evidence_id_array": {
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": { "type": "string", "format": "uuid" }
+    }
   }
 }
