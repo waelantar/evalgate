@@ -3,8 +3,8 @@
 EG-009 owns the 36-case reviewed golden set and deterministic metric artifact. EG-010 owns the
 reviewed retrieval baseline and secret-free PR comparison. EG-011 imports an explicitly approved
 artifact into bounded PostgreSQL projections and exposes read-only run/detail/case views. EG-015
-owns any future protected live-generation evidence. CI artifacts never write to application state,
-and no baseline or review record is updated automatically.
+owns protected live-generation evidence. CI artifacts never write to application state, and no
+baseline or review record is updated automatically.
 
 ## Import trust boundary
 
@@ -48,3 +48,46 @@ failure, and retry states and treats every stored string as plain React text.
 
 Run unit/component checks with `./scripts/check.ps1`. Bootstrap installs the pinned Chromium build;
 `npm --prefix apps/web run test:e2e` executes loaded/empty/error browser flows and an axe scan.
+
+## Governed live generation
+
+The EG-015 live suite uses only the approved OpenRouter `deepseek/deepseek-v4-flash` path, with a
+USD 4.60 hard budget and USD 4.14 stop limit. The key must be supplied as
+`EVALGATE_OPENROUTER_API_KEY` from a local ignored `.env` file or the protected GitHub secret of the
+same name. Do not place the key in source files, examples, command history screenshots, or browser
+configuration.
+
+Local PowerShell setup for the protected live run:
+
+```powershell
+$env:EVALGATE_ENVIRONMENT = "local"
+$env:EVALGATE_EMBEDDING_MODE = "reference"
+$env:EVALGATE_GENERATION_MODE = "live"
+$env:EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT = ".evalgate-cache/reference-embedding/snapshot"
+$env:EVALGATE_LIVE_PROVIDER = "openrouter"
+$env:EVALGATE_OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
+$env:EVALGATE_LIVE_EVAL_BUDGET_USD = "4.60"
+$env:EVALGATE_LIVE_EVAL_STOP_USD = "4.14"
+```
+
+Then run:
+
+```powershell
+uv run --python 3.13.15 --project apps/api --locked evalgate-live-evaluate `
+  --index-version 6932f8da-e71b-533f-ae2b-4c969cd3acd2 `
+  --output artifacts/evaluation-live-openrouter.json `
+  --markdown artifacts/evaluation-live-openrouter.md `
+  --repetitions 2
+```
+
+The artifact is generation evidence, not a retrieval baseline and not an importable results DB row.
+It records case/repetition IDs, status, cited evidence IDs, human labels, advisory judge labels,
+usage, cost, agreement, and limitations. It deliberately excludes prompts, raw completions, corpus
+text, provider secrets, and browser-visible configuration.
+
+Reviewed local run `golden-1.0.0-openrouter-deepseek-v4-flash` completed on 2026-09-11 against
+EvalGate 0.8.0 with 36 reviewed cases and two repetitions per case. The artifact-reported cost was
+USD 0.004046, under the USD 4.14 stop limit. Human pass rate and citation recall were both
+0.180556. The run is honest negative/limited evidence for this provider posture: most failures were
+malformed output, provider timeout, or provider unavailable, and only three repetitions reached a
+valid advisory judge label.

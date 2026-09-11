@@ -285,6 +285,13 @@ def test_retrieval_only_mode_never_calls_generation() -> None:
     assert len(result.evidence) == 1
 
 
+def test_live_mode_requires_and_accepts_live_provider_identity() -> None:
+    result = _answer(_Generation(_output(), identity=LIVE_IDENTITY), mode=AnswerMode.LIVE)
+
+    assert result.status is AnswerStatus.ANSWERED
+    assert result.generation_identity == LIVE_IDENTITY
+
+
 @pytest.mark.parametrize("generation", [None, _Generation(_output(), identity=LIVE_IDENTITY)])
 def test_fixture_mode_requires_an_explicit_fixture_provider(generation: _Generation | None) -> None:
     with pytest.raises(AnswerError) as captured:

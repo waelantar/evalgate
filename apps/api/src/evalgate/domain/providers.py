@@ -69,8 +69,27 @@ class GenerationInput:
 
 
 @dataclass(frozen=True, slots=True)
+class GenerationUsage:
+    """Bounded usage and cost evidence returned by a live generation provider."""
+
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+    cost_usd: float
+
+    def __post_init__(self) -> None:
+        if self.input_tokens < 0 or self.output_tokens < 0 or self.total_tokens < 0:
+            raise ValueError("generation token usage must be non-negative")
+        if self.total_tokens < self.input_tokens + self.output_tokens:
+            raise ValueError("generation total tokens must cover input and output tokens")
+        if not isfinite(self.cost_usd) or self.cost_usd < 0:
+            raise ValueError("generation cost must be a finite non-negative value")
+
+
+@dataclass(frozen=True, slots=True)
 class GenerationOutput:
     """Generated text with an explicit provider identity."""
 
     text: str
     identity: ProviderIdentity
+    usage: GenerationUsage | None = None

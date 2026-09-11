@@ -390,7 +390,7 @@ async def complete_prepared_answer(
             generation_identity=None,
             **common,
         )
-    if request.mode is not AnswerMode.FIXTURE or generation is None:
+    if request.mode not in (AnswerMode.FIXTURE, AnswerMode.LIVE) or generation is None:
         raise AnswerError(AnswerErrorCode.MODE_INVALID, "answer provider mode is invalid")
     try:
         identity = generation.identity
@@ -398,7 +398,8 @@ async def complete_prepared_answer(
         raise AnswerError(
             AnswerErrorCode.MODE_INVALID, "answer provider mode is invalid"
         ) from error
-    if identity.mode is not ProviderMode.FIXTURE:
+    expected_mode = ProviderMode(request.mode.value)
+    if identity.mode is not expected_mode:
         raise AnswerError(AnswerErrorCode.MODE_INVALID, "answer provider mode is invalid")
 
     prompt = _build_prompt(question=request.question, evidence=prepared.evidence, policy=policy)

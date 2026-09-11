@@ -19,3 +19,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Golden evaluation dataset and deterministic retrieval metrics with schema-validated JSON/Markdown artifact generation.
 - Reviewed, secret-free retrieval baseline comparison and PR artifact gate.
 - Local-only reviewed evaluation-artifact import with checksum/reference enforcement, transactional bounded run/case persistence, read-only paginated result APIs, and an accessible typed React results workbench with Chromium E2E coverage.
+- Governed OpenRouter live-generation evaluation with protected manual workflow, budget caps, ZDR routing request, advisory judge calibration, and schema-valid generation artifacts.
