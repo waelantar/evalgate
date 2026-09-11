@@ -88,6 +88,18 @@ def test_ci_workflow_has_no_result_import_command() -> None:
     assert "evalgate-import-results" not in workflow
 
 
+def test_live_evaluation_workflow_is_manual_only_and_uses_secret() -> None:
+    workflow = (Path(__file__).parents[3] / ".github/workflows/live-evaluation.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "workflow_dispatch:" in workflow
+    assert "pull_request" not in workflow
+    assert "pull_request_target" not in workflow
+    assert "EVALGATE_OPENROUTER_API_KEY: ${{ secrets.EVALGATE_OPENROUTER_API_KEY }}" in workflow
+    assert "evalgate-live-evaluate" in workflow
+
+
 def test_tampered_artifact_fails_approved_checksum_before_database(tmp_path: Path) -> None:
     root = Path(__file__).parents[3]
     artifact_path = tmp_path / "artifact.json"

@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from evalgate.application.provider_configuration import (
     EmbeddingMode,
     GenerationMode,
+    LiveProvider,
     ProviderConfigurationError,
     ProviderConfigurationErrorCode,
 )
@@ -47,12 +48,59 @@ def test_reference_mode_requires_preprovisioned_snapshot() -> None:
 
 
 def test_live_mode_returns_typed_error_without_fixture_fallback() -> None:
-    settings = Settings(generation_mode=GenerationMode.LIVE)
+    settings = Settings(
+        generation_mode=GenerationMode.LIVE,
+        live_provider=None,
+        openrouter_api_key=None,
+    )
 
     with pytest.raises(ProviderConfigurationError) as captured:
         settings.provider_configuration()
 
     assert captured.value.code is ProviderConfigurationErrorCode.LIVE_PROVIDER_NOT_CONFIGURED
+
+
+def test_live_mode_requires_approved_provider_secret_and_budget() -> None:
+    with pytest.raises(ProviderConfigurationError) as captured:
+        Settings(
+            generation_mode=GenerationMode.LIVE,
+            live_provider=LiveProvider.OPENROUTER,
+            openrouter_api_key=None,
+            live_eval_budget_usd=4.60,
+            live_eval_stop_usd=4.14,
+        ).provider_configuration()
+
+    assert captured.value.code is ProviderConfigurationErrorCode.LIVE_PROVIDER_SECRET_REQUIRED
+
+
+def test_live_mode_accepts_only_approved_openrouter_configuration() -> None:
+    configuration = Settings(
+        generation_mode=GenerationMode.LIVE,
+        live_provider=LiveProvider.OPENROUTER,
+        openrouter_api_key=" secret ",  # type: ignore[arg-type]
+        openrouter_model=" deepseek/deepseek-v4-flash ",
+        live_eval_budget_usd=4.60,
+        live_eval_stop_usd=4.14,
+    ).provider_configuration()
+
+    assert configuration.generation_mode is GenerationMode.LIVE
+    assert configuration.live_provider is LiveProvider.OPENROUTER
+    assert configuration.live_model == "deepseek/deepseek-v4-flash"
+    assert configuration.live_budget_usd == 4.60
+    assert configuration.live_stop_usd == 4.14
+
+
+def test_live_mode_rejects_stop_limit_above_budget() -> None:
+    with pytest.raises(ProviderConfigurationError) as captured:
+        Settings(
+            generation_mode=GenerationMode.LIVE,
+            live_provider=LiveProvider.OPENROUTER,
+            openrouter_api_key="secret",  # type: ignore[arg-type]
+            live_eval_budget_usd=4.60,
+            live_eval_stop_usd=4.61,
+        ).provider_configuration()
+
+    assert captured.value.code is ProviderConfigurationErrorCode.LIVE_BUDGET_INVALID
 
 
 def test_public_reference_mode_accepts_only_an_explicit_snapshot() -> None:
@@ -78,10 +126,14 @@ def test_process_settings_fail_closed_before_runtime_composition(
 ) -> None:
     get_settings.cache_clear()
     monkeypatch.setenv("EVALGATE_GENERATION_MODE", "live")
+    monkeypatch.setenv("EVALGATE_LIVE_PROVIDER", "openrouter")
+    monkeypatch.setenv("EVALGATE_OPENROUTER_API_KEY", "secret")
+    monkeypatch.setenv("EVALGATE_LIVE_EVAL_BUDGET_USD", "4.60")
+    monkeypatch.setenv("EVALGATE_LIVE_EVAL_STOP_USD", "4.61")
     try:
         with pytest.raises(ProviderConfigurationError) as captured:
             get_settings()
     finally:
         get_settings.cache_clear()
 
-    assert captured.value.code is ProviderConfigurationErrorCode.LIVE_PROVIDER_NOT_CONFIGURED
+    assert captured.value.code is ProviderConfigurationErrorCode.LIVE_BUDGET_INVALID

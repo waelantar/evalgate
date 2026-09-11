@@ -18,6 +18,7 @@ class AnswerMode(StrEnum):
 
     RETRIEVAL_ONLY = "retrieval_only"
     FIXTURE = "fixture"
+    LIVE = "live"
 
 
 class AnswerStatus(StrEnum):
@@ -93,8 +94,13 @@ class AnswerResult:
             if self.answer is not None or self.citations or self.generation_identity is not None:
                 raise ValueError("retrieval-only result must not contain generation output")
             return
-        if self.mode is not AnswerMode.FIXTURE or self.generation_identity is None:
+        if (
+            self.mode not in (AnswerMode.FIXTURE, AnswerMode.LIVE)
+            or self.generation_identity is None
+        ):
             raise ValueError("generated answer requires an explicit generation identity")
+        if self.generation_identity.mode.value != self.mode.value:
+            raise ValueError("generated answer mode and provider identity must match")
         if self.answer is None or not self.answer.strip():
             raise ValueError("generated answer text must not be empty")
         if self.status is AnswerStatus.ANSWERED and not self.citations:

@@ -14,7 +14,7 @@ The repository currently contains the approved production blueprint, reproducibl
 | Hybrid retrieval | Implemented, merged, and locally verified; remote CI pending |
 | Grounded-answer core and validated citations | Implemented, merged, and locally verified; remote CI pending |
 | POST/fetch/SSE answer stream and inspection UI | Implemented and locally verified on EG-007/EG-008 review branches; no live provider or deployment claim |
-| Evaluation gate and results UI | Implemented and locally verified with reviewed artifacts, real PostgreSQL, component, browser, and accessibility tests; remote CI pending |
+| Evaluation gate and results UI | Implemented and locally verified with reviewed artifacts, real PostgreSQL, component, browser, and accessibility tests; governed live-generation evaluation is protected/manual only |
 | MCP adapter | Deferred until the core release |
 | Public deployment | Not selected or deployed |
 
@@ -70,7 +70,11 @@ The reviewed-artifact import boundary, bounded result storage, read-only API, an
 documented in [evaluation governance](docs/evaluation/README.md). Evaluation imports are local-only;
 CI and public mode cannot invoke them.
 
-Copy `.env.example` to `.env` only when overriding local defaults. Provider modes are explicit and default locally to labeled deterministic fixtures. Reference mode requires a pre-provisioned local snapshot that must pass the manifest verifier before runtime construction; live generation remains unavailable, and no external provider call exists.
+Copy `.env.example` to `.env` only when overriding local defaults. Provider modes are explicit and
+default locally to labeled deterministic fixtures. Reference mode requires a pre-provisioned local
+snapshot that must pass the manifest verifier before runtime construction. Governed live generation
+is available only through the EG-015 live-evaluation command or protected manual workflow after an
+approved provider, key, retention posture, and budget are configured.
 
 Bootstrap waits for the digest-pinned PostgreSQL 18/pgvector service and applies the forward-only
 empty-schema migration. Database reset is a separately confirmed, loopback-only recovery command;

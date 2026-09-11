@@ -1,6 +1,6 @@
 # EG-015: Governed live-generation evaluation
 
-- Status: Planned; requires explicit provider, retention, and budget approval before any external call
+- Status: Done; governed OpenRouter run completed locally with limitation-heavy evidence
 - Branch: `feat/eg-015-governed-live-eval`
 - Depends on: EG-006 and EG-009 merged to `main`, plus external-service decision gate
 - Release: R3
@@ -25,10 +25,25 @@ One approved generation path produces a versioned, budget-bounded live evaluatio
 
 ## Acceptance evidence
 
-- [ ] Explicit owner approval names provider/model posture, retention, region, budget, and kill criteria before calls.
-- [ ] Protected workflow enforces caps and records provider/model/prompt/version/usage/cost/repetitions.
-- [ ] Human-vs-judge agreement and case evidence justify advisory/blocking status; inadequate calibration stays advisory.
-- [ ] Artifact validates, is reviewed, and cannot be confused with fixture or retrieval-only evidence.
+- [x] Explicit owner approval named OpenRouter `deepseek/deepseek-v4-flash`, no fallback,
+      ZDR/data-collection denial request, local/protected-secret handling, USD 4.60 budget, and USD
+      4.14 stop limit before corpus-bearing calls.
+- [x] Protected workflow enforces caps and records provider/model/prompt/version/usage/cost/repetitions.
+- [x] Human-vs-judge agreement and case evidence justify advisory status only; the completed run
+      had 72 repetitions, 0.180556 human pass rate, 0.180556 citation recall, and only three valid
+      advisory judge labels because provider output quality/availability was limitation-heavy.
+- [x] Artifact validates, is reviewed, and cannot be confused with fixture or retrieval-only evidence.
+
+## Completed evidence
+
+- Full local artifact: `artifacts/evaluation-live-openrouter.json`
+- Markdown summary: `artifacts/evaluation-live-openrouter.md`
+- Review record:
+  `docs/evaluation/reviews/golden-v1-openrouter-deepseek-v4-flash.json`
+- Artifact SHA-256:
+  `cb13919ecce5ab0a25316be05426a8b262437dbb052ee421dbeb3310768e0a80`
+- Artifact-reported cost: USD 0.004046 under the USD 4.14 stop limit; account-observed spend for
+  smoke/diagnostic/partial/full attempts increased by about USD 0.017191.
 
 ## Required tests and review
 
