@@ -14,7 +14,7 @@ The repository currently contains the approved production blueprint, reproducibl
 | Grounded answers, SSE, and inspection UI | Implemented and locally verified with contracts, browser/E2E checks, and server-derived citations; no public live provider claim |
 | Evaluation gate and results UI | Implemented and locally verified; governed live-generation evidence is protected/manual and limitation-heavy, not a quality-success claim |
 | Public-mode application security and operations | Implemented application boundary, browser-safety automation, redacted telemetry, controls, local image, and runbooks; no hosting or deployment authorization |
-| R3 release | Blocked at `0.9.0`; see [release readiness](docs/release/READINESS.md) for the required scanner, manual accessibility, and remote-CI evidence |
+| R3 release | Blocked at `0.9.0`; EG-017 product experience and EG-018 real-world showcase now precede final release evidence, alongside the required scanner, manual accessibility, and remote-CI evidence |
 | MCP adapter | Deferred until R3 is accepted |
 | Public deployment | Not selected or deployed |
 
@@ -78,7 +78,8 @@ approved provider, key, retention posture, and budget are configured.
 
 The application-side public-mode boundary and its required configuration are documented in
 [public-mode security](docs/security/public-mode.md). This hardening does not enable public live
-generation or authorize deployment; EG-013C/D, EG-014, and optional EG-016 remain required.
+generation or authorize deployment; EG-017, EG-018, EG-014 finalization, and optional EG-016
+remain required.
 
 Bootstrap waits for the digest-pinned PostgreSQL 18/pgvector service and applies the forward-only
 empty-schema migration. Database reset is a separately confirmed, loopback-only recovery command;

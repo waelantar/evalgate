@@ -43,9 +43,16 @@ OpenRouter decisions agree with the current R3 code and documentation.
 3. **Remote CI evidence:** the repository has a pinned, secret-free PR workflow, but no linked
    successful remote CI run is available in this local evidence record. Before publishing, record
    the successful run URL/commit and confirm its immutable retrieval artifact.
+4. **Product experience:** the initial audit found that the local UI still exposes implementation
+   identities as primary labels, lacks a persistent product shell and guided evidence flow, and
+   does not make every blocked-request path finite and recoverable. Complete and review EG-017.
+5. **Real-world showcase:** the current governed corpus is intentionally synthetic. Complete EG-018
+   with an immutable, license-compatible real-world documentation subset, truthful attribution,
+   authored-question disclosure, comparable-model controls, human review, and limitations.
 
-These are release blockers, not feature defects. They require evidence or review, not a code or
-image-definition change on this documentation branch.
+These are release blockers. The first three require evidence or review; the last two require their
+separately scoped implementation branches. None authorizes a code or image-definition change on
+this documentation branch.
 
 ## Security, privacy, operations, and limitations
 
@@ -65,9 +72,9 @@ image-definition change on this documentation branch.
 
 ## Version handoff and recommendation
 
-Do **not** change `0.9.0` to `1.0.0` yet. After the three blockers are independently evidenced,
-rerun the complete matrix, update this record with the scanner disposition, manual-review dates,
-and remote CI URL, then apply the controlled version bump described in
-[`docs/WORKFLOW.md`](../WORKFLOW.md). Only then rebuild the unchanged image as `1.0.0`, regenerate
-its smoke/SBOM/scan/digest evidence, and prepare a final release record. No tag, release, push, or
-deployment is authorized by this record.
+Do **not** change `0.9.0` directly to `1.0.0`. Complete EG-017 (`0.10.0`) and EG-018 (`0.11.0`),
+then independently evidence the scanner, manual-review, and remote-CI gates. Rerun the complete
+matrix, update this record with every new artifact and disposition, and only then apply the
+controlled final version bump described in [`docs/WORKFLOW.md`](../WORKFLOW.md). Rebuild the
+unchanged accepted image as `1.0.0`, regenerate its smoke/SBOM/scan/digest evidence, and prepare a
+final release record. No tag, release, push, or deployment is authorized by this record.

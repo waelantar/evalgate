@@ -20,7 +20,7 @@ The Codex profile never grants authority for external actions. EG-015 provider c
 
 ## Product-version handoff
 
-EvalGate uses a serialized product-version path following Semantic Versioning. Before `1.0.0`, a minor bump introduces a new observable API, CLI, UI, integration, or distributable capability; a patch bump introduces compatible internal foundation, evidence, governance, or hardening. EG-014 alone may establish `1.0.0`, and only after every R3 release gate passes. After `1.0.0`, normal Semantic Versioning applies.
+EvalGate uses a serialized product-version path following Semantic Versioning. Before `1.0.0`, a minor bump introduces a new observable API, CLI, UI, integration, or distributable capability; a patch bump introduces compatible internal foundation, evidence, governance, or hardening. EG-017 and EG-018 add the final pre-stable product experience and real-world showcase at `0.10.0` and `0.11.0`. EG-014 alone may then establish `1.0.0`, and only after every R3 release gate passes. After `1.0.0`, normal Semantic Versioning applies.
 
 Each story's literal target assumes the acceptance order in `docs/backlog/README.md`. Even when implementation can be investigated in parallel, the shared version step is serialized. Before touching version metadata, confirm that the branch starts from the declared predecessor on the latest accepted `main`. If it differs, do not reuse, decrement, or guess a version; stop so the plan can be reconciled.
 
@@ -34,7 +34,7 @@ First complete the safe pre-bump implementation checks and resolve their finding
 
 Discover and inspect the exact occurrences; never use a repository-wide version replacement. API-major paths, stream/event schemas, corpus/index/dataset/prompt versions, evaluation-artifact schemas, image digests, and deployment revisions are independent identifiers. After the bump, rerun the complete required checks and regenerate affected final evidence. If a final gate fails, restore the predecessor metadata in the story branch and report the blocker; a failed, blocked, or abandoned story consumes no version. Coding agents never tag or publish a release.
 
-When an artifact embeds the product version, run pre-bump implementation checks first, apply the declared version, then build and validate the final version-bearing artifact. Only post-bump evidence is acceptance evidence for that artifact. EG-013D therefore produces the `0.9.0` release candidate; EG-014 conditionally establishes `1.0.0` and rebuilds/scans the final image from unchanged accepted definitions.
+When an artifact embeds the product version, run pre-bump implementation checks first, apply the declared version, then build and validate the final version-bearing artifact. Only post-bump evidence is acceptance evidence for that artifact. EG-013D therefore produces the `0.9.0` release candidate; EG-017 and EG-018 advance the reviewed pre-stable product to `0.10.0` and `0.11.0`; EG-014 conditionally establishes `1.0.0` and rebuilds/scans the final image from unchanged accepted definitions.
 
 EG-016 is deliberately different: it does not bump the product or rebuild the image. It promotes the already accepted and scanned R3 `1.0.0` digest and records deployment revision, environment, digest, and verification time separately. Any required runtime change stops EG-016 and becomes a separately reviewed patch release.
 
@@ -46,7 +46,7 @@ Use the exact branch in each `docs/backlog/EG-*.md` brief:
 feat/eg-002-provider-ports
 feat/eg-003-postgres-schema
 fix/eg-007-stream-cancellation
-docs/eg-014-release-evidence
+docs/eg-014-release-final
 ```
 
 The prefix is `feat/` for planned capability, `fix/` for a defect discovered within an accepted story, `docs/` for documentation-only work, and `chore/` for tooling-only work.
