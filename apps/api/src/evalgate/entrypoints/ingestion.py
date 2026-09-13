@@ -19,6 +19,7 @@ from evalgate.adapters.bundled_corpus import (
 from evalgate.adapters.fastembed_reference import FastEmbedReferenceEmbedding
 from evalgate.adapters.postgres_ingestion import PostgresCorpusRepository
 from evalgate.application.ingestion import ingest_declared_corpus
+from evalgate.application.runtime_security import environment_policy
 from evalgate.config import Settings
 from evalgate.domain.corpus import IngestionError, IngestionErrorCode
 
@@ -32,7 +33,10 @@ async def ingest(*, corpus_key: str, settings: Settings) -> dict[str, object]:
 
     settings.provider_configuration()
     corpus = load_declared_corpus_by_key(corpus_key)
-    if settings.environment == "public" or settings.embedding_mode.value != "reference":
+    if (
+        not environment_policy(settings.environment).allow_ingestion
+        or settings.embedding_mode.value != "reference"
+    ):
         raise IngestionError(
             IngestionErrorCode.INGESTION_NOT_PERMITTED,
             "declared corpus ingestion requires non-public reference mode",

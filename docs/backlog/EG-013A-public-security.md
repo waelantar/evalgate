@@ -1,6 +1,6 @@
 # EG-013A: Public-mode application security and privacy
 
-- Status: Planned; EG-013 epic child
+- Status: Implemented and locally verified on review branch; awaiting owner review and manual merge
 - Branch: `feat/eg-013a-public-security`
 - Depends on: EG-008, EG-010, and EG-011 merged to `main`
 - Release: R3
@@ -26,10 +26,37 @@ The application has an enforceable public mode with privileged mutation absent/d
 
 ## Acceptance evidence
 
-- [ ] Public-mode route matrix is integration-tested and mutation is unavailable.
-- [ ] Logs/errors/database contain no question, answer, chunk, raw IP, auth header, or credential.
-- [ ] Security headers/CORS/input limits/trusted-proxy behavior have failing and passing tests.
-- [ ] Threat model and residual prompt-injection risk are updated honestly.
+- [x] Public-mode route matrix is integration-tested and mutation is unavailable.
+- [x] Logs/errors/database contain no question, answer, chunk, raw IP, auth header, or credential.
+- [x] Security headers/CORS/input limits/trusted-proxy behavior have failing and passing tests.
+- [x] Threat model and residual prompt-injection risk are updated honestly.
+
+## Implementation evidence
+
+- The framework-free environment matrix distinguishes `local`, `ci`, `trusted_evaluation`, and
+  `public`; ingestion, artifact import, deterministic/live evaluation, and HTTP composition enforce
+  their declared capabilities without enabling an HTTP mutation route.
+- Public HTTP uses an exact route allowlist, disables docs/OpenAPI, enforces the 16 KiB body limit
+  while chunks arrive, bounds the full ASGI lifecycle to 30 seconds by default, caps existing query
+  and page fields, applies exact-origin CORS, and adds deny-by-default security headers.
+- Forwarding headers are accepted only from configured literal proxy IPs. The resolved address is
+  immediately HMAC-keyed into a TTL-bucketed 32-hex pseudonym; neither raw address nor pseudonym is
+  logged or persisted by EG-013A.
+- Settings and the OpenRouter adapter independently reject every provider base URL except the exact
+  reviewed HTTPS endpoint. Adapter/configuration errors remain content-free.
+- React adversarial coverage proves XSS and `javascript:` strings remain text/buttons, while the
+  existing grounded-answer tests continue to reject citation spoofing and keep injection fixtures
+  structurally separated as untrusted evidence.
+- `scripts/check.ps1` passed post-bump: publication and metadata checks, formatting, Ruff, strict
+  mypy, 199 backend unit/contract/security tests (14 integration tests deliberately excluded by the
+  script), 31 frontend unit/component tests, 3 Chromium E2E/axe tests, and the production build.
+- A separate forced PostgreSQL/reference run passed all 14 integration tests with database and
+  reference skip guards enabled. The pinned snapshot was provisioned locally and is not committed.
+- Product metadata was synchronized from `0.8.0` to `0.8.1`; independent FastEmbed, corpus, index,
+  dataset, prompt, artifact-schema, and historical live-evaluation identities were not changed.
+- The reviewed threat model is `docs/security/threat-model.md`. It explicitly leaves layered
+  usage/cost limits and kill switch to EG-013C, the complete browser/accessibility audit to EG-013B,
+  image/scans/SBOM to EG-013D, and any deployment decision to EG-016.
 
 ## Required tests and review
 

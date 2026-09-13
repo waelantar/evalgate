@@ -13,6 +13,7 @@ from uuid import NAMESPACE_URL, uuid5
 from jsonschema import Draft202012Validator, FormatChecker  # type: ignore[import-untyped]
 from sqlalchemy import create_engine, text
 
+from evalgate.application.runtime_security import environment_policy
 from evalgate.config import Settings
 from evalgate.domain.evaluation_results import EvaluationArtifact, parse_artifact
 
@@ -111,7 +112,7 @@ def import_artifact(
 ) -> str:
     """Validate trust inputs before atomically persisting their bounded projection."""
 
-    if settings.environment != "local":
+    if not environment_policy(settings.environment).allow_result_import:
         raise ValueError("evaluation artifact import is available only in local admin mode")
     artifact = parse_artifact(artifact_path.read_bytes(), _load_json(schema_path))
     review = _validate_review(

@@ -2,7 +2,7 @@
 
 - Status: Accepted with deployment gate
 - Date: 2026-08-08
-- Stories: EG-013, EG-016
+- Stories: EG-013A, EG-013C, EG-016
 
 ## Context
 
@@ -18,4 +18,8 @@ Public questions and raw IPs are not logged. Rate identity is minimized and shor
 
 ## Verification
 
-Route-policy, safe-rendering, redaction, abuse-limit, cost-cap, and kill-switch tests.
+EG-013A implements the explicit environment/route matrix, bounded HTTP middleware, exact-origin
+CORS/security headers, trusted-edge rate-identity interface, provider endpoint allowlist, and
+content-redaction/adversarial tests. See `docs/security/public-mode.md` and the application threat
+model. Layered abuse/cost enforcement and the kill switch remain EG-013C; host verification and any
+deployment remain EG-016.

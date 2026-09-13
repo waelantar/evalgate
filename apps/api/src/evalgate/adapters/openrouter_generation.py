@@ -13,6 +13,10 @@ from urllib.request import Request, urlopen
 
 from pydantic import SecretStr
 
+from evalgate.application.runtime_security import (
+    SecurityConfigurationError,
+    validate_provider_base_url,
+)
 from evalgate.domain.providers import (
     GenerationInput,
     GenerationOutput,
@@ -118,6 +122,14 @@ class OpenRouterGenerationConfig:
                 OpenRouterGenerationErrorCode.REQUEST_FAILED,
                 "OpenRouter model is not the approved EG-015 model",
             )
+        try:
+            normalized_base_url = validate_provider_base_url(self.base_url)
+        except SecurityConfigurationError as error:
+            raise OpenRouterGenerationError(
+                OpenRouterGenerationErrorCode.REQUEST_FAILED,
+                "OpenRouter endpoint is not in the reviewed allowlist",
+            ) from error
+        object.__setattr__(self, "base_url", normalized_base_url)
         if (
             self.timeout_seconds <= 0
             or self.max_output_tokens < 1

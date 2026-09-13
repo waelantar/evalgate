@@ -45,8 +45,8 @@ def test_unreviewed_dataset_and_wrong_dataset_checksum_are_rejected(tmp_path: Pa
         _load_reviewed_dataset(dataset_path, "0" * 64)
 
 
-def test_import_is_denied_in_ci_and_public_before_reading_files(tmp_path: Path) -> None:
-    for environment in ("ci", "public"):
+def test_import_is_denied_outside_local_admin_before_reading_files(tmp_path: Path) -> None:
+    for environment in ("ci", "trusted_evaluation", "public"):
         with pytest.raises(ValueError, match="only in local"):
             import_artifact(
                 artifact_path=tmp_path / "missing-artifact",
@@ -57,6 +57,8 @@ def test_import_is_denied_in_ci_and_public_before_reading_files(tmp_path: Path) 
                 settings=Settings(
                     environment=environment,
                     database_url=SecretStr("postgresql+psycopg://ignored/ignored"),
+                    allowed_origins="https://demo.example",
+                    rate_identity_secret=SecretStr("s" * 32),
                 ),
             )
 
@@ -69,6 +71,8 @@ def test_public_application_exposes_only_get_result_routes() -> None:
             embedding_mode=EmbeddingMode.REFERENCE,
             generation_mode=GenerationMode.DISABLED,
             reference_embedding_snapshot="ignored",
+            allowed_origins="https://demo.example",
+            rate_identity_secret=SecretStr("s" * 32),
         ),
         engine=object(),  # type: ignore[arg-type]
         search_repository=object(),  # type: ignore[arg-type]

@@ -20,3 +20,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Reviewed, secret-free retrieval baseline comparison and PR artifact gate.
 - Local-only reviewed evaluation-artifact import with checksum/reference enforcement, transactional bounded run/case persistence, read-only paginated result APIs, and an accessible typed React results workbench with Chromium E2E coverage.
 - Governed OpenRouter live-generation evaluation with protected manual workflow, budget caps, ZDR routing request, advisory judge calibration, and schema-valid generation artifacts.
+- Fail-closed public-mode application security with explicit environment/route policy, streaming body and request-time bounds, exact-origin CORS and security headers, trusted-edge rotating rate pseudonyms, content-free failures, and an exact OpenRouter endpoint allowlist.
