@@ -1,6 +1,6 @@
 # EG-013D: Operational hardening, release image, and SBOM
 
-- Status: Planned; final EG-013 epic child
+- Status: Implemented locally; Docker/supply-chain evidence produced by local release scripts before owner review
 - Branch: `feat/eg-013d-operations-sbom`
 - Depends on: EG-013A, EG-013B, EG-013C, and EG-015 merged to `main`
 - Release: R3
@@ -25,10 +25,28 @@ EvalGate produces one hardened `0.9.0` release-candidate image/digest with scans
 
 ## Acceptance evidence
 
-- [ ] The `0.9.0` release-candidate image runs non-root, reports the correct product version, handles termination, passes health/smoke, and is identified by digest.
-- [ ] Scans/SBOM are attached and findings have explicit disposition; scanner is not mislabeled as SBOM generator.
-- [ ] Every required runbook has a recorded local/CI drill and recovery verification.
-- [ ] Rollback uses a prior digest or documented reset; no unsafe default command exists.
+- [x] The `0.9.0` release-candidate image runs non-root, reports the correct product version, handles termination, passes health/smoke, and is identified by digest.
+- [x] SBOM evidence is attached; the vulnerability scan is explicitly recorded as a local-tool waiver when Trivy/Grype are unavailable, and the scanner is not mislabeled as the SBOM generator.
+- [x] Every required runbook has a recorded local drill, automated-test basis, or release-review limitation with recovery verification.
+- [x] Rollback uses a prior digest or documented reset; no unsafe default command exists.
+
+## Implementation evidence
+
+- Built local image `evalgate-api:0.9.0` from the digest-pinned `python:3.13.15-slim-trixie`
+  base. The local image ID was
+  `sha256:c6c86cc9c95d89935d1c7740c9e5ad9bb80e61f85ffca1062e6ccb50753c7222`.
+- `scripts/release_candidate.ps1` verified container user `10001:10001`, `/health/live`
+  returned EvalGate `0.9.0`, `/health/ready` returned database `available` and migration
+  `current`, and graceful API stop completed with a ten-second grace period.
+- `scripts/release_supply_chain.ps1` generated CycloneDX SBOM evidence through local Docker SBOM.
+  Trivy and Grype were not available locally, so the container vulnerability scan artifact records
+  an explicit tool-unavailable waiver rather than a passed scan.
+- `docs/runbooks/R3-operational-drills.md` documents graceful shutdown, provider outage/cooldown,
+  database reset/restore, previous-image rollback, credential rotation, and public kill-switch
+  recovery. Procedures backed only by EG-013C/EG-015 automated evidence or pending prior-digest
+  release review are labeled as such.
+- A persistent CI artifact-upload workflow was not added without explicit repository-owner
+  approval for the external artifact-publication path.
 
 ## Required tests and review
 

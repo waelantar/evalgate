@@ -16,6 +16,7 @@ fi
 
 uv run --python 3.13.15 --project apps/api --locked python scripts/check_publication.py
 uv run --python 3.13.15 --project apps/api --locked python scripts/check_metadata.py
+uv run --python 3.13.15 --project apps/api --locked python scripts/check_release_static.py
 docker compose config --quiet
 
 (
