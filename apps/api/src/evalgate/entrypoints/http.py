@@ -501,6 +501,7 @@ def create_app(
     resolved_settings = settings or get_settings()
     resolved_settings.provider_configuration()
     security_configuration = resolved_settings.runtime_security_configuration()
+    resolved_settings.generation_limits()
     resolved_engine = engine or _build_engine(resolved_settings)
     if resolved_settings.embedding_mode.value == "reference" and (
         search_repository is None or search_embedding is None

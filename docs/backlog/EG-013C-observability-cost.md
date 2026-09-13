@@ -1,6 +1,6 @@
 # EG-013C: Redacted observability and cost controls
 
-- Status: Planned; EG-013 epic child
+- Status: Implemented and locally verified on review branch; awaiting owner review and manual merge
 - Branch: `feat/eg-013c-observability-cost`
 - Depends on: EG-010 and EG-011 merged to `main`
 - Release: R3
@@ -25,10 +25,26 @@ Operators can diagnose bounded failures and disable expensive generation using l
 
 ## Acceptance evidence
 
-- [ ] Success/failure/cancellation/outage tests assert useful structured telemetry and absence of content/secrets/raw IP.
-- [ ] Concurrency, token, daily allowance, cooldown, and kill switch reject safely in tests.
-- [ ] Metric labels pass a cardinality review; documented measurements use declared conditions.
-- [ ] No silent fixture fallback occurs during provider failure/cooldown.
+- [x] Success/failure/cancellation/outage tests assert useful structured telemetry and absence of content/secrets/raw IP.
+- [x] Concurrency, token, daily allowance, cooldown, and kill switch reject safely in tests.
+- [x] Metric labels pass a cardinality review; documented measurements use declared conditions.
+- [x] No silent fixture fallback occurs during provider failure/cooldown.
+
+## Implementation evidence
+
+- `GenerationControl` is a process-local provider-neutral policy with complete declared input/output,
+  per-client/global concurrency, daily-request, provider-account-cap, cooldown, and kill-switch
+  controls. It receives only the existing short-lived pseudonym interface, never a raw address.
+- `ControlledGenerationPort` wraps one explicit provider port, emits fixed content-free events, and
+  re-raises a provider outage after entering cooldown. It neither chooses nor falls back to fixture
+  or another provider.
+- `StructuredTelemetry` permits only request/run IDs, operation/status/code, duration, and optional
+  usage/cost fields. `OperationalMetrics` rejects unknown, missing, or extra labels; the complete
+  finite label schema and deployment conditions are documented in
+  `docs/operations/EG-013C-observability-cost.md`.
+- Public `Settings` now require one complete declared limit set, without repository-default public
+  amounts. The existing public HTTP composition remains generation-disabled, and no vendor,
+  provider call, persistence service, metrics backend, deployment, or SLO claim was added.
 
 ## Required tests and review
 

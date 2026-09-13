@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from evalgate.application.operations import GenerationLimits, build_generation_limits
 from evalgate.application.provider_configuration import (
     EmbeddingMode,
     GenerationMode,
@@ -54,6 +55,14 @@ class Settings(BaseSettings):
     request_timeout_seconds: float = Field(default=30.0, gt=0, le=60)
     rate_identity_ttl_seconds: int = Field(default=300, ge=60, le=3600)
     rate_identity_secret: SecretStr | None = None
+    generation_maximum_input_tokens: int | None = Field(default=None, ge=1)
+    generation_maximum_output_tokens: int | None = Field(default=None, ge=1)
+    generation_per_client_concurrency: int | None = Field(default=None, ge=1)
+    generation_global_concurrency: int | None = Field(default=None, ge=1)
+    generation_daily_request_allowance: int | None = Field(default=None, ge=1)
+    generation_provider_account_cap_usd: float | None = Field(default=None, gt=0)
+    generation_cooldown_seconds: float = Field(default=0, ge=0, le=3600)
+    generation_kill_switch_enabled: bool = False
 
     def provider_configuration(self) -> ProviderConfiguration:
         """Resolve explicit provider modes or raise a typed, fail-closed error."""
@@ -89,6 +98,20 @@ class Settings(BaseSettings):
             ),
         )
 
+    def generation_limits(self) -> GenerationLimits | None:
+        """Resolve a complete public generation-control configuration or fail closed."""
+
+        return build_generation_limits(
+            public_http=self.environment == "public",
+            maximum_input_tokens=self.generation_maximum_input_tokens,
+            maximum_output_tokens=self.generation_maximum_output_tokens,
+            per_client_concurrency=self.generation_per_client_concurrency,
+            global_concurrency=self.generation_global_concurrency,
+            daily_request_allowance=self.generation_daily_request_allowance,
+            provider_account_cap_usd=self.generation_provider_account_cap_usd,
+            cooldown_seconds=self.generation_cooldown_seconds,
+        )
+
 
 @lru_cache
 def get_settings() -> Settings:
@@ -97,4 +120,5 @@ def get_settings() -> Settings:
     settings = Settings()
     settings.provider_configuration()
     settings.runtime_security_configuration()
+    settings.generation_limits()
     return settings
