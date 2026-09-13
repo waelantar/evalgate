@@ -10,7 +10,17 @@ from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED_PARTS = {".git", ".venv", "node_modules", "dist", "coverage", ".cache"}
+EXCLUDED_PARTS = {
+    ".git",
+    ".venv",
+    "node_modules",
+    "dist",
+    "coverage",
+    ".cache",
+    ".evalgate-cache",
+    ".local",
+    "artifacts",
+}
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 ACTION_REF = re.compile(r"^\s*-\s+uses:\s+[^@\s]+@([^\s#]+)", re.MULTILINE)
 SHA = re.compile(r"^[a-f0-9]{40}$")

@@ -17,6 +17,8 @@ uv run --python 3.13.15 --project apps/api --locked python scripts/check_publica
 if ($LASTEXITCODE -ne 0) { throw "Publication check failed with exit code $LASTEXITCODE." }
 uv run --python 3.13.15 --project apps/api --locked python scripts/check_metadata.py
 if ($LASTEXITCODE -ne 0) { throw "Metadata check failed with exit code $LASTEXITCODE." }
+uv run --python 3.13.15 --project apps/api --locked python scripts/check_release_static.py
+if ($LASTEXITCODE -ne 0) { throw "Release static check failed with exit code $LASTEXITCODE." }
 docker compose config --quiet
 if ($LASTEXITCODE -ne 0) { throw "Compose validation failed with exit code $LASTEXITCODE." }
 

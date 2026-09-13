@@ -19,5 +19,38 @@ services:
       - evalgate_postgres:/var/lib/postgresql
     restart: unless-stopped
 
+  api:
+    profiles: ["release"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    image: evalgate-api:0.9.0
+    environment:
+      EVALGATE_ENVIRONMENT: local
+      EVALGATE_HOST: 0.0.0.0
+      EVALGATE_PORT: 8000
+      EVALGATE_DATABASE_URL: postgresql+psycopg://evalgate:evalgate_local_only@db:5432/evalgate
+      EVALGATE_EMBEDDING_MODE: fixture
+      EVALGATE_GENERATION_MODE: fixture
+    ports:
+      - "127.0.0.1:${EVALGATE_API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=2).read()",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    restart: "no"
+
 volumes:
   evalgate_postgres:

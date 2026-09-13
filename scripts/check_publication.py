@@ -7,7 +7,17 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED_PARTS = {".git", ".venv", "node_modules", "dist", "coverage", ".cache"}
+EXCLUDED_PARTS = {
+    ".git",
+    ".venv",
+    "node_modules",
+    "dist",
+    "coverage",
+    ".cache",
+    ".evalgate-cache",
+    ".local",
+    "artifacts",
+}
 TEXT_SUFFIXES = {
     ".css",
     ".html",
