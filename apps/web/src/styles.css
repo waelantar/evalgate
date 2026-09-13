@@ -93,7 +93,7 @@ textarea { resize: vertical; }
 .answer { min-height: 8rem; white-space: pre-wrap; line-height: 1.65; }
 .citations { margin-top: 1.5rem; }
 .citations h3 { margin-bottom: .75rem; }
-.citation { width: auto; min-height: 2.5rem; margin: .25rem .5rem .25rem 0; padding: .45rem .75rem; font-size: .9rem; }
+.citation { width: auto; min-height: 2.75rem; margin: .25rem .5rem .25rem 0; padding: .45rem .75rem; font-size: .9rem; }
 .evidence-panel { margin-bottom: 2rem; }
 .evidence { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #d4ddd8; scroll-margin-top: 1rem; }
 .evidence h3 { margin-bottom: .35rem; }
@@ -119,7 +119,7 @@ textarea { resize: vertical; }
 .case-title span { color: #50615c; font-size: .8rem; font-weight: 750; text-transform: uppercase; }
 .evidence-ids { padding-left: 1.2rem; overflow-wrap: anywhere; }
 .result-error { padding: 1rem; border: 1px solid #d9a59f; border-radius: .65rem; color: #7d241c; background: #fff4f2; }
-.compact { width: auto; min-height: 2.5rem; padding: .35rem .9rem; }
+.compact { width: auto; min-height: 2.75rem; padding: .35rem .9rem; }
 
 .status-card p {
   max-width: 42rem;
@@ -147,6 +147,14 @@ button:hover:not(:disabled) {
 }
 
 button:focus-visible {
+  outline: 3px solid #f3a712;
+  outline-offset: 3px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex="-1"]:focus-visible {
   outline: 3px solid #f3a712;
   outline-offset: 3px;
 }

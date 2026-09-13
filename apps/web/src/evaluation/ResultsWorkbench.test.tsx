@@ -49,7 +49,9 @@ describe('evaluation results workbench', () => {
   it('supports empty, error, retry, and status-filter states', async () => {
     api.list.mockRejectedValueOnce(new Error('private server detail')).mockResolvedValueOnce({ items: [], next_cursor: null })
     render(<ResultsWorkbench />)
-    expect(await screen.findByRole('alert')).toHaveTextContent('could not be loaded')
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('could not be loaded')
+    expect(alert).toHaveFocus()
     expect(screen.queryByText('private server detail')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(await screen.findByText('No reviewed evaluation runs are available.')).toBeInTheDocument()

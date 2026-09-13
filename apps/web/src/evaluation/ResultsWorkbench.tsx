@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   fetchEvaluationCases,
   fetchEvaluationRun,
@@ -8,6 +8,7 @@ import {
   type EvaluationRun,
   type EvaluationRunDetail,
 } from '../api/evaluationRuns'
+import { contentText } from '../presentation/safeContent'
 
 function label(key: string): string {
   return key.replaceAll('_', ' ')
@@ -37,6 +38,7 @@ export function ResultsWorkbench() {
   const [result, setResult] = useState<LoadedResult | null>(null)
   const [error, setError] = useState(false)
   const [revision, setRevision] = useState(0)
+  const errorRef = useRef<HTMLDivElement | null>(null)
 
   const retry = useCallback(() => {
     setError(false)
@@ -75,14 +77,18 @@ export function ResultsWorkbench() {
     return () => controller.abort()
   }, [caseStatus, compareTo, revision, selectedRun])
 
+  useEffect(() => {
+    if (error) errorRef.current?.focus()
+  }, [error])
+
   const detail = result?.detail
   return (
     <section className="panel results-panel" aria-labelledby="runs-heading">
       <p className="eyebrow">Read-only evaluation evidence</p>
       <h2 id="runs-heading">Evaluation results</h2>
-      {runs === null && !error ? <p role="status">Loading evaluation runs…</p> : null}
+      {runs === null && !error ? <p role="status" aria-atomic="true">Loading evaluation runs...</p> : null}
       {error ? (
-        <div role="alert" className="result-error">
+        <div ref={errorRef} role="alert" className="result-error" tabIndex={-1}>
           <p>Evaluation results could not be loaded.</p>
           <button type="button" className="secondary compact" onClick={retry}>Retry</button>
         </div>
@@ -114,7 +120,7 @@ export function ResultsWorkbench() {
               ))}
             </select>
           </div>
-          {!detail && !error ? <p role="status">Loading run details…</p> : null}
+          {!detail && !error ? <p role="status" aria-atomic="true">Loading run details...</p> : null}
           {detail ? (
             <>
               <div className="result-summary">
@@ -122,10 +128,10 @@ export function ResultsWorkbench() {
                 <dl className="identity-grid">
                   <div><dt>Code SHA</dt><dd><code>{detail.code_sha}</code></dd></div>
                   <div><dt>Artifact SHA-256</dt><dd><code>{detail.artifact_sha256}</code></dd></div>
-                  <div><dt>Index</dt><dd>{identity(detail.versions.index_key)}</dd></div>
+                  <div><dt>Index</dt><dd>{contentText(identity(detail.versions.index_key))}</dd></div>
                   <div><dt>Dataset SHA-256</dt><dd><code>{identity(detail.versions.dataset_manifest_sha256)}</code></dd></div>
                   <div><dt>Corpus SHA-256</dt><dd><code>{identity(detail.versions.corpus_manifest_sha256)}</code></dd></div>
-                  <div><dt>Policy</dt><dd>{identity(detail.versions.policy_version)}</dd></div>
+                  <div><dt>Policy</dt><dd>{contentText(identity(detail.versions.policy_version))}</dd></div>
                 </dl>
               </div>
               <section aria-labelledby="metrics-heading">
@@ -133,10 +139,10 @@ export function ResultsWorkbench() {
                 <dl className="metrics-grid">
                   {Object.entries(detail.metrics).map(([key, value]) => (
                     <div key={key}>
-                      <dt>{label(key)}</dt>
+                      <dt>{contentText(label(key))}</dt>
                       <dd>{metricValue(key, value)}</dd>
                       {detail.metric_deltas?.[key] !== undefined ? (
-                        <small>{deltaValue(key, detail.metric_deltas[key])} vs {detail.comparison_run_key}</small>
+                        <small>{deltaValue(key, detail.metric_deltas[key])} vs {contentText(detail.comparison_run_key ?? 'the selected comparison')}</small>
                       ) : null}
                     </div>
                   ))}
@@ -144,7 +150,7 @@ export function ResultsWorkbench() {
               </section>
               <section aria-labelledby="limitations-heading">
                 <h3 id="limitations-heading">Limitations</h3>
-                <ul>{detail.limitations.map((item) => <li key={item}>{item}</li>)}</ul>
+                <ul>{detail.limitations.map((item) => <li key={item}>{contentText(item)}</li>)}</ul>
               </section>
               <section aria-labelledby="cases-heading">
                 <div className="case-heading">
