@@ -36,6 +36,12 @@ def _public_settings(**overrides: object) -> Settings:
         "reference_embedding_snapshot": "ignored",
         "allowed_origins": "https://demo.example",
         "rate_identity_secret": SecretStr("s" * 32),
+        "generation_maximum_input_tokens": 2048,
+        "generation_maximum_output_tokens": 1024,
+        "generation_per_client_concurrency": 1,
+        "generation_global_concurrency": 2,
+        "generation_daily_request_allowance": 10,
+        "generation_provider_account_cap_usd": 1.0,
     }
     values.update(overrides)
     return Settings(**values)  # type: ignore[arg-type]

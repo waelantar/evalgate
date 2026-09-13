@@ -2,8 +2,8 @@
 
 EG-013A implements the application-side portion of ADR-0009. It is a tested security boundary,
 not a deployment, penetration test, WAF, authentication system, or claim that anonymous live
-generation is ready. EG-013C must still add provider-neutral usage/concurrency controls and a kill
-switch; EG-016 remains the separate host and deployment decision.
+generation is ready. EG-013C adds provider-neutral usage/concurrency controls and a kill-switch
+application policy; EG-016 remains the separate host and deployment decision.
 
 ## Environment capability matrix
 
@@ -55,7 +55,12 @@ EVALGATE_TRUSTED_PROXY_ADDRESSES=<optional comma-separated literal edge IPs>
 EVALGATE_EMBEDDING_MODE=reference
 EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT=<verified local snapshot>
 EVALGATE_GENERATION_MODE=disabled
+EVALGATE_GENERATION_KILL_SWITCH_ENABLED=false
 ```
+
+When a future approved public composition enables live generation, it must also provide every
+declared limit in `docs/operations/EG-013C-observability-cost.md`. The repository intentionally has
+no default public cost amounts.
 
 The real rate secret belongs in a local ignored environment file or a future host secret store; it
 must never be committed or sent to the browser. Proxy addresses cannot be chosen until a host is
@@ -68,4 +73,3 @@ time bounds, trusted proxy behavior, rotating pseudonyms, provider-endpoint SSRF
 content-free errors/logs, inert React rendering of XSS/invalid-scheme text, citation spoof rejection,
 and indirect-injection prompt separation. `scripts/check_publication.py` also rejects publication of
 machine paths, email addresses, credential-bearing URLs, OpenRouter keys, and GitHub tokens.
-

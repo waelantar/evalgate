@@ -73,6 +73,12 @@ def test_public_application_exposes_only_get_result_routes() -> None:
             reference_embedding_snapshot="ignored",
             allowed_origins="https://demo.example",
             rate_identity_secret=SecretStr("s" * 32),
+            generation_maximum_input_tokens=2048,
+            generation_maximum_output_tokens=1024,
+            generation_per_client_concurrency=1,
+            generation_global_concurrency=2,
+            generation_daily_request_allowance=10,
+            generation_provider_account_cap_usd=1.0,
         ),
         engine=object(),  # type: ignore[arg-type]
         search_repository=object(),  # type: ignore[arg-type]
