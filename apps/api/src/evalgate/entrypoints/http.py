@@ -8,8 +8,9 @@ from typing import Any, Literal, cast
 from uuid import UUID, uuid4
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Path, Query, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -39,6 +40,7 @@ from evalgate.config import Settings, get_settings
 from evalgate.domain.answer import AnswerMode
 from evalgate.domain.providers import ProviderMode
 from evalgate.domain.search import SearchResult
+from evalgate.entrypoints.http_security import RuntimeSecurityMiddleware
 from evalgate.entrypoints.retrieval_runtime import build_reference_retrieval, database_event_loop
 from evalgate.entrypoints.sse import HEARTBEAT_FRAME, encode_answer_event
 
@@ -497,6 +499,8 @@ def create_app(
     """Build an application instance with explicit, testable dependencies."""
 
     resolved_settings = settings or get_settings()
+    resolved_settings.provider_configuration()
+    security_configuration = resolved_settings.runtime_security_configuration()
     resolved_engine = engine or _build_engine(resolved_settings)
     if resolved_settings.embedding_mode.value == "reference" and (
         search_repository is None or search_embedding is None
@@ -519,7 +523,21 @@ def create_app(
         version=__version__,
         description="Governed retrieval and grounded-answer streaming with operational probes.",
         lifespan=lifespan,
+        docs_url=None if security_configuration.environment_policy.public_http else "/docs",
+        redoc_url=None if security_configuration.environment_policy.public_http else "/redoc",
+        openapi_url=(
+            None if security_configuration.environment_policy.public_http else "/openapi.json"
+        ),
     )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(security_configuration.allowed_origins),
+        allow_credentials=False,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["content-type"],
+        max_age=600,
+    )
+    app.add_middleware(RuntimeSecurityMiddleware, configuration=security_configuration)
     app.state.database_engine = resolved_engine
     app.state.search_repository = search_repository
     app.state.search_embedding = search_embedding
@@ -750,7 +768,7 @@ def create_app(
     )
     async def get_evaluation_run(
         request: Request,
-        run_key: str,
+        run_key: str = Path(max_length=120),
         compare_to: str | None = Query(default=None, max_length=120),
     ) -> EvaluationRunDetail:
         engine = cast(AsyncEngine, request.app.state.database_engine)
@@ -823,7 +841,7 @@ def create_app(
     )
     async def list_evaluation_run_cases(
         request: Request,
-        run_key: str,
+        run_key: str = Path(max_length=120),
         cursor: str | None = Query(default=None, max_length=120),
         limit: int = Query(default=20, ge=1, le=50),
         status: Literal["passed", "failed"] | None = None,

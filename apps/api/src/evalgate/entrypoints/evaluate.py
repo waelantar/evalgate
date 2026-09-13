@@ -15,6 +15,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from evalgate import __version__
+from evalgate.application.runtime_security import environment_policy
 from evalgate.application.search import SearchRequest, search_corpus
 from evalgate.config import Settings
 from evalgate.domain.evaluation import ndcg_at_k, precision_at_k, recall_at_k, reciprocal_rank
@@ -192,11 +193,14 @@ def main() -> None:
     parser.add_argument("--mode", choices=["fixture", "retrieval"], default="fixture")
     parser.add_argument("--index-version", default=None)
     args = parser.parse_args()
+    settings = Settings()
+    if not environment_policy(settings.environment).allow_evaluation:
+        parser.error("evaluation is unavailable in this environment")
     if args.mode == "retrieval":
         if args.index_version is None:
             parser.error("--index-version is required for retrieval mode")
         artifact = asyncio.run(
-            build_retrieval_artifact(args.dataset, args.index_version, Settings()),
+            build_retrieval_artifact(args.dataset, args.index_version, settings),
             loop_factory=database_event_loop,
         )
     else:

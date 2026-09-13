@@ -91,6 +91,22 @@ def test_openrouter_request_enforces_approved_policy_without_leaking_key() -> No
     assert captured["authorization"] == "Bearer secret-key"
 
 
+@pytest.mark.parametrize(
+    "base_url",
+    [
+        "http://openrouter.ai/api/v1",
+        "https://openrouter.ai.evil.example/api/v1",
+        "http://127.0.0.1:8000",
+    ],
+)
+def test_openrouter_adapter_rejects_non_allowlisted_endpoint(base_url: str) -> None:
+    with pytest.raises(OpenRouterGenerationError) as captured:
+        OpenRouterGenerationConfig(api_key=SecretStr("secret"), base_url=base_url)
+
+    assert captured.value.code is OpenRouterGenerationErrorCode.REQUEST_FAILED
+    assert base_url not in str(captured.value)
+
+
 def test_openrouter_errors_are_typed_and_content_free() -> None:
     def opener(_: Request, __: float) -> _Response:
         return _Response({"choices": []})

@@ -13,6 +13,12 @@ from evalgate.application.provider_configuration import (
     ProviderConfiguration,
     validate_provider_configuration,
 )
+from evalgate.application.runtime_security import (
+    Environment,
+    RuntimeSecurityConfiguration,
+    build_runtime_security_configuration,
+    validate_provider_base_url,
+)
 
 
 class Settings(BaseSettings):
@@ -25,7 +31,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    environment: Literal["local", "ci", "public"] = "local"
+    environment: Environment = "local"
     database_url: SecretStr = SecretStr(
         "postgresql+psycopg://evalgate:evalgate_local_only@127.0.0.1:5432/evalgate"
     )
@@ -42,6 +48,12 @@ class Settings(BaseSettings):
     openrouter_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
     live_eval_budget_usd: float = Field(default=4.60, gt=0)
     live_eval_stop_usd: float = Field(default=4.14, gt=0)
+    allowed_origins: str = "http://localhost:5173"
+    trusted_proxy_addresses: str = ""
+    request_body_limit_bytes: int = Field(default=16_384, ge=1024, le=65_536)
+    request_timeout_seconds: float = Field(default=30.0, gt=0, le=60)
+    rate_identity_ttl_seconds: int = Field(default=300, ge=60, le=3600)
+    rate_identity_secret: SecretStr | None = None
 
     def provider_configuration(self) -> ProviderConfiguration:
         """Resolve explicit provider modes or raise a typed, fail-closed error."""
@@ -59,6 +71,24 @@ class Settings(BaseSettings):
             live_stop_usd=self.live_eval_stop_usd,
         )
 
+    def runtime_security_configuration(self) -> RuntimeSecurityConfiguration:
+        """Resolve the environment and HTTP security policy fail-closed."""
+
+        validate_provider_base_url(self.openrouter_base_url)
+        return build_runtime_security_configuration(
+            environment=self.environment,
+            allowed_origins=self.allowed_origins,
+            trusted_proxy_addresses=self.trusted_proxy_addresses,
+            request_body_limit_bytes=self.request_body_limit_bytes,
+            request_timeout_seconds=self.request_timeout_seconds,
+            rate_identity_ttl_seconds=self.rate_identity_ttl_seconds,
+            rate_identity_secret=(
+                self.rate_identity_secret.get_secret_value()
+                if self.rate_identity_secret is not None
+                else None
+            ),
+        )
+
 
 @lru_cache
 def get_settings() -> Settings:
@@ -66,4 +96,5 @@ def get_settings() -> Settings:
 
     settings = Settings()
     settings.provider_configuration()
+    settings.runtime_security_configuration()
     return settings

@@ -15,6 +15,7 @@ The repository currently contains the approved production blueprint, reproducibl
 | Grounded-answer core and validated citations | Implemented, merged, and locally verified; remote CI pending |
 | POST/fetch/SSE answer stream and inspection UI | Implemented and locally verified on EG-007/EG-008 review branches; no live provider or deployment claim |
 | Evaluation gate and results UI | Implemented and locally verified with reviewed artifacts, real PostgreSQL, component, browser, and accessibility tests; governed live-generation evaluation is protected/manual only |
+| Public-mode application security | Implemented on EG-013A with a fail-closed route/environment matrix, bounded HTTP boundary, exact-origin policy, minimized rate identity, and outbound allowlist; later abuse controls and deployment gates remain open |
 | MCP adapter | Deferred until the core release |
 | Public deployment | Not selected or deployed |
 
@@ -76,6 +77,10 @@ snapshot that must pass the manifest verifier before runtime construction. Gover
 is available only through the EG-015 live-evaluation command or protected manual workflow after an
 approved provider, key, retention posture, and budget are configured.
 
+The application-side public-mode boundary and its required configuration are documented in
+[public-mode security](docs/security/public-mode.md). This hardening does not enable public live
+generation or authorize deployment; EG-013C/D, EG-014, and optional EG-016 remain required.
+
 Bootstrap waits for the digest-pinned PostgreSQL 18/pgvector service and applies the forward-only
 empty-schema migration. Database reset is a separately confirmed, loopback-only recovery command;
 see [the database migration guide](apps/api/migrations/README.md).
@@ -89,6 +94,7 @@ contracts/          Versioned machine-readable contracts
 data/               Governed corpus, golden set, and manifests
 docs/adr/           Architecture decision records
 docs/backlog/       Story contracts and implementation briefs
+docs/security/      Public-mode policy and threat-model evidence
 docs/runbooks/      Operational procedures
 scripts/            Reproducible developer and publication checks
 ```

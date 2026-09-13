@@ -35,6 +35,8 @@ PATTERNS = {
         re.IGNORECASE,
     ),
     "URL credential": re.compile(r"https?://[^/\s:@]+:[^/\s@]+@", re.IGNORECASE),
+    "OpenRouter API key": re.compile(r"sk-or-v1-[A-Za-z0-9_-]{16,}"),
+    "GitHub personal access token": re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}"),
 }
 
 

@@ -40,6 +40,7 @@ from evalgate.application.provider_configuration import (
     GenerationMode,
     LiveProvider,
 )
+from evalgate.application.runtime_security import environment_policy
 from evalgate.config import Settings
 from evalgate.domain.answer import AnswerMode, AnswerResult, AnswerStatus
 from evalgate.domain.providers import (
@@ -229,8 +230,8 @@ async def build_live_generation_artifact(
 ) -> dict[str, Any]:
     """Build one governed live-generation artifact without persisting prompts or completions."""
 
-    if settings.environment not in {"local", "ci"}:
-        raise ValueError("live generation evaluation is available only in local or ci mode")
+    if not environment_policy(settings.environment).allow_evaluation:
+        raise ValueError("live generation evaluation is unavailable in this environment")
     if settings.embedding_mode is not EmbeddingMode.REFERENCE:
         raise ValueError("live generation evaluation requires reference retrieval")
     if settings.generation_mode is not GenerationMode.LIVE:
