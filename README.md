@@ -7,16 +7,15 @@ The repository currently contains the approved production blueprint, reproducibl
 | Capability | Status |
 |---|---|
 | Production blueprint | Approved |
-| Repository/tooling foundation | Static/code and local PostgreSQL checks pass; remote CI evidence pending |
-| Provider ports and reference identity | Implemented and locally verified with fixtures and the pinned local reference runtime; remote CI pending |
-| PostgreSQL schema and migration readiness | Implemented, merged, and locally verified; remote CI pending |
-| Corpus and ingestion | Implemented, merged, and locally verified; remote CI pending |
-| Hybrid retrieval | Implemented, merged, and locally verified; remote CI pending |
-| Grounded-answer core and validated citations | Implemented, merged, and locally verified; remote CI pending |
-| POST/fetch/SSE answer stream and inspection UI | Implemented and locally verified on EG-007/EG-008 review branches; no live provider or deployment claim |
-| Evaluation gate and results UI | Implemented and locally verified with reviewed artifacts, real PostgreSQL, component, browser, and accessibility tests; governed live-generation evaluation is protected/manual only |
-| Public-mode application security | Implemented on EG-013A with a fail-closed route/environment matrix, bounded HTTP boundary, exact-origin policy, minimized rate identity, and outbound allowlist; later abuse controls and deployment gates remain open |
-| MCP adapter | Deferred until the core release |
+| Repository/tooling foundation | Implemented and locally verified from a clean checkout; remote CI run still needs release-record linkage |
+| Provider ports and reference identity | Implemented and locally verified with fixtures and the pinned local reference runtime |
+| PostgreSQL schema and migration readiness | Implemented and locally verified with migrations, real integration tests, and readiness checks |
+| Corpus, ingestion, and hybrid retrieval | Implemented and locally verified; fresh 36-case reference retrieval evidence passes the immutable reviewed baseline |
+| Grounded answers, SSE, and inspection UI | Implemented and locally verified with contracts, browser/E2E checks, and server-derived citations; no public live provider claim |
+| Evaluation gate and results UI | Implemented and locally verified; governed live-generation evidence is protected/manual and limitation-heavy, not a quality-success claim |
+| Public-mode application security and operations | Implemented application boundary, browser-safety automation, redacted telemetry, controls, local image, and runbooks; no hosting or deployment authorization |
+| R3 release | Blocked at `0.9.0`; see [release readiness](docs/release/READINESS.md) for the required scanner, manual accessibility, and remote-CI evidence |
+| MCP adapter | Deferred until R3 is accepted |
 | Public deployment | Not selected or deployed |
 
 Start with [BLUEPRINT.md](BLUEPRINT.md). The detailed implementation queue is in [docs/backlog](docs/backlog/README.md), and architectural changes are recorded in [docs/adr](docs/adr/README.md).
