@@ -22,13 +22,20 @@ EG-001 is the one exception: it creates the initial `main` foundation. After tha
 | 12b | [EG-013B](EG-013B-accessibility-safety.md) accessibility/content safety | `feat/eg-013b-accessibility-safety` | EG-008, EG-011 | R3 | Patch `0.8.1 -> 0.8.2` | `gpt-5.6-terra` / medium |
 | 12c | [EG-013C](EG-013C-observability-cost.md) observability/cost | `feat/eg-013c-observability-cost` | EG-010, EG-011 | R3 | Patch `0.8.2 -> 0.8.3` | `gpt-5.6-terra` / medium |
 | 12d | [EG-013D](EG-013D-operations-sbom.md) operations/SBOM | `feat/eg-013d-operations-sbom` | EG-013A, EG-013B, EG-013C, EG-015 | R3 | Minor `0.8.3 -> 0.9.0` | `gpt-5.5` / medium |
-| 13 | [EG-014](EG-014-release-evidence.md) release evidence | `docs/eg-014-release-evidence` | EG-013D, EG-015 | R3 | First stable `0.9.0 -> 1.0.0`, gates permitting | `gpt-5.6-terra` / medium |
+| 13a | [EG-017](EG-017-product-experience.md) product experience | `feat/eg-017-product-experience` | EG-011, EG-013A/B, initial EG-014 audit | R3 | Minor `0.9.0 -> 0.10.0` | `gpt-5.6-terra` / medium |
+| 13b | [EG-018](EG-018-real-world-showcase.md) real-world showcase | `feat/eg-018-real-world-showcase` | EG-017 | R3 | Minor `0.10.0 -> 0.11.0` | `gpt-5.5` / high |
+| 14 | [EG-014](EG-014-release-evidence.md) release finalization | `docs/eg-014-release-final` | EG-013D, EG-015, EG-017, EG-018 | R3 | First stable `0.11.0 -> 1.0.0`, gates permitting | `gpt-5.6-terra` / medium |
 | After R3 | [EG-012](EG-012-mcp-adapter.md) MCP adapter | `feat/eg-012-mcp-adapter` | EG-014 | R4 | Minor `1.0.0 -> 1.1.0` | `gpt-5.5` / medium |
 | Optional | [EG-016](EG-016-public-deployment.md) public deployment | `feat/eg-016-public-deployment` | EG-014 and explicit approval | R5 | No bump; promote R3 `1.0.0` digest | `gpt-5.5` / high |
 
 EG-003 starts only after EG-002 verifies and merges the reference embedding identity and 384-dimensional schema decision. Every story starts only after every listed dependency is on `main` and is still reviewed and merged separately.
 
-Literal version targets assume the table's acceptance order. The shared version step is serialized even if non-overlapping implementation work is investigated in parallel. A stale predecessor is a stop condition: preserve the declared bump kind, but update the plan before editing any version surface. Failed or abandoned work consumes no version.
+Literal version targets assume the table's acceptance order. The merged initial EG-014 audit did not
+consume `1.0.0`; it recorded blockers while retaining `0.9.0`. EG-017 and EG-018 now form the
+reviewed product-experience/showcase path before EG-014 finalization. The shared version step is
+serialized even if non-overlapping implementation work is investigated in parallel. A stale
+predecessor is a stop condition: preserve the declared bump kind, but update the plan before editing
+any version surface. Failed or abandoned work consumes no version.
 
 `Reasoning effort` is the Codex thinking-effort setting. Following [current official OpenAI model guidance](https://developers.openai.com/api/docs/guides/latest-model), Luna is reserved for tightly specified cost-sensitive work, Terra is the balanced default, and Sol is used for correctness-sensitive cross-boundary work; GPT-5.5 is reserved here for research/evaluation or real-world operations. These are coding-agent execution profiles, not EvalGate runtime model dependencies or provider approvals. No story needs `xhigh`, `max`, or `ultra`. The assigned model and effort are fixed for the first run; the agent stops rather than silently substituting or escalating.
 

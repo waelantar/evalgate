@@ -19,7 +19,7 @@ The product is a small, reproducible change-control workbench for a retrieval-au
 
 The first credible release is intentionally narrow:
 
-- one original synthetic technical-operations corpus;
+- one original synthetic qualification corpus plus one pinned, attribution-correct real-world documentation showcase;
 - one pinned local embedding model;
 - PostgreSQL full-text ranking plus exact pgvector search, fused with reciprocal-rank fusion (RRF);
 - one provider-neutral answer-generation port with deterministic fixtures and one separately governed live adapter;
@@ -62,6 +62,9 @@ Teams need a compact system that answers four questions:
 6. **Safe public mode.** Privileged mutation is disabled, secrets remain server-side, content is not logged, and spending has layered limits.
 7. **Measured gates.** Numeric quality and performance thresholds are activated only after a trustworthy baseline exists.
 8. **Honest status.** Planned, implemented, verified, and deployed are distinct states.
+9. **Human meaning before machine identity.** Product views use understandable names and progressive
+   disclosure; immutable IDs and hashes remain available for reproducibility without becoming the
+   primary user interface.
 
 ## 3. Goals, non-goals, and release cut
 
@@ -77,6 +80,8 @@ Teams need a compact system that answers four questions:
 | G-06 | Reproduce the system from a clean checkout | Pinned tools, lockfiles, Compose, migrations, setup trial |
 | G-07 | Operate a bounded public demo | Abuse controls, provider budget, redaction, kill switch, smoke and rollback evidence |
 | G-08 | Offer a stable local integration boundary | Versioned OpenAPI and, after the core release, MCP stdio contract tests |
+| G-09 | Make the evidence flow understandable to a newcomer | Persistent product shell, guided workflow, human-readable identities, bounded recoverable client states |
+| G-10 | Demonstrate the product on real-world source material | Pinned licensed corpus, reviewed showcase cases, like-for-like multi-model evidence and explicit limitations |
 
 ### 3.2 Non-goals
 
@@ -94,7 +99,7 @@ Teams need a compact system that answers four questions:
 
 ### 3.3 Credible public-repository cut
 
-The first credible public product slice contains the governed corpus, idempotent ingestion, explainable search, a streamed cited answer, the React inspection flow, a real retrieval evaluation, deterministic CI evidence, setup documentation, and proportionate security controls. MCP must not delay this cut. A live hosted URL is not required for a repository release; any deployment claim requires a separately verified URL and launch record.
+The first credible public product slice contains the governed corpora, idempotent ingestion, explainable search, a streamed cited answer, the guided React inspection and comparison flows, a real retrieval evaluation, a clearly labeled real-world documentation showcase, deterministic CI evidence, setup documentation, and proportionate security controls. MCP must not delay this cut. A live hosted URL is not required for a repository release; any deployment claim requires a separately verified URL and launch record.
 
 ### 3.4 Release sequence
 
@@ -103,11 +108,11 @@ The first credible public product slice contains the governed corpus, idempotent
 | R0 - Blueprint | Approved product, architecture, contracts, risks, backlog | Blueprint review complete |
 | R1 - Foundation | Reproducible repository, CI, database, provider ports, corpus-manifest schema and licensing policy | Clean checkout and secret-free CI |
 | R2 - Evidence vertical | Ingest, search, cited stream, inspection UI, retrieval evaluation | End-to-end evidence and known-bad regression test |
-| R3 - Governed release | Baseline policy, results UI, hardening, documentation, live evaluation artifact | Production-readiness review |
+| R3 - Governed release | Baseline policy, product-grade explainable UI, real-world showcase, hardening, documentation, live evaluation artifacts | Production-readiness review |
 | R4 - Integration | MCP stdio adapter | R3 cannot be delayed by R4 |
 | R5 - Optional public demo | One portable deployment with bounded live access | Explicit hosting, privacy, security, and budget approval |
 
-The serialized product-version plan is owned by the backlog and branch workflow: R3 becomes the first stable `1.0.0` only when EG-014 verifies every release gate; the additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
+The serialized product-version plan is owned by the backlog and branch workflow: EG-017 and EG-018 advance the pre-stable R3 product from `0.9.0` to `0.10.0` and `0.11.0`; R3 becomes the first stable `1.0.0` only when EG-014 then verifies every release gate. The additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
 
 ## 4. Success measures and quality gates
 
@@ -157,7 +162,7 @@ Priority uses Must, Should, and Could. Must requirements define R3 unless a rele
 
 | ID | Priority | Requirement | Release |
 |---|---|---|---|
-| FR-01 | Must | Ingest one declared bundled corpus version idempotently; reject arbitrary paths and URLs | R2 |
+| FR-01 | Must | Ingest a declared bundled corpus version idempotently; reject arbitrary paths and URLs | R2 |
 | FR-02 | Must | Accept a bounded search body and return ranked chunks with stable source/evidence IDs, provenance, component ranks, and RRF score | R2 |
 | FR-03 | Must | Stream a grounded answer and structured citations from `POST /api/v1/ask` | R2 |
 | FR-04 | Must | Cancel an in-flight answer from the browser and clean up server/provider work | R2 |
@@ -169,6 +174,8 @@ Priority uses Must, Should, and Could. Must requirements define R3 unless a rele
 | FR-10 | Should | Expose search and ask as structured MCP tools from a separate stdio process | R4 |
 | FR-11 | Must | Expose separate liveness and readiness endpoints | R1 |
 | FR-12 | Must | Expose typed, versioned error contracts before and after stream headers | R2 |
+| FR-13 | Must | Present a navigable responsive product shell, human-readable corpus/run identity, progressive technical detail, and finite recoverable browser states | R3 |
+| FR-14 | Must | Provide one pinned licensed real-world documentation showcase with reviewed cases and governed like-for-like model evidence | R3 |
 | NFR-01 | Must | Use one application core independent of FastAPI, SQLAlchemy, provider SDKs, and MCP | R1 |
 | NFR-02 | Must | Use PostgreSQL 18 with pgvector in local, test, CI, and public environments | R1 |
 | NFR-03 | Must | Pin toolchains, dependencies, model revision/checksum, corpus, prompts, and artifact schema | R3 |
@@ -782,6 +789,8 @@ flowchart LR
     EG014[EG-014 Release evidence]
     EG015[EG-015 Governed live suite]
     EG016[EG-016 Optional public deployment]
+    EG017[EG-017 Product experience]
+    EG018[EG-018 Real-world showcase]
 
     EG001 --> EG002
     EG002 --> EG003
@@ -809,8 +818,9 @@ flowchart LR
     EG006 --> EG015
     EG009 --> EG015
     EG015 --> EG013D
-    EG013D --> EG014
-    EG015 --> EG014
+    EG013D --> EG017
+    EG017 --> EG018
+    EG018 --> EG014
     EG014 --> EG012
     EG014 --> EG016
 ```
@@ -839,13 +849,15 @@ Detailed implementation briefs live under `docs/backlog/`. Each brief must state
 | EG-013B | Accessibility and browser-content safety across answer/results flows | EG-008, EG-011 | R3 | M |
 | EG-013C | Redacted observability and provider-neutral cost controls | EG-010, EG-011 | R3 | M |
 | EG-013D | Operational runbooks, `0.9.0` release-candidate image, scans, and SBOM | EG-013A, EG-013B, EG-013C, EG-015 | R3 | L |
-| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015 | R3 | M |
+| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015, EG-017, EG-018 | R3 | M |
 | EG-015 | Governed live generation/judge suite and calibrated claims | EG-006, EG-009 | R3 | L |
 | EG-016 | Optional single-host deployment, access posture, limits, smoke, and rollback | EG-014 | R5 | L |
+| EG-017 | Product-grade responsive shell, visual identity, guided evidence flow, human-readable identities, and recoverable UI errors | EG-011, EG-013A, EG-013B, initial EG-014 audit | R3 | L |
+| EG-018 | Pinned licensed real-world documentation showcase and governed comparable multi-model evidence | EG-017 | R3 | L |
 
-EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. EG-014 may change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
+EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. The initial EG-014 audit exposed both assurance gaps and product-experience gaps; EG-017 and EG-018 close the latter on separate reviewable branches before EG-014 finalization. EG-014 may then change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
 
-Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, CI integration, and public hardening carry the most variance.
+Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-017 and EG-018 add roughly 5-9 days for product experience, licensed-source governance, model comparability, review, and evidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, UI recovery behavior, cross-model comparability, CI integration, and public hardening carry the most variance.
 
 ### 14.3 Definition of ready
 
@@ -914,6 +926,8 @@ Remaining owner decisions are limited to external resources and legal/financial 
 | Public cost abuse | Medium | High | Layered caps, provider account limit, kill switch | Allowance/budget alert -> disable generation |
 | Dependency or action compromise | Low/Medium | High | Locks, action pins, scans, SBOM, least privilege | Critical advisory -> block build/release |
 | Blueprint and implementation diverge | Medium | High | Traceability, ADR-first changes, release reconciliation | Contract/status mismatch -> block R3 |
+| Technical identities and dense evidence make the product unusable for newcomers | Medium | High | Human-readable names first, progressive disclosure, guided flow, usability and responsive tests | A primary workflow requires UUID/SHA interpretation -> block R3 |
+| Real-world showcase loses provenance or compares incompatible model capabilities | Medium | High | Immutable source revision, attribution/license manifest, common capability contract, fixed settings, explicit exclusions | Source/license drift or unsupported output contract -> stop the run and review |
 | Scope expands into platform work | Medium | Medium | Explicit non-goals, story stop conditions, cuttable MCP | New store/cloud/agent framework -> require ADR and replan |
 | Hosting assumptions become stale | Medium | Medium | Choose at R5 using current primary evidence | Pricing/capability change -> reopen ADR-0010 gate |
 
@@ -930,6 +944,8 @@ Remaining owner decisions are limited to external resources and legal/financial 
 | G-06, FR-11, NFR-02 | EG-001, EG-003, EG-014 | Fresh-checkout trial, migration/readiness test |
 | G-07, NFR-05/07/08/09/10/11/12 | EG-013A/B/C/D, EG-014, EG-015, EG-016 | Threat tests, scans/SBOM, runbooks, release and optional deployment record |
 | G-08, FR-09/10 | EG-011, EG-012 | OpenAPI consumer tests, MCP in-memory and stdio tests |
+| G-09, FR-13 | EG-017 | Responsive browser tests, accessible navigation, human-identity contract tests, finite failure/recovery E2E |
+| G-10, FR-14 | EG-018 | Immutable-source/license validation, model capability record, repeatable multi-model artifact, human review |
 | NFR-01 | EG-001, EG-002 | Import-boundary test and architecture review |
 | NFR-06 | EG-008, EG-013B | Automated axe/keyboard tests and manual release review |
 
@@ -944,6 +960,9 @@ Checklist entries remain unchecked until evidence exists.
 - [ ] A seeded known-bad change demonstrably fails the active policy.
 - [ ] Baseline changes have reviewed diff records.
 - [ ] No fixture output is represented as model quality.
+- [ ] A newcomer can complete the primary inspection flow without interpreting UUIDs, hashes, or internal status codes.
+- [ ] Every pending, failed, timed-out, cancelled, and completed UI state is finite, truthful, and recoverable.
+- [ ] The real-world showcase identifies its immutable source, license/attribution, authored questions, compatible model settings, human review, and limitations.
 
 ### Data and legal
 
@@ -992,4 +1011,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 through EG-011 are merged and locally verified: they establish the locked foundation, provider-neutral ports, PostgreSQL/pgvector schema, original governed corpus and idempotent ingestion, explainable hybrid retrieval, grounded cited answers, frozen POST/fetch/SSE streaming, inspection UI, 36-case evaluation, immutable retrieval baseline/known-bad regression gate, and read-only results workbench. EG-015 is merged with the separately governed OpenRouter live-evaluation path; its reviewed artifact is limitation-heavy and advisory, not a generation-quality success claim. EG-013A through EG-013D are merged with public-mode application hardening, browser-safety automation, redacted operational controls, and a local `0.9.0` non-root release-candidate image/SBOM/runbooks. EG-014's local reconciliation passes repeatable code, integration, retrieval, and image smoke evidence but retains `0.9.0`: a real container scan, completed human accessibility review, and linked successful remote CI evidence still block R3. Nothing is tagged, released, pushed, or deployed.
+EG-001 through EG-011 are merged and locally verified: they establish the locked foundation, provider-neutral ports, PostgreSQL/pgvector schema, original governed corpus and idempotent ingestion, explainable hybrid retrieval, grounded cited answers, frozen POST/fetch/SSE streaming, inspection UI, 36-case evaluation, immutable retrieval baseline/known-bad regression gate, and read-only results workbench. EG-015 is merged with the separately governed OpenRouter live-evaluation path; its reviewed artifact is limitation-heavy and advisory, not a generation-quality success claim. EG-013A through EG-013D are merged with public-mode application hardening, browser-safety automation, redacted operational controls, and a local `0.9.0` non-root release-candidate image/SBOM/runbooks. EG-014's initial local reconciliation passes repeatable code, integration, retrieval, and image smoke evidence but retains `0.9.0`: EG-017 product experience, EG-018 real-world showcase, a real container scan, completed human accessibility review, and linked successful remote CI evidence still block R3. Nothing is tagged, released, pushed, or deployed.
