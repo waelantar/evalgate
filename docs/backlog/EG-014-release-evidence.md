@@ -1,6 +1,6 @@
 # EG-014: R3 release evidence and documentation reconciliation
 
-- Status: Planned
+- Status: Blocked at release-evidence review; `0.9.0` retained pending scanner, manual accessibility, and remote-CI evidence
 - Branch: `docs/eg-014-release-evidence`
 - Depends on: EG-013D and EG-015 merged to `main`
 - Release: R3
@@ -26,10 +26,10 @@ A reviewer can reproduce the product from a clean checkout and verify that bluep
 
 ## Acceptance evidence
 
-- [ ] Fresh-checkout trial succeeds and links exact versions/results.
-- [ ] Every R3 requirement is implemented/verified or explicitly blocks release; no orphan contract or story exists.
-- [ ] Retrieval and governed live artifacts plus known-bad rejection are linked with limitations.
-- [ ] Security/accessibility/scans/SBOM/runbook/rollback evidence is complete and status language is truthful.
+- [x] Fresh-checkout trial succeeds and links exact versions/results in `docs/release/READINESS.md`.
+- [x] Every R3 requirement is implemented/verified or explicitly blocks release; no orphan contract or story exists.
+- [x] Retrieval and governed live artifacts plus known-bad rejection are linked with limitations.
+- [x] Security/accessibility/scans/SBOM/runbook/rollback evidence is reconciled with truthful blocker status.
 - [ ] If and only if every gate passes, the final image and runtime report `1.0.0` and the release record identifies its matching digest, scans, and SBOM.
 
 ## Required tests and review
