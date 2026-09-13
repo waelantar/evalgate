@@ -1,6 +1,6 @@
 # EG-013B: Accessibility and browser-content safety
 
-- Status: Planned; EG-013 epic child
+- Status: Implemented and locally verified on review branch; awaiting owner review and manual merge
 - Branch: `feat/eg-013b-accessibility-safety`
 - Depends on: EG-008 and EG-011 merged to `main`
 - Release: R3
@@ -25,10 +25,27 @@ The complete supported web flow meets WCAG 2.2 AA evidence expectations and rend
 
 ## Acceptance evidence
 
-- [ ] Automated checks and all critical keyboard flows pass for ask, cancel, error, evidence, and results views.
-- [ ] Focus/live announcements are understandable without duplicated token noise.
-- [ ] XSS payloads, unsafe links, raw HTML, and model-authored fake citations remain inert.
-- [ ] Manual review record names tested browsers/assistive setup and remaining limitations.
+- [x] Automated checks and all critical keyboard flows pass for ask, cancel, error, evidence, and results views.
+- [x] Focus/live announcements are understandable without duplicated token noise.
+- [x] XSS payloads, unsafe links, raw HTML, and model-authored fake citations remain inert.
+- [x] Manual review record names tested browsers/assistive setup and remaining limitations.
+
+## Implementation evidence
+
+- Answer and results errors receive a visible, programmatic focus target; concise atomic status
+  regions report phase/loading changes while streamed answer tokens are not a live region.
+- Citation buttons retain their native keyboard behavior and transfer focus to the matching
+  focusable evidence article. The navigation selects instant movement when reduced motion is
+  requested.
+- All supported corpus/model values use the explicit text-only presentation boundary. The tested
+  external-link policy permits only absolute `https:` and `mailto:` URLs; unsupported content has
+  no active rendering path.
+- Component tests cover focused answer/results errors and citation focus transfer. Chromium tests
+  cover axe analysis, Ask/citation keyboard activation, unsafe HTML and scheme inertness, 320 CSS
+  pixel reflow, and reduced-motion behavior.
+- `docs/accessibility/EG-013B-manual-review.md` records the automated browser environment, exact
+  human review checklist, and the remaining screen-reader/browser limitations without claiming
+  formal conformance.
 
 ## Required tests and review
 

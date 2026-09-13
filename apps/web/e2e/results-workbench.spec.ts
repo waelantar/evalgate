@@ -44,6 +44,30 @@ async function routeResults(page: Page, state: 'loaded' | 'empty' | 'error'): Pr
   })
 }
 
+function streamFrame(type: string, sequence: number, value: Record<string, unknown>): string {
+  return `event: ${type}\nid: ${sequence}\ndata: ${JSON.stringify({ schema_version: '1.0', request_id: 'req-1', sequence, type, ...value })}\n\n`
+}
+
+async function routeAnswerAndEvidence(page: Page): Promise<void> {
+  await page.route('**/api/v1/ask', async (route) => {
+    await route.fulfill({
+      contentType: 'text/event-stream',
+      body: [
+        streamFrame('answer.started', 1, { prompt_policy: { id: 'policy', version: '1', sha256: 'hash' } }),
+        streamFrame('retrieval.completed', 2, { index_version: 'fixture-v1', corpus_version: 'fixture-c1', evidence_ids: ['ev-1'] }),
+        streamFrame('answer.delta', 3, { text: '<img src=x onerror=alert(1)>' }),
+        streamFrame('citations.completed', 4, { citations: [{ evidence_id: 'ev-1', title: 'javascript:alert(1)', section_key: 'intro' }] }),
+        streamFrame('answer.completed', 5, { status: 'answered', provider: { mode: 'fixture', name: 'fixture', revision: '1' } }),
+      ].join(''),
+    })
+  })
+  await page.route('**/api/v1/search**', async (route) => {
+    await route.fulfill({
+      json: { results: [{ rank: 1, evidence_id: 'ev-1', document_id: 'doc-1', source_key: 'fixture', title: 'javascript:alert(1)', license_id: 'internal', provenance: 'fixture', section_key: 'intro', source_start: 0, source_end: 10, content: '<img src=x onerror=alert(1)>', content_sha256: 'hash', lexical_rank: 1, vector_rank: null, rrf_score: 1 }] },
+    })
+  })
+}
+
 test('inspects reviewed run and failed-case evidence without accessibility violations', async ({ page }) => {
   await routeResults(page, 'loaded')
   await page.goto('/')
@@ -66,4 +90,35 @@ test('renders a safe result error without server details', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('alert')).toContainText('could not be loaded')
   await expect(page.getByText('private dependency failure')).toHaveCount(0)
+})
+
+test('keeps unsafe answer content inert and moves keyboard focus to cited evidence', async ({ page }) => {
+  await routeResults(page, 'empty')
+  await routeAnswerAndEvidence(page)
+  await page.goto('/')
+  await page.getByLabel('Question').fill('How?')
+  await page.getByRole('button', { name: 'Ask' }).focus()
+  await page.keyboard.press('Enter')
+
+  const citation = page.getByRole('button', { name: /javascript:alert/ })
+  await expect(citation).toBeVisible()
+  await expect(page.locator('img')).toHaveCount(0)
+  await expect(page.locator('a[href^="javascript:"]')).toHaveCount(0)
+  await citation.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('#evidence-ev-1')).toBeFocused()
+})
+
+test('reflows at 320 CSS pixels with reduced motion requested', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 320, height: 720 })
+  await routeResults(page, 'empty')
+  await routeAnswerAndEvidence(page)
+  await page.goto('/')
+  await page.getByLabel('Question').fill('How?')
+  await page.getByRole('button', { name: 'Ask' }).click()
+  await page.getByRole('button', { name: /javascript:alert/ }).click()
+  await expect(page.locator('#evidence-ev-1')).toBeFocused()
+  const results = await new AxeBuilder({ page }).analyze()
+  expect(results.violations).toEqual([])
 })
