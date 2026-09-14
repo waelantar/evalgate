@@ -1,7 +1,7 @@
 # R3 release-readiness record
 
 - Candidate: first stable R3 release
-- Candidate product version: `0.9.0` (retained)
+- Candidate product version: `0.10.0` (EG-017 product-experience candidate)
 - Requested target: `1.0.0`
 - Review date: 2026-09-13
 - Status: **blocked; do not tag, publish, deploy, or claim a `1.0.0` release**
@@ -9,7 +9,7 @@
 
 This is the EG-014 evidence index. It reconciles the R3 checklist in `BLUEPRINT.md` section 18
 without turning planned or waived work into completed assurance. The controlled product-version
-surfaces remain at `0.9.0`; no final `1.0.0` image was built because the release gates below are
+surfaces now record the `0.10.0` EG-017 candidate; no final `1.0.0` image was built because the release gates below are
 not all satisfied.
 
 ## Repeatable local evidence
@@ -43,9 +43,9 @@ OpenRouter decisions agree with the current R3 code and documentation.
 3. **Remote CI evidence:** the repository has a pinned, secret-free PR workflow, but no linked
    successful remote CI run is available in this local evidence record. Before publishing, record
    the successful run URL/commit and confirm its immutable retrieval artifact.
-4. **Product experience:** the initial audit found that the local UI still exposes implementation
-   identities as primary labels, lacks a persistent product shell and guided evidence flow, and
-   does not make every blocked-request path finite and recoverable. Complete and review EG-017.
+4. **Product experience manual review:** EG-017 implements the responsive, human-readable product
+   shell and finite client recovery states in the `0.10.0` candidate. Its manual accessibility
+   checks remain part of the manual-review gate above; no broader accessibility claim is made.
 5. **Real-world showcase:** the current governed corpus is intentionally synthetic. Complete EG-018
    with an immutable, license-compatible real-world documentation subset, truthful attribution,
    authored-question disclosure, comparable-model controls, human review, and limitations.
@@ -72,7 +72,7 @@ this documentation branch.
 
 ## Version handoff and recommendation
 
-Do **not** change `0.9.0` directly to `1.0.0`. Complete EG-017 (`0.10.0`) and EG-018 (`0.11.0`),
+Do **not** change `0.10.0` directly to `1.0.0`. Complete EG-018 (`0.11.0`),
 then independently evidence the scanner, manual-review, and remote-CI gates. Rerun the complete
 matrix, update this record with every new artifact and disposition, and only then apply the
 controlled final version bump described in [`docs/WORKFLOW.md`](../WORKFLOW.md). Rebuild the

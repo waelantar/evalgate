@@ -24,3 +24,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Focused keyboard, focus-management, reduced-motion, touch-target, live-region, and browser-content-safety hardening for the supported web views, with repeatable Chromium/axe evidence and a documented manual review boundary.
 - Provider-neutral, content-free operational telemetry and low-cardinality in-memory metrics; fail-closed public limit configuration; and tested token, concurrency, daily allowance, cooldown, account-cap, and kill-switch controls without provider fallback.
 - Local release-candidate image definition, opt-in Compose release profile, bounded smoke/SBOM/scan scripts, and R3 operational runbooks for EG-013D.
+- Product-grade evidence-control-room shell with an original SVG favicon/mark, responsive direct navigation, bounded friendly inspection-catalog selection, progressive technical details, and tested finite client timeout/retry handling.

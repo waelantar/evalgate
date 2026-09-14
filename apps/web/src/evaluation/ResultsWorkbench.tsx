@@ -14,6 +14,10 @@ function label(key: string): string {
   return key.replaceAll('_', ' ')
 }
 
+function runLabel(runKey: string): string {
+  return `Evaluation · ${label(runKey)}`
+}
+
 function metricValue(key: string, value: number): string {
   return key === 'case_count' ? String(value) : `${(value * 100).toFixed(1)}%`
 }
@@ -94,7 +98,7 @@ export function ResultsWorkbench() {
         </div>
       ) : null}
       {runs?.length === 0 && !error ? (
-        <p className="muted">No reviewed evaluation runs are available.</p>
+        <div className="empty-state"><img src="/evalgate-mark.svg" alt="" /><p className="muted">No reviewed evaluation runs are available.</p></div>
       ) : null}
       {runs && runs.length > 0 ? (
         <>
@@ -110,13 +114,13 @@ export function ResultsWorkbench() {
                 setError(false)
               }}
             >
-              {runs.map((run) => <option key={run.run_key} value={run.run_key}>{run.run_key}</option>)}
+              {runs.map((run) => <option key={run.run_key} value={run.run_key}>{runLabel(run.run_key)}</option>)}
             </select>
             <label htmlFor="comparison-run">Compare metrics with</label>
             <select id="comparison-run" value={compareTo} onChange={(event) => { setCompareTo(event.target.value); setResult(null); setError(false) }}>
               <option value="">No comparison</option>
               {runs.filter((run) => run.run_key !== selectedRun).map((run) => (
-                <option key={run.run_key} value={run.run_key}>{run.run_key}</option>
+                <option key={run.run_key} value={run.run_key}>{runLabel(run.run_key)}</option>
               ))}
             </select>
           </div>
@@ -124,15 +128,12 @@ export function ResultsWorkbench() {
           {detail ? (
             <>
               <div className="result-summary">
-                <div><span className="status-badge">{detail.status}</span><p>{detail.mode} mode</p></div>
+                <div><span className="status-badge">{detail.status}</span><p>{detail.mode} evaluation</p></div>
                 <dl className="identity-grid">
-                  <div><dt>Code SHA</dt><dd><code>{detail.code_sha}</code></dd></div>
-                  <div><dt>Artifact SHA-256</dt><dd><code>{detail.artifact_sha256}</code></dd></div>
                   <div><dt>Index</dt><dd>{contentText(identity(detail.versions.index_key))}</dd></div>
-                  <div><dt>Dataset SHA-256</dt><dd><code>{identity(detail.versions.dataset_manifest_sha256)}</code></dd></div>
-                  <div><dt>Corpus SHA-256</dt><dd><code>{identity(detail.versions.corpus_manifest_sha256)}</code></dd></div>
                   <div><dt>Policy</dt><dd>{contentText(identity(detail.versions.policy_version))}</dd></div>
                 </dl>
+                <details><summary>Technical details</summary><dl className="technical-list"><div><dt>Code checksum</dt><dd><code>{detail.code_sha}</code></dd></div><div><dt>Artifact checksum</dt><dd><code>{detail.artifact_sha256}</code></dd></div><div><dt>Dataset checksum</dt><dd><code>{identity(detail.versions.dataset_manifest_sha256)}</code></dd></div><div><dt>Corpus checksum</dt><dd><code>{identity(detail.versions.corpus_manifest_sha256)}</code></dd></div></dl></details>
               </div>
               <section aria-labelledby="metrics-heading">
                 <h3 id="metrics-heading">Metrics</h3>
@@ -170,13 +171,13 @@ export function ResultsWorkbench() {
                       <article className={`result-case result-case--${item.status}`} key={item.case_id}>
                         <div className="case-title"><h4>{item.case_id}: {item.question}</h4><span>{item.status}</span></div>
                         <p className="muted">{item.split} · {item.answerable ? 'answerable' : 'unanswerable'}</p>
-                        <p><strong>Retrieved evidence</strong></p>
+                        <p><strong>Retrieved evidence</strong> · {item.retrieved_evidence_ids.length} passage{item.retrieved_evidence_ids.length === 1 ? '' : 's'}</p>
                         {item.retrieved_evidence_ids.length > 0 ? (
-                          <ul className="evidence-ids">{item.retrieved_evidence_ids.map((id) => <li key={id}><code>{id}</code></li>)}</ul>
+                          <details><summary>Technical evidence IDs</summary><ul className="evidence-ids">{item.retrieved_evidence_ids.map((id) => <li key={id}><code>{id}</code></li>)}</ul></details>
                         ) : <p className="muted">No evidence retrieved.</p>}
-                        <p><strong>Reviewed relevant evidence</strong></p>
+                        <p><strong>Reviewed relevant evidence</strong> · {item.relevant_evidence_ids.length} expected passage{item.relevant_evidence_ids.length === 1 ? '' : 's'}</p>
                         {item.relevant_evidence_ids.length > 0 ? (
-                          <ul className="evidence-ids">{item.relevant_evidence_ids.map((id) => <li key={id}><code>{id}</code></li>)}</ul>
+                          <details><summary>Technical evidence IDs</summary><ul className="evidence-ids">{item.relevant_evidence_ids.map((id) => <li key={id}><code>{id}</code></li>)}</ul></details>
                         ) : <p className="muted">No relevant evidence expected.</p>}
                       </article>
                     ))}

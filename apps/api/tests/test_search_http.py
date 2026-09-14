@@ -45,8 +45,39 @@ IDENTITY = ProviderIdentity(ProviderMode.REFERENCE, "reference", "runtime-r1")
 
 
 class _Engine:
+    def __init__(self, catalog_rows: list[dict[str, object]] | None = None) -> None:
+        self.catalog_rows = catalog_rows or []
+
+    def connect(self) -> _CatalogConnection:
+        return _CatalogConnection(self.catalog_rows)
+
     async def dispose(self) -> None:
         return None
+
+
+class _CatalogResult:
+    def __init__(self, rows: list[dict[str, object]]) -> None:
+        self.rows = rows
+
+    def mappings(self) -> _CatalogResult:
+        return self
+
+    def all(self) -> list[dict[str, object]]:
+        return self.rows
+
+
+class _CatalogConnection:
+    def __init__(self, rows: list[dict[str, object]]) -> None:
+        self.rows = rows
+
+    async def __aenter__(self) -> _CatalogConnection:
+        return self
+
+    async def __aexit__(self, *_: object) -> None:
+        return None
+
+    async def execute(self, _: object) -> _CatalogResult:
+        return _CatalogResult(self.rows)
 
 
 class _Embedding:
@@ -140,16 +171,43 @@ def _client(
     repository: SearchRepositoryPort | None = None,
     embedding: SearchEmbeddingPort | None = None,
     generation: GenerationPort | None = None,
+    engine: AsyncEngine | None = None,
 ) -> TestClient:
     app = create_app(
         settings=_settings(),
-        engine=cast(AsyncEngine, _Engine()),
+        engine=engine or cast(AsyncEngine, _Engine()),
         search_repository=repository,
         search_embedding=embedding,
         answer_generation=generation,
         request_id_factory=lambda: REQUEST_ID,
     )
     return TestClient(app)
+
+
+def test_inspection_catalog_returns_bounded_human_readable_index_choices() -> None:
+    rows = [
+        {
+            "index_version": INDEX_ID,
+            "index_key": "northstar-index",
+            "corpus_key": "northstar-operations",
+            "corpus_version": "1.0.0",
+        }
+    ]
+    with _client(engine=cast(AsyncEngine, _Engine(rows))) as client:
+        response = client.get("/api/v1/inspection-catalog")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "items": [
+            {
+                "index_version": str(INDEX_ID),
+                "index_key": "northstar-index",
+                "corpus_key": "northstar-operations",
+                "corpus_version": "1.0.0",
+                "label": "Northstar Operations · 1.0.0",
+            }
+        ]
+    }
 
 
 def test_search_success_returns_strict_evidence_and_full_version_identity() -> None:

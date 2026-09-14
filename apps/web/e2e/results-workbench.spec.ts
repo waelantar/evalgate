@@ -10,6 +10,9 @@ const run = {
 }
 
 async function routeResults(page: Page, state: 'loaded' | 'empty' | 'error'): Promise<void> {
+  await page.route('**/api/v1/inspection-catalog', async (route) => {
+    await route.fulfill({ json: { items: [] } })
+  })
   await page.route('**/api/v1/evaluation-runs**', async (route) => {
     if (state === 'error') {
       await route.fulfill({ status: 503, json: { detail: 'private dependency failure' } })
@@ -49,6 +52,9 @@ function streamFrame(type: string, sequence: number, value: Record<string, unkno
 }
 
 async function routeAnswerAndEvidence(page: Page): Promise<void> {
+  await page.route('**/api/v1/inspection-catalog', async (route) => {
+    await route.fulfill({ json: { items: [{ index_version: 'fixture-v1', index_key: 'fixture-index', corpus_key: 'fixture-corpus', corpus_version: '1.0.0', label: 'Fixture corpus · 1.0.0' }] } })
+  })
   await page.route('**/api/v1/ask', async (route) => {
     await route.fulfill({
       contentType: 'text/event-stream',
@@ -70,10 +76,11 @@ async function routeAnswerAndEvidence(page: Page): Promise<void> {
 
 test('inspects reviewed run and failed-case evidence without accessibility violations', async ({ page }) => {
   await routeResults(page, 'loaded')
-  await page.goto('/')
+  await page.goto('/evaluations')
   await expect(page.getByRole('heading', { name: 'Evaluation results' })).toBeVisible()
   await expect(page.getByText('No semantic judge.')).toBeVisible()
   await expect(page.getByRole('heading', { name: /dev-01: What is the purpose/ })).toBeVisible()
+  await page.getByText('Technical evidence IDs').click()
   await expect(page.getByText('evidence-1')).toBeVisible()
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])
@@ -81,13 +88,13 @@ test('inspects reviewed run and failed-case evidence without accessibility viola
 
 test('renders the reviewed-run empty state', async ({ page }) => {
   await routeResults(page, 'empty')
-  await page.goto('/')
+  await page.goto('/evaluations')
   await expect(page.getByText('No reviewed evaluation runs are available.')).toBeVisible()
 })
 
 test('renders a safe result error without server details', async ({ page }) => {
   await routeResults(page, 'error')
-  await page.goto('/')
+  await page.goto('/evaluations')
   await expect(page.getByRole('alert')).toContainText('could not be loaded')
   await expect(page.getByText('private dependency failure')).toHaveCount(0)
 })
@@ -96,8 +103,10 @@ test('keeps unsafe answer content inert and moves keyboard focus to cited eviden
   await routeResults(page, 'empty')
   await routeAnswerAndEvidence(page)
   await page.goto('/')
-  await page.getByLabel('Question').fill('How?')
-  await page.getByRole('button', { name: 'Ask' }).focus()
+  await page.getByRole('button', { name: 'Inspect an answer' }).click()
+  await expect(page.getByLabel('Evidence source')).toBeVisible()
+  await page.getByLabel('Your question').fill('How?')
+  await page.getByRole('button', { name: 'Inspect answer' }).focus()
   await page.keyboard.press('Enter')
 
   const citation = page.getByRole('button', { name: /javascript:alert/ })
@@ -115,10 +124,32 @@ test('reflows at 320 CSS pixels with reduced motion requested', async ({ page })
   await routeResults(page, 'empty')
   await routeAnswerAndEvidence(page)
   await page.goto('/')
-  await page.getByLabel('Question').fill('How?')
-  await page.getByRole('button', { name: 'Ask' }).click()
+  await page.getByRole('button', { name: 'Inspect an answer' }).click()
+  await expect(page.getByLabel('Evidence source')).toBeVisible()
+  await page.getByLabel('Your question').fill('How?')
+  await page.getByRole('button', { name: 'Inspect answer' }).click()
   await page.getByRole('button', { name: /javascript:alert/ }).click()
   await expect(page.locator('#evidence-ev-1')).toBeFocused()
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])
+})
+
+test('turns a blocked request into a finite, retryable timeout state', async ({ page }) => {
+  test.setTimeout(45_000)
+  await routeResults(page, 'empty')
+  await routeAnswerAndEvidence(page)
+  await page.route('**/api/v1/ask', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 35_000))
+    await route.abort('timedout').catch(() => undefined)
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Inspect an answer' }).click()
+  await expect(page.getByLabel('Evidence source')).toBeVisible()
+  await page.getByLabel('Your question').fill('How?')
+  await page.getByRole('button', { name: 'Inspect answer' }).click()
+  const alert = page.getByRole('alert')
+  await expect(alert).toContainText('The request took too long', { timeout: 40_000 })
+  await expect(alert).toContainText('client.timeout')
+  await expect(page.getByRole('status')).toContainText('Failed')
+  await expect(page.getByRole('button', { name: 'Try again' })).toBeEnabled()
 })

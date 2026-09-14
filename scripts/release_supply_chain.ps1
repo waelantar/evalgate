@@ -1,5 +1,5 @@
 param(
-    [string]$Image = "evalgate-api:0.9.0"
+    [string]$Image = "evalgate-api:0.10.0"
 )
 
 $ErrorActionPreference = "Stop"

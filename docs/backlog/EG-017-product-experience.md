@@ -1,6 +1,6 @@
 # EG-017: Product identity, explainable UX, and resilient client states
 
-- Status: Planned
+- Status: Implemented and locally verified; manual accessibility review remains pending
 - Branch: `feat/eg-017-product-experience`
 - Depends on: EG-011, EG-013A, EG-013B, and the initial EG-014 audit merged to `main`
 - Release: R3
@@ -65,24 +65,26 @@ when wanted through a coherent responsive product interface.
 
 ## Acceptance evidence
 
-- [ ] The browser tab, product header, empty states, and documentation use the original SVG mark;
+- [x] The browser tab, product header, empty states, and documentation use the original SVG mark;
       favicon and accessible-name behavior pass automated browser checks.
-- [ ] All four real destinations support direct navigation, browser back/forward, visible current
+- [x] All four real destinations support direct navigation, browser back/forward, visible current
       location, correct document title/heading, keyboard use, and a small-screen navigation mode.
-- [ ] A first-time user can select a friendly corpus/index and complete Inspect without typing or
+- [x] A first-time user can select a friendly corpus/index and complete Inspect without typing or
       understanding a UUID; hashes/UUIDs are absent from primary UI and available in technical
       details for reproducibility.
-- [ ] Overview and Inspect explain the real data flow and clearly distinguish fixture mechanics,
+- [x] Overview and Inspect explain the real data flow and clearly distinguish fixture mechanics,
       real retrieval evidence, and governed live evidence without claiming deployment or quality.
-- [ ] Evaluation summary → regression list → case/evidence drill-down works without blank or
+- [x] Evaluation summary → regression list → case/evidence drill-down works without blank or
       irrelevant columns and has explicit loading, empty, partial, and failure states.
-- [ ] HTTP/SSE failures map to stable safe codes. A Playwright-blocked request reaches the bounded
+- [x] HTTP/SSE failures map to stable safe codes. A Playwright-blocked request reaches the bounded
       timeout state, stops all busy indicators, supports retry, and produces no stale completion.
 - [ ] Axe plus keyboard, focus, 320px/768px reflow, 200% zoom, forced-colors, reduced-motion, and
       content-safety tests pass; the manual accessibility record is updated only for checks a human
       actually performs.
-- [ ] `./scripts/check.ps1`, focused API contract tests, component tests, and Playwright flows pass
-      from a clean checkout before the controlled `0.10.0` bump and again afterward.
+- [x] `./scripts/check.ps1`, focused API contract tests, component tests, and Playwright flows pass
+      from a clean checkout before the controlled `0.10.0` bump and again afterward. Pre-bump
+      verification passed on 2026-09-14; the post-bump matrix passed on 2026-09-14 (209 backend
+      tests, 35 web unit tests, six Chromium/axe flows, and production build).
 
 ## Required tests and review
 

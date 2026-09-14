@@ -3,7 +3,9 @@
 ## Scope and evidence boundary
 
 This record covers the supported local inspection and read-only evaluation-results views in
-EvalGate `0.8.2`. It documents the evidence gathered for EG-013B; it is not a WCAG
+EvalGate `0.10.0`. EG-017 extends the automated evidence to the persistent product shell,
+friendly source selector, direct routes, and finite timeout recovery. It documents the evidence
+gathered for EG-013B/EG-017; it is not a WCAG
 conformance claim or a substitute for a formal accessibility audit.
 
 ## Executed automated browser review
@@ -13,9 +15,10 @@ conformance claim or a substitute for a formal accessibility audit.
 - Viewports: the normal desktop project and a 320-by-720 CSS-pixel reflow case.
 - Assistive setup: axe-core browser analysis. No screen-reader software was automated or claimed
   as tested.
-- Checks: heading/label semantics and axe analysis for the results view; keyboard Ask and citation
-  activation; focus transfer to the cited evidence article; inert model/corpus HTML and
-  `javascript:` content; 320-pixel reflow; and reduced-motion citation navigation.
+- Checks: heading/label semantics and axe analysis for overview, inspection, and results views;
+  keyboard Inspect and citation activation; focus transfer to the cited evidence article; inert
+  model/corpus HTML and `javascript:` content; direct navigation; blocked-request timeout/retry;
+  320-pixel reflow; and reduced-motion citation navigation.
 
 The repeatable command is:
 
@@ -31,7 +34,7 @@ represented as completed by the coding agent.
 
 | Check | Setup | Expected result | Status |
 | --- | --- | --- | --- |
-| Keyboard flow | Chromium, keyboard only | Tab order reaches Question, Index version, Ask, Cancel, citations, and results controls; Enter/Space activate buttons. | Automated coverage; human spot-check pending. |
+| Keyboard flow | Chromium, keyboard only | Tab order reaches navigation, Evidence source, Your question, Inspect answer, Cancel request, citations, and results controls; Enter/Space activate buttons. | Automated coverage; human spot-check pending. |
 | Answer status and cancellation | Chromium plus a screen reader selected by the reviewer | One concise state announcement per phase; streamed answer tokens are not repeatedly announced; cancellation announces `Cancelled`. | Screen-reader review pending. |
 | Error recovery | Chromium plus the selected screen reader | A safe error is announced and receives focus; Retry is reachable and returns to a usable results view. | Browser focus automated; screen-reader review pending. |
 | Citation navigation | Chromium, keyboard only | Activating a citation moves focus to its evidence article, with visible focus styling. | Automated coverage; human spot-check pending. |

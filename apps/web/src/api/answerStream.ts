@@ -156,7 +156,11 @@ export async function* fetchAnswerStream(
     body: JSON.stringify(request),
     signal,
   })
-  if (!response.ok) throw new AnswerStreamProtocolError(`ask failed before stream: ${response.status}`)
+  if (!response.ok) {
+    const problem = await problemFromResponse(response)
+    if (problem !== null) throw problem
+    throw new AnswerStreamProtocolError(`ask failed before stream: ${response.status}`)
+  }
   if (!response.headers.get('content-type')?.startsWith('text/event-stream')) {
     throw new AnswerStreamProtocolError('ask response is not an event stream')
   }
@@ -175,3 +179,4 @@ export async function* fetchAnswerStream(
     reader.releaseLock()
   }
 }
+import { problemFromResponse } from './problem'

@@ -30,12 +30,12 @@ def main() -> int:
         "USER 10001:10001",
         "HEALTHCHECK",
         "/health/live",
-        'LABEL org.opencontainers.image.version="0.9.0"',
+        'LABEL org.opencontainers.image.version="0.10.0"',
         'CMD ["evalgate-api"]',
     ):
         if required not in dockerfile:
             failures.append(f"Dockerfile: missing {required}")
-    if "profiles: [\"release\"]" not in compose or "image: evalgate-api:0.9.0" not in compose:
+    if "profiles: [\"release\"]" not in compose or "image: evalgate-api:0.10.0" not in compose:
         failures.append("compose.yaml: release profile image definition is missing")
     if "condition: service_healthy" not in compose:
         failures.append("compose.yaml: API must wait for healthy PostgreSQL")
