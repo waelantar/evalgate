@@ -13,6 +13,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1',
+    env: { VITE_ASK_DEADLINE_MS: '100' },
     url: 'http://127.0.0.1:5173',
     reuseExistingServer: true,
     timeout: 60_000,

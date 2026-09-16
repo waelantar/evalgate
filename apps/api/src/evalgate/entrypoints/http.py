@@ -15,6 +15,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from evalgate import __version__
@@ -165,6 +166,24 @@ class CorpusIdentityResponse(BaseModel):
     key: str
     version: str
     manifest_sha256: str = Field(pattern="^[a-f0-9]{64}$")
+
+
+class InspectionCatalogItem(BaseModel):
+    """One bounded, read-only index choice for the inspection experience."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    index_version: UUID
+    index_key: str
+    corpus_key: str
+    corpus_version: str
+    label: str
+
+
+class InspectionCatalogResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[InspectionCatalogItem] = Field(max_length=50)
 
 
 class SearchEvidenceResponse(BaseModel):
@@ -598,6 +617,52 @@ def create_app(
         if not state.ready:
             return JSONResponse(status_code=503, content=payload.model_dump())
         return payload
+
+    @app.get(
+        "/api/v1/inspection-catalog",
+        response_model=InspectionCatalogResponse,
+        operation_id="listInspectionCatalog",
+        response_description="Bounded read-only index choices for browser inspection.",
+        responses=_ERROR_RESPONSES,
+        tags=["search"],
+    )
+    async def inspection_catalog(request: Request) -> InspectionCatalogResponse | JSONResponse:
+        database_engine = cast(AsyncEngine, request.app.state.database_engine)
+        request_id = request_id_factory()
+        try:
+            async with database_engine.connect() as connection:
+                rows = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT iv.id AS index_version, iv.index_key, cv.corpus_key, "
+                                "cv.version AS corpus_version FROM index_versions iv "
+                                "JOIN corpus_versions cv ON cv.id = iv.corpus_version_id "
+                                "ORDER BY cv.corpus_key, cv.version, iv.index_key LIMIT 50"
+                            )
+                        )
+                    )
+                    .mappings()
+                    .all()
+                )
+        except SQLAlchemyError:
+            return _problem_response(
+                request=request,
+                request_id=request_id,
+                code=SearchErrorCode.DATABASE_UNAVAILABLE,
+            )
+        return InspectionCatalogResponse(
+            items=[
+                InspectionCatalogItem(
+                    **dict(row),
+                    label=(
+                        f"{str(row['corpus_key']).replace('-', ' ').title()} · "
+                        f"{row['corpus_version']}"
+                    ),
+                )
+                for row in rows
+            ]
+        )
 
     @app.post(
         "/api/v1/search",

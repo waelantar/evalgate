@@ -156,9 +156,11 @@ export async function fetchEvaluationCases(
   runKey: string,
   status: CaseStatus | null,
   signal?: AbortSignal,
+  cursor: string | null = null,
 ): Promise<EvaluationCasePage> {
-  const query = new URLSearchParams({ limit: '50' })
+  const query = new URLSearchParams({ limit: '12' })
   if (status !== null) query.set('status', status)
+  if (cursor !== null) query.set('cursor', cursor)
   return parseCasePage(
     await requestJson(
       `/api/v1/evaluation-runs/${encodeURIComponent(runKey)}/cases?${query.toString()}`,

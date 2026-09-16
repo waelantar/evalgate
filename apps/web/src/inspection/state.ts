@@ -96,6 +96,15 @@ const failure = (state: InspectionState, code: string, message: string): Inspect
   errorMessage: message,
 })
 
+const transportMessage = (code: string): string => {
+  if (code === 'client.timeout') return 'The request took too long. Nothing was changed; you can try again.'
+  if (code === 'client.offline') return 'You appear to be offline. Check your connection and try again.'
+  if (code.startsWith('retrieval.')) return 'The selected evidence set is unavailable. Choose another available corpus or try again.'
+  if (code === 'request.invalid') return 'The question could not be accepted. Check it and try again.'
+  if (code.startsWith('stream.protocol')) return 'The answer response could not be verified. Please try again.'
+  return 'The answer could not be loaded. Please try again.'
+}
+
 function stringValue(event: AnswerStreamEvent, key: string): string | null {
   const value = event[key]
   return typeof value === 'string' && value.length > 0 ? value : null
@@ -124,7 +133,7 @@ export function inspectionReducer(
   if (action.type === 'evidence_loaded') return { ...state, evidence: action.evidence }
   if (action.type === 'evidence_failed') return { ...state, evidence: [] }
   if (action.type === 'transport_failed') {
-    return failure(state, action.code, 'The answer could not be loaded. Please try again.')
+    return failure(state, action.code, transportMessage(action.code))
   }
   if (action.type === 'cancel') {
     return state.phase === 'submitting' || state.phase === 'retrieving' || state.phase === 'streaming'

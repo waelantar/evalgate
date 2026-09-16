@@ -1,4 +1,5 @@
 import type { SearchEvidence } from '../inspection/state'
+import { problemFromResponse } from './problem'
 
 type SearchResponse = Readonly<{
   results: SearchEvidence[]
@@ -16,7 +17,11 @@ export async function fetchSearchEvidence(
     body: JSON.stringify({ query: question, index_version: indexVersion, limit }),
     signal,
   })
-  if (!response.ok) throw new Error('evidence request failed')
+  if (!response.ok) {
+    const problem = await problemFromResponse(response)
+    if (problem !== null) throw problem
+    throw new Error('evidence request failed')
+  }
   const payload = (await response.json()) as SearchResponse
   if (!Array.isArray(payload.results)) throw new Error('evidence response was invalid')
   return payload.results

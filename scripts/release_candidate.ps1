@@ -1,5 +1,5 @@
 param(
-    [string]$Image = "evalgate-api:0.9.0",
+    [string]$Image = "evalgate-api:0.10.0",
     [string]$ApiPort = "8010",
     [switch]$KeepRunning
 )
@@ -54,15 +54,15 @@ try {
         try {
             $live = Invoke-RestMethod -Uri $liveUri -TimeoutSec 2
             $ready = Invoke-RestMethod -Uri $readyUri -TimeoutSec 2
-            if ($live.version -eq "0.9.0" -and $ready.status -eq "ready") {
+            if ($live.version -eq "0.10.0" -and $ready.status -eq "ready") {
                 break
             }
         } catch {
             Start-Sleep -Seconds 1
         }
     }
-    if ($null -eq $live -or $live.version -ne "0.9.0") {
-        throw "Liveness smoke did not return EvalGate 0.9.0."
+    if ($null -eq $live -or $live.version -ne "0.10.0") {
+        throw "Liveness smoke did not return EvalGate 0.10.0."
     }
     if ($null -eq $ready -or $ready.status -ne "ready") {
         throw "Readiness smoke did not reach ready state."
@@ -73,7 +73,7 @@ try {
     $record = [ordered]@{
         schema_version = "1.0"
         story = "EG-013D"
-        product_version = "0.9.0"
+        product_version = "0.10.0"
         image = $Image
         image_id = $imageId
         configured_user = $configuredUser
