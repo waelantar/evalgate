@@ -60,3 +60,23 @@ def test_fixture_artifact_validates_against_contract() -> None:
     markdown = render_markdown(artifact)
     assert "## Metrics" in markdown
     assert "## Limitations" in markdown
+
+
+def test_kubernetes_showcase_dataset_has_reviewed_mix_and_valid_fixture_artifact() -> None:
+    root = Path(__file__).parents[3]
+    path = root / "contracts/evaluation/kubernetes-debug-v1.json"
+    dataset = json.loads(path.read_text(encoding="utf-8"))
+    cases = dataset["cases"]
+
+    assert dataset["dataset_key"] == "kubernetes-debug-v1"
+    assert len(cases) == 18
+    assert sum(case["split"] == "development" for case in cases) == 12
+    assert sum(case["split"] == "calibration" for case in cases) == 3
+    assert sum(case["split"] == "regression" for case in cases) == 3
+    assert all(case["review_state"] == "reviewed" for case in cases)
+    assert all(
+        case["answerability"] == "unanswerable" or case["relevant_evidence_ids"] for case in cases
+    )
+
+    schema = json.loads((root / "contracts/evaluation/artifact.schema.json").read_text())
+    Draft202012Validator(schema).validate(build_artifact(path))

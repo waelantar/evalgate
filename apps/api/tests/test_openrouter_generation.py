@@ -85,7 +85,7 @@ def test_openrouter_request_enforces_approved_policy_without_leaking_key() -> No
         "allow_fallbacks": False,
         "require_parameters": True,
         "sort": "price",
-        "max_price": {"prompt": 0.14, "completion": 0.28},
+        "max_price": {"prompt": 0.05, "completion": 0.14},
     }
     assert "secret-key" not in json.dumps(body)
     assert captured["authorization"] == "Bearer secret-key"
@@ -161,3 +161,97 @@ def test_openrouter_retries_transient_rate_limit_without_fallback() -> None:
 
     assert output.identity.mode is ProviderMode.LIVE
     assert calls == 2
+
+
+def test_openrouter_adapter_uses_approved_model_identity_and_price_profile() -> None:
+    captured: dict[str, object] = {}
+
+    def opener(request: Request, _: float) -> _Response:
+        raw_body = request.data
+        assert isinstance(raw_body, bytes | bytearray)
+        captured["body"] = json.loads(raw_body)
+        return _Response(
+            _completion(
+                content='{"status":"insufficient_support","answer":"No support.","citations":[]}'
+            )
+        )
+
+    adapter = OpenRouterGenerationAdapter(
+        OpenRouterGenerationConfig(
+            api_key=SecretStr("secret-key"),
+            model="z-ai/glm-5.3-flash",
+            reasoning_effort=None,
+        ),
+        opener=opener,
+    )
+
+    output = asyncio.run(adapter.generate(GenerationInput("prompt-body")))
+
+    assert output.identity.name == "openrouter/z-ai/glm-5.3-flash"
+    assert output.identity.revision == "glm-5.3-flash-2026-08-26"
+    body = captured["body"]
+    assert isinstance(body, dict)
+    assert body["model"] == "z-ai/glm-5.3-flash"
+    assert "reasoning" not in body
+    assert body["provider"] == {
+        "zdr": True,
+        "data_collection": "deny",
+        "allow_fallbacks": False,
+        "require_parameters": True,
+        "sort": "price",
+        "max_price": {"prompt": 0.45, "completion": 1.50},
+    }
+
+
+def test_openrouter_adapter_can_pin_one_provider_without_fallback() -> None:
+    captured: dict[str, object] = {}
+
+    def opener(request: Request, _: float) -> _Response:
+        raw_body = request.data
+        assert isinstance(raw_body, bytes | bytearray)
+        captured["body"] = json.loads(raw_body)
+        return _Response(
+            _completion(
+                content='{"status":"insufficient_support","answer":"No support.","citations":[]}'
+            )
+        )
+
+    adapter = OpenRouterGenerationAdapter(
+        OpenRouterGenerationConfig(
+            api_key=SecretStr("secret-key"),
+            model="deepseek/deepseek-v4-flash-0731",
+            provider_only=("DeepInfra",),
+            reasoning_effort=None,
+        ),
+        opener=opener,
+    )
+
+    asyncio.run(adapter.generate(GenerationInput("prompt-body")))
+
+    body = captured["body"]
+    assert isinstance(body, dict)
+    assert body["provider"] == {
+        "zdr": True,
+        "data_collection": "deny",
+        "allow_fallbacks": False,
+        "require_parameters": True,
+        "max_price": {"prompt": 0.08, "completion": 0.20},
+        "only": ["DeepInfra"],
+    }
+
+
+def test_openrouter_adapter_rejects_ambiguous_or_invalid_provider_routes() -> None:
+    with pytest.raises(OpenRouterGenerationError) as conflict:
+        OpenRouterGenerationConfig(
+            api_key=SecretStr("secret-key"),
+            provider_only=("DeepInfra",),
+            provider_order=("Relace",),
+        )
+    assert conflict.value.code is OpenRouterGenerationErrorCode.REQUEST_FAILED
+
+    with pytest.raises(OpenRouterGenerationError) as invalid:
+        OpenRouterGenerationConfig(
+            api_key=SecretStr("secret-key"),
+            provider_only=("../secret",),
+        )
+    assert invalid.value.code is OpenRouterGenerationErrorCode.REQUEST_FAILED

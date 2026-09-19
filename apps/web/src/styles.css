@@ -53,3 +53,25 @@ nav { min-width: 0; overflow-x: auto; } nav ul { display: flex; gap: .25rem; wid
   .primary-nav ul { display: grid; width: 100%; gap: .2rem; padding-top: .35rem; border-top: 1px solid rgb(151 176 193 / 20%); }
   .primary-nav a { padding: .75rem; }
 }
+.tag { display: inline-flex; width: fit-content; padding: .2rem .5rem; border-radius: 999px; font-size: .74rem; font-weight: 750; }
+.tag--green { color: #9ff3d8; background: #123d34; }
+.tag--blue { color: #b8d9e9; background: #102b38; }
+.tag--yellow { color: #f5ddae; background: #261d11; }
+.tag--red { color: #ffd4cf; background: #351c20; }
+.showcase-grid, .diagnosis-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .8fr); gap: 1rem; margin-bottom: 1rem; }
+.showcase-flow ol { grid-template-columns: repeat(5, 1fr); }
+.evidence-room { margin: 1rem 0; }
+.section-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.table-wrap { overflow-x: auto; border: 1px solid #294555; border-radius: .65rem; }
+.evidence-table { width: 100%; border-collapse: collapse; min-width: 56rem; background: #0c202e; }
+.evidence-table th, .evidence-table td { padding: .85rem; border-bottom: 1px solid #294555; text-align: left; vertical-align: top; }
+.evidence-table th { color: #9eb3c1; background: #091923; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+.evidence-table td p { max-width: 22rem; margin: .35rem 0 0; font-size: .85rem; }
+.source-card-grid, .test-grid, .stalled-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .7rem; margin-top: 1rem; }
+.source-card, .test-card { display: flex; gap: .7rem; min-width: 0; padding: .85rem; border: 1px solid #294555; border-radius: .6rem; background: #091923; }
+.source-card h3 { margin: 0; font-size: .95rem; }
+.source-card p, .test-card span { margin: .25rem 0 0; font-size: .86rem; }
+.file-icon { display: inline-grid; width: 2rem; height: 2rem; flex: none; place-items: center; border-radius: .45rem; color: #e8eef4; background: #153545; font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+.test-card { display: grid; }
+.evidence-list { margin: 1rem 0 0; padding-left: 1.2rem; color: #a9bdc9; line-height: 1.7; }
+@media (max-width: 52rem) { .showcase-grid, .diagnosis-grid, .showcase-flow ol { grid-template-columns: 1fr; } .section-heading { align-items: stretch; flex-direction: column; } }

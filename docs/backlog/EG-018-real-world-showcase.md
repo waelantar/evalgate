@@ -1,6 +1,6 @@
 # EG-018: Governed real-world RAG showcase and multi-model evidence
 
-- Status: Planned; source/model/provider/spend gates unresolved
+- Status: Implemented and locally verified at `0.11.0`; pending owner review and manual merge
 - Branch: `feat/eg-018-real-world-showcase`
 - Depends on: EG-017 merged to `main`
 - Release: R3
@@ -66,6 +66,14 @@ without mistaking the result for a public benchmark, production traffic, or a un
   automatic baseline replacement, uncalibrated judge gate, provider fallback, public deployment,
   or more than one real-world source corpus.
 
+## Implemented evidence
+
+- Approved source gate: 11 Kubernetes debug-cluster Markdown files pinned at commit `aa4e9e6dee49106155072a44ef997b91722243ec` with CC BY 4.0 attribution and no-endorsement disclosure.
+- Reviewed dataset/index: 18 cases, 75 evidence chunks, immutable manifest/hash checks, idempotent ingestion, and rollback coverage.
+- Repaired comparable live set: base DeepSeek 3/18, DeepSeek 0731 4/18, and GLM 3/18; total artifact-reported EG-018 spend USD 0.019973359 under the USD 0.80 stop.
+- Root cause of the earlier zero-cost failures: stale request `max_price` ceilings below every selected provider route. Corrected ceilings retain per-request, per-run, and global budget controls.
+- Additional diagnostics: Hy3 timed out/unavailable; MiMo produced malformed output/unavailable. Neither was promoted into the comparable quality table.
+- Read-only Showcase reports provenance, status distribution, costs, exclusions, limitations, and artifact hashes. No browser secret, live-run control, provider fallback, deployment, push, or merge exists.
 ## Acceptance evidence
 
 - [ ] The accepted source ADR and manifest pin exact upstream commit/paths/URLs, CC BY 4.0

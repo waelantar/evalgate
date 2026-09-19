@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
@@ -27,8 +28,37 @@ from evalgate.domain.providers import (
 
 OPENROUTER_MODEL = "deepseek/deepseek-v4-flash"
 OPENROUTER_MODEL_REVISION = "deepseek-v4-flash-2026-04-24"
-OPENROUTER_INPUT_PRICE_PER_MILLION = 0.14
-OPENROUTER_OUTPUT_PRICE_PER_MILLION = 0.28
+OPENROUTER_INPUT_PRICE_PER_MILLION = 0.05
+OPENROUTER_OUTPUT_PRICE_PER_MILLION = 0.14
+_PROVIDER_ROUTE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ._/-]{0,80}$")
+
+APPROVED_OPENROUTER_MODELS: dict[str, dict[str, str | float]] = {
+    "deepseek/deepseek-v4-flash": {
+        "revision": "deepseek-v4-flash-2026-04-24",
+        "input_price_per_million": 0.05,
+        "output_price_per_million": 0.14,
+    },
+    "deepseek/deepseek-v4-flash-0731": {
+        "revision": "deepseek-v4-flash-0731-2026-07-31",
+        "input_price_per_million": 0.08,
+        "output_price_per_million": 0.20,
+    },
+    "z-ai/glm-5.3-flash": {
+        "revision": "glm-5.3-flash-2026-08-26",
+        "input_price_per_million": 0.45,
+        "output_price_per_million": 1.50,
+    },
+    "tencent/hy3": {
+        "revision": "hy3-2026-07-06",
+        "input_price_per_million": 0.14,
+        "output_price_per_million": 0.58,
+    },
+    "xiaomi/mimo-v2.5": {
+        "revision": "mimo-v2.5-2026-04-22",
+        "input_price_per_million": 0.14,
+        "output_price_per_million": 0.28,
+    },
+}
 
 _OUTPUT_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -110,6 +140,10 @@ class OpenRouterGenerationConfig:
     cooldown_seconds: float = 2.0
     input_price_per_million: float = OPENROUTER_INPUT_PRICE_PER_MILLION
     output_price_per_million: float = OPENROUTER_OUTPUT_PRICE_PER_MILLION
+    reasoning_effort: str | None = "high"
+    request_title: str = "EvalGate governed live evaluation"
+    provider_only: tuple[str, ...] = ()
+    provider_order: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.api_key.get_secret_value().strip():
@@ -117,11 +151,14 @@ class OpenRouterGenerationConfig:
                 OpenRouterGenerationErrorCode.SECRET_MISSING,
                 "OpenRouter API key is not configured",
             )
-        if self.model != OPENROUTER_MODEL:
+        if self.model not in APPROVED_OPENROUTER_MODELS:
             raise OpenRouterGenerationError(
                 OpenRouterGenerationErrorCode.REQUEST_FAILED,
-                "OpenRouter model is not the approved EG-015 model",
+                "OpenRouter model is not in the approved live-evaluation allowlist",
             )
+        profile = APPROVED_OPENROUTER_MODELS[self.model]
+        object.__setattr__(self, "input_price_per_million", profile["input_price_per_million"])
+        object.__setattr__(self, "output_price_per_million", profile["output_price_per_million"])
         try:
             normalized_base_url = validate_provider_base_url(self.base_url)
         except SecurityConfigurationError as error:
@@ -146,22 +183,38 @@ class OpenRouterGenerationConfig:
                 "OpenRouter live-evaluation budget is invalid",
             )
 
+        if self.provider_only and self.provider_order:
+            raise OpenRouterGenerationError(
+                OpenRouterGenerationErrorCode.REQUEST_FAILED,
+                "OpenRouter provider route is invalid",
+            )
+        for provider in (*self.provider_only, *self.provider_order):
+            if _PROVIDER_ROUTE_RE.fullmatch(provider) is None:
+                raise OpenRouterGenerationError(
+                    OpenRouterGenerationErrorCode.REQUEST_FAILED,
+                    "OpenRouter provider route is invalid",
+                )
+
 
 class OpenRouterGenerationAdapter:
     """Call one approved OpenRouter model with no fallback or browser-visible secret."""
-
-    identity = ProviderIdentity(
-        mode=ProviderMode.LIVE,
-        name="openrouter/deepseek/deepseek-v4-flash",
-        revision=OPENROUTER_MODEL_REVISION,
-    )
 
     def __init__(
         self, config: OpenRouterGenerationConfig, *, opener: UrlOpen = _default_urlopen
     ) -> None:
         self._config = config
         self._opener = opener
+        profile = APPROVED_OPENROUTER_MODELS[config.model]
+        self._identity = ProviderIdentity(
+            mode=ProviderMode.LIVE,
+            name=f"openrouter/{config.model}",
+            revision=str(profile["revision"]),
+        )
         self._spent_usd = 0.0
+
+    @property
+    def identity(self) -> ProviderIdentity:
+        return self._identity
 
     @property
     def spent_usd(self) -> float:
@@ -184,6 +237,25 @@ class OpenRouterGenerationAdapter:
                 await asyncio.sleep(self._config.cooldown_seconds)
         raise AssertionError("bounded OpenRouter retry loop exhausted")
 
+    def _provider_preferences(self) -> dict[str, Any]:
+        provider: dict[str, Any] = {
+            "zdr": True,
+            "data_collection": "deny",
+            "allow_fallbacks": False,
+            "require_parameters": True,
+            "max_price": {
+                "prompt": self._config.input_price_per_million,
+                "completion": self._config.output_price_per_million,
+            },
+        }
+        if self._config.provider_only:
+            provider["only"] = list(self._config.provider_only)
+        elif self._config.provider_order:
+            provider["order"] = list(self._config.provider_order)
+        else:
+            provider["sort"] = "price"
+        return provider
+
     def _generate_sync(self, request: GenerationInput) -> GenerationOutput:
         payload = {
             "model": self._config.model,
@@ -191,7 +263,6 @@ class OpenRouterGenerationAdapter:
             "stream": False,
             "temperature": 0,
             "max_output_tokens": self._config.max_output_tokens,
-            "reasoning": {"effort": "high", "exclude": True},
             "text": {
                 "format": {
                     "type": "json_schema",
@@ -200,15 +271,10 @@ class OpenRouterGenerationAdapter:
                     "schema": self._config.response_schema or _OUTPUT_SCHEMA,
                 },
             },
-            "provider": {
-                "zdr": True,
-                "data_collection": "deny",
-                "allow_fallbacks": False,
-                "require_parameters": True,
-                "sort": "price",
-                "max_price": {"prompt": 0.14, "completion": 0.28},
-            },
+            "provider": self._provider_preferences(),
         }
+        if self._config.reasoning_effort is not None:
+            payload["reasoning"] = {"effort": self._config.reasoning_effort, "exclude": True}
         body = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
         http_request = Request(
             f"{self._config.base_url.rstrip('/')}/responses",
@@ -217,7 +283,7 @@ class OpenRouterGenerationAdapter:
                 "Authorization": f"Bearer {self._config.api_key.get_secret_value()}",
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "X-OpenRouter-Title": "EvalGate EG-015 governed live evaluation",
+                "X-OpenRouter-Title": self._config.request_title,
             },
             method="POST",
         )

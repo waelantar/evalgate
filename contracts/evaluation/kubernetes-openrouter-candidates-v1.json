@@ -1,0 +1,164 @@
+{
+    "schema_version":  "1.0",
+    "checked_at":  "2026-09-19T12:15:00Z",
+    "provider":  "openrouter",
+    "approval_status":  "approved_and_executed_for_eg_018",
+    "required_request_policy":  {
+                                    "endpoint":  "responses",
+                                    "response_format":  "text.format.json_schema",
+                                    "temperature":  0,
+                                    "provider_zdr":  true,
+                                    "provider_data_collection":  "deny",
+                                    "provider_allow_fallbacks":  false,
+                                    "provider_require_parameters":  true,
+                                    "provider_max_price":  "required per approved run budget",
+                                    "browser_secret":  "forbidden"
+                                },
+    "candidates":  [
+                       {
+                           "slug":  "deepseek/deepseek-v4-flash",
+                           "name":  "DeepSeek V4 Flash 0423",
+                           "price_input_per_million":  0.05,
+                           "price_output_per_million":  0.14,
+                           "context_tokens":  1048576,
+                           "structured_outputs":  true,
+                           "providers":  "16 providers listed by OpenRouter on 2026-09-18",
+                           "status":  "included_in_repaired_comparable_run",
+                           "source":  "https://openrouter.ai/deepseek/deepseek-v4-flash"
+                       },
+                       {
+                           "slug":  "deepseek/deepseek-v4-flash-0731",
+                           "name":  "DeepSeek V4 Flash 0731",
+                           "price_input_per_million":  0.08,
+                           "price_output_per_million":  0.2,
+                           "context_tokens":  1310720,
+                           "structured_outputs":  true,
+                           "providers":  "26 providers listed by OpenRouter on 2026-09-18",
+                           "status":  "included_in_repaired_comparable_run",
+                           "source":  "https://openrouter.ai/deepseek/deepseek-v4-flash-0731"
+                       },
+                       {
+                           "slug":  "z-ai/glm-5.3-flash",
+                           "name":  "GLM 5.3 Flash",
+                           "price_input_per_million":  0.45,
+                           "price_output_per_million":  1.5,
+                           "context_tokens":  1310720,
+                           "structured_outputs":  true,
+                           "providers":  "27 providers listed by OpenRouter on 2026-09-18",
+                           "status":  "included_in_repaired_comparable_run",
+                           "source":  "https://openrouter.ai/z-ai/glm-5.3-flash"
+                       },
+                       {
+                           "slug":  "tencent/hy3",
+                           "name":  "Hy3",
+                           "price_input_per_million":  0.14,
+                           "price_output_per_million":  0.58,
+                           "context_tokens":  262144,
+                           "structured_outputs":  true,
+                           "providers":  "6 providers listed by OpenRouter on 2026-09-18",
+                           "status":  "diagnostic_excluded_timeout",
+                           "source":  "https://openrouter.ai/tencent/hy3"
+                       },
+                       {
+                           "slug":  "xiaomi/mimo-v2.5",
+                           "name":  "MiMo-V2.5",
+                           "price_input_per_million":  0.14,
+                           "price_output_per_million":  0.28,
+                           "context_tokens":  1050000,
+                           "structured_outputs":  true,
+                           "providers":  "6 providers listed by OpenRouter on 2026-09-18; tools on 5 of 6 providers; response_format supported",
+                           "status":  "diagnostic_excluded_malformed_output",
+                           "source":  "https://openrouter.ai/xiaomi/mimo-v2.5"
+                       }
+                   ],
+    "limitations":  [
+                        "Owner approval for EG-018 provider calls was granted with a USD 1.00 cap and USD 0.80 stop limit.",
+                        "The initial zero-cost provider failures were traced to stale request max-price ceilings below every selected provider price.",
+                        "Three models completed one current comparable 18-case run after the price-policy repair.",
+                        "Hy3 timed out on DeepInfra and was unavailable through Tencent; MiMo returned malformed output on DeepInfra and was unavailable through Xiaomi.",
+                        "The evidence is not a best-model claim, external benchmark, deployment claim, or production-quality assertion."
+                    ],
+    "approved_budget_usd":  1.0,
+    "stop_limit_usd":  0.8,
+    "executed_models":  [
+                            "deepseek/deepseek-v4-flash",
+                            "deepseek/deepseek-v4-flash-0731",
+                            "z-ai/glm-5.3-flash"
+                        ],
+    "artifact_reported_total_cost_usd":  0.019973359,
+    "rerun_artifact_reported_cost_usd":  0.014568156,
+    "executed_model_repetitions_per_case":  1,
+    "aggregate_results":  [
+                              {
+                                  "model":  "deepseek/deepseek-v4-flash",
+                                  "passes":  3,
+                                  "reps":  18,
+                                  "pass_rate":  0.16666666666666666,
+                                  "citation_recall":  0.16666666666666666,
+                                  "judge_agreement":  0.2857142857142857,
+                                  "judge_n":  14,
+                                  "cost":  0.001457442
+                              },
+                              {
+                                  "model":  "deepseek/deepseek-v4-flash-0731",
+                                  "passes":  4,
+                                  "reps":  18,
+                                  "pass_rate":  0.22222222222222221,
+                                  "citation_recall":  0.22222222222222221,
+                                  "judge_agreement":  0.36363636363636365,
+                                  "judge_n":  11,
+                                  "cost":  0.00300342
+                              },
+                              {
+                                  "model":  "z-ai/glm-5.3-flash",
+                                  "passes":  3,
+                                  "reps":  18,
+                                  "pass_rate":  0.16666666666666666,
+                                  "citation_recall":  0.16666666666666666,
+                                  "judge_agreement":  1,
+                                  "judge_n":  14,
+                                  "cost":  0.011564736
+                              }
+                          ],
+    "provider_expansion_cost_usd":  0.016216127,
+    "provider_expansion_results":  [
+                                       {
+                                           "model":  "deepseek/deepseek-v4-flash-0731",
+                                           "provider_only":  "DeepInfra",
+                                           "scope":  "18-case repaired run",
+                                           "passes":  4,
+                                           "reps":  18,
+                                           "pass_rate":  0.22222222222222221,
+                                           "citation_recall":  0.22222222222222221,
+                                           "status_summary":  "answered=7,insufficient_support=4,malformed_output=1,provider_unavailable=5,provider_timeout=1",
+                                           "cost":  0.00300342
+                                       },
+                                       {
+                                           "model":  "z-ai/glm-5.3-flash",
+                                           "provider_only":  "NextBit",
+                                           "scope":  "18-case repaired run",
+                                           "passes":  3,
+                                           "reps":  18,
+                                           "pass_rate":  0.16666666666666666,
+                                           "citation_recall":  0.16666666666666666,
+                                           "status_summary":  "answered=11,insufficient_support=3,malformed_output=4",
+                                           "cost":  0.011564736
+                                       }
+                                   ],
+    "candidate_diagnostics":  [
+                                  {
+                                      "model":  "tencent/hy3",
+                                      "routes":  "DeepInfra and Tencent",
+                                      "result":  "provider_timeout on DeepInfra; provider_unavailable on Tencent",
+                                      "artifact_scope":  "two one-case smokes",
+                                      "cost":  0
+                                  },
+                                  {
+                                      "model":  "xiaomi/mimo-v2.5",
+                                      "routes":  "DeepInfra and Xiaomi",
+                                      "result":  "malformed_output on DeepInfra; provider_unavailable on Xiaomi",
+                                      "artifact_scope":  "two one-case smokes",
+                                      "cost":  0.000576023
+                                  }
+                              ]
+}

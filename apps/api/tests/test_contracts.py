@@ -178,3 +178,47 @@ def test_corpus_manifest_path_pattern_accepts_only_markdown_documents() -> None:
     assert not re.fullmatch(pattern, "documents/runbooks/incident-01xmd")
     assert not re.fullmatch(pattern, r"documents\runbooks\incident-01.md")
     assert not re.fullmatch(pattern, "../documents/incident-01.md")
+
+
+def test_kubernetes_openrouter_preflight_is_approved_executed_and_privacy_bounded() -> None:
+    record = json.loads(
+        (
+            REPOSITORY_ROOT
+            / "contracts"
+            / "evaluation"
+            / "kubernetes-openrouter-candidates-v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    policy = record["required_request_policy"]
+
+    assert record["approval_status"] == "approved_and_executed_for_eg_018"
+    assert policy["provider_zdr"] is True
+    assert policy["provider_data_collection"] == "deny"
+    assert policy["provider_allow_fallbacks"] is False
+    assert policy["provider_require_parameters"] is True
+    assert policy["browser_secret"] == "forbidden"
+    assert len(record["candidates"]) == 5
+    assert all(candidate["structured_outputs"] for candidate in record["candidates"])
+    assert record["approved_budget_usd"] == 1.0
+    assert record["stop_limit_usd"] == 0.8
+    assert record["artifact_reported_total_cost_usd"] < record["stop_limit_usd"]
+    assert set(record["executed_models"]) == {
+        "deepseek/deepseek-v4-flash",
+        "deepseek/deepseek-v4-flash-0731",
+        "z-ai/glm-5.3-flash",
+    }
+    statuses = {candidate["slug"]: candidate["status"] for candidate in record["candidates"]}
+    assert all(
+        statuses[model] == "included_in_repaired_comparable_run"
+        for model in record["executed_models"]
+    )
+    assert statuses["tencent/hy3"] == "diagnostic_excluded_timeout"
+    assert statuses["xiaomi/mimo-v2.5"] == "diagnostic_excluded_malformed_output"
+    assert 0 < record["provider_expansion_cost_usd"] < record["stop_limit_usd"]
+    assert len(record["provider_expansion_results"]) == 2
+    assert {item["model"] for item in record["provider_expansion_results"]} == {
+        "deepseek/deepseek-v4-flash-0731",
+        "z-ai/glm-5.3-flash",
+    }
+    assert all(item["reps"] == 18 for item in record["provider_expansion_results"])
+    assert len(record["candidate_diagnostics"]) == 2

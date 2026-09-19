@@ -19,6 +19,8 @@ from evalgate.adapters.bundled_corpus import (
     CHUNKING_VERSION,
     LEXICAL_CONFIG_SHA256,
     chunk_declared_corpus,
+    chunking_policy_sha256_for_corpus,
+    chunking_version_for_corpus,
     corpus_version_id,
     load_declared_corpus_by_key,
 )
@@ -314,3 +316,95 @@ def test_real_reference_snapshot_ingests_once_and_prechecks_repeat(database_url:
         ).one()
     engine.dispose()
     assert tuple(counts) == (1, 1, 20, 161, 24, 63)
+
+
+def test_real_postgresql_kubernetes_showcase_idempotency_and_rollback(database_url: str) -> None:
+    _upgrade(database_url)
+    engine = create_engine(database_url)
+    repository = PostgresCorpusRepository(engine)
+    corpus = load_declared_corpus_by_key("kubernetes-debug-cluster")
+    chunks = chunk_declared_corpus(corpus, tokenizer=_Tokenizer()).chunks
+
+    created = repository.ingest(
+        corpus=corpus,
+        chunks=chunks,
+        vectors=tuple((0.0,) * 384 for _ in chunks),
+        chunking_version=chunking_version_for_corpus(corpus.corpus_key),
+        chunking_policy_sha256=chunking_policy_sha256_for_corpus(corpus.corpus_key),
+        lexical_config_sha256=LEXICAL_CONFIG_SHA256,
+        embedding_model="reviewed-runtime",
+        embedding_revision="r1",
+        embedding_checksum="d" * 64,
+        embedding_dimension=384,
+    )
+    repeated = repository.ingest(
+        corpus=corpus,
+        chunks=chunks,
+        vectors=tuple((0.0,) * 384 for _ in chunks),
+        chunking_version=chunking_version_for_corpus(corpus.corpus_key),
+        chunking_policy_sha256=chunking_policy_sha256_for_corpus(corpus.corpus_key),
+        lexical_config_sha256=LEXICAL_CONFIG_SHA256,
+        embedding_model="reviewed-runtime",
+        embedding_revision="r1",
+        embedding_checksum="d" * 64,
+        embedding_dimension=384,
+    )
+
+    assert created.status == "created"
+    assert repeated.status == "already_present"
+    assert repeated.index_version_id == created.index_version_id
+    assert created.document_count == 11
+    assert created.chunk_count == 77
+    with engine.connect() as connection:
+        assert connection.execute(text("SELECT count(*) FROM corpus_versions")).scalar_one() == 1
+        assert connection.execute(text("SELECT count(*) FROM documents")).scalar_one() == 11
+        assert connection.execute(text("SELECT count(*) FROM chunks")).scalar_one() == 77
+        licenses = (
+            connection.execute(text("SELECT DISTINCT license_id FROM documents")).scalars().all()
+        )
+    assert licenses == ["CC-BY-4.0"]
+
+    rollback_corpus = replace(corpus, corpus_key="kubernetes-debug-rollback")
+    rollback_chunks = chunk_declared_corpus(rollback_corpus, tokenizer=_Tokenizer()).chunks
+    rollback_id = corpus_version_id(rollback_corpus)
+    rollback_ordinal = rollback_chunks[-1].ordinal
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "CREATE FUNCTION reject_last_kubernetes_chunk() RETURNS trigger LANGUAGE plpgsql "
+                "AS $$ BEGIN IF NEW.corpus_version_id = '"
+                f"{rollback_id}' AND NEW.ordinal = {rollback_ordinal} "
+                "THEN RAISE EXCEPTION 'late insertion failure'; END IF; RETURN NEW; END $$"
+            )
+        )
+        connection.execute(
+            text(
+                "CREATE TRIGGER reject_last_kubernetes_chunk BEFORE INSERT ON chunks "
+                "FOR EACH ROW EXECUTE FUNCTION reject_last_kubernetes_chunk()"
+            )
+        )
+    with pytest.raises(IngestionError) as failed:
+        repository.ingest(
+            corpus=rollback_corpus,
+            chunks=rollback_chunks,
+            vectors=tuple((0.0,) * 384 for _ in rollback_chunks),
+            chunking_version=chunking_version_for_corpus(corpus.corpus_key),
+            chunking_policy_sha256=chunking_policy_sha256_for_corpus(corpus.corpus_key),
+            lexical_config_sha256=LEXICAL_CONFIG_SHA256,
+            embedding_model="reviewed-runtime",
+            embedding_revision="r1",
+            embedding_checksum="d" * 64,
+            embedding_dimension=384,
+        )
+    assert failed.value.code is IngestionErrorCode.PERSISTENCE_FAILED
+    with engine.connect() as connection:
+        assert (
+            connection.execute(
+                text(
+                    "SELECT count(*) FROM corpus_versions WHERE corpus_key = "
+                    "'kubernetes-debug-rollback'"
+                )
+            ).scalar_one()
+            == 0
+        )
+    engine.dispose()

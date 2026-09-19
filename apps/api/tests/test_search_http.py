@@ -204,7 +204,7 @@ def test_inspection_catalog_returns_bounded_human_readable_index_choices() -> No
                 "index_key": "northstar-index",
                 "corpus_key": "northstar-operations",
                 "corpus_version": "1.0.0",
-                "label": "Northstar Operations · 1.0.0",
+                "label": "Northstar Operations - 1.0.0",
             }
         ]
     }
