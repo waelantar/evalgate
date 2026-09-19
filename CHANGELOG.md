@@ -26,3 +26,4 @@ All notable changes will be documented here. The project uses Semantic Versionin
 - Local release-candidate image definition, opt-in Compose release profile, bounded smoke/SBOM/scan scripts, and R3 operational runbooks for EG-013D.
 - Product-grade evidence-control-room shell with an original SVG favicon/mark, responsive direct navigation, bounded friendly inspection-catalog selection, progressive technical details, and tested finite client timeout/retry handling.
 - Pinned Kubernetes debug-cluster real-world documentation showcase with CC BY 4.0 attribution, reviewed dataset, governed ingestion/indexing, read-only UI explanation, and approved OpenRouter three-model live comparison evidence with explicit limitations.
+- Neutral light/dark product shell, responsive navigation, consistent Radix pickers, and a truthful governed-data onboarding route; hosted upload, account, and storage ideas remain unavailable roadmap lanes.
