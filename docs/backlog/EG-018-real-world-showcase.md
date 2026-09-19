@@ -1,6 +1,6 @@
 # EG-018: Governed real-world RAG showcase and multi-model evidence
 
-- Status: Implemented and locally verified at `0.11.0`; pending owner review and manual merge
+- Status: Merged to `main` at `0.11.0`; EG-014 later found a Northstar identity regression introduced by the generalized chunk ordinal logic
 - Branch: `feat/eg-018-real-world-showcase`
 - Depends on: EG-017 merged to `main`
 - Release: R3

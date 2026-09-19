@@ -1,81 +1,105 @@
 # R3 release-readiness record
 
 - Candidate: first stable R3 release
-- Candidate product version: `0.12.0` (EG-019 product-shell/onboarding candidate)
+- Audited product version: `0.12.0`
+- Audited merged-main commit: `2fe78860fa4c3787dbd277c79f79dee6d46c6f1e`
 - Requested target: `1.0.0`
 - Review date: 2026-09-19
 - Status: **blocked; do not tag, publish, deploy, or claim a `1.0.0` release**
-- Publication state: not pushed, not deployed, and not released
+- Publication state: not pushed by EG-014, not deployed, and not released
 
-This is the EG-014 evidence index. It reconciles the R3 checklist in `BLUEPRINT.md` section 18
-without turning planned or waived work into completed assurance. The controlled product-version
-surfaces now record the `0.12.0` EG-019 candidate; no final `1.0.0` image was built because the release gates below are
-not all satisfied.
+This is the final EG-014 audit of the merged EG-017, EG-018, and EG-019 candidate. It reconciles
+the R3 checklist in `BLUEPRINT.md` section 18 without treating a passing unit/E2E matrix as proof
+that the governed retrieval, security, accessibility, CI, and final-image gates passed. Because
+multiple release gates fail, product metadata remains `0.12.0`; no final `1.0.0` image was built.
 
-## Repeatable local evidence
+## Start conditions and repeatable evidence
 
 | Gate | Evidence and result |
 | --- | --- |
-| Clean checkout | A detached `main` worktree at `d5a4d70` completed `./scripts/bootstrap.ps1` with Python 3.13.15, uv 0.12.3, Node.js 24.19.0, Compose PostgreSQL, locked Python/npm dependencies, migrations, and Chromium. Tool-observed elapsed time was about 35 seconds. It then completed `./scripts/check.ps1` successfully. The disposable worktree is deliberately not a release artifact. |
-| Standard matrix | `./scripts/check.ps1` passed on the EG-014 branch: publication/metadata/static-release checks, Compose validation, Ruff format/lint, mypy, 208 non-integration Python tests, web lint/unit/Chromium E2E/axe checks, and production web build. |
-| PostgreSQL integration | `uv run --python 3.13.15 --locked pytest -m integration` passed with 14 isolated PostgreSQL tests. The suite creates and drops only a uniquely named test database. |
-| Real retrieval | A fresh, secret-free `evalgate-evaluate --mode retrieval` run against index `6932f8da-e71b-533f-ae2b-4c969cd3acd2` passed `scripts/check_retrieval_baseline.py`. It covered 36 reviewed cases: precision@5 `0.144444`, recall@5/source coverage `0.722222`, MRR `0.604167`, and nDCG@5 `0.633985`. The local ignored artifact is `artifacts/retrieval-eg014-pre.json`; retrieval mode does not assess answer quality. |
-| Retrieval-regression sensitivity | [EG-010](../backlog/EG-010-regression-gate.md) and `apps/api/tests/test_retrieval_baseline.py` retain the reviewed immutable baseline and test-only known-bad rejection. The current good run above passed; the known-bad fixture is intentionally rejected by the test. |
-| Governed live generation | [Evaluation governance](../evaluation/README.md) links the reviewed EG-015 OpenRouter artifact and review record. It is negative/limitation-heavy evidence, not a quality-success claim: 72 repetitions, human pass and citation recall both `0.180556`, and only three valid advisory judge labels. The normal API/browser remains fixture-only. |
-| Image, health, and shutdown | `./scripts/release_candidate.ps1` rebuilt the unchanged local `evalgate-api:0.9.0` definition, identified image ID `sha256:c6c86cc9c95d89935d1c7740c9e5ad9bb80e61f85ffca1062e6ccb50753c7222`, confirmed UID/GID `10001:10001`, liveness `alive`, readiness database `available`/migration `current`, and finite graceful stop. See [EG-013D evidence](EG-013D-release-candidate.md). |
-| SBOM, publication, metadata | `./scripts/release_supply_chain.ps1` regenerated a CycloneDX SBOM with Docker SBOM. Publication and metadata checks passed. The SBOM is a local ignored artifact and has not been attached to a public release. |
+| Branch precondition | Clean `main` at `2fe7886`; EG-018 commit `c30e712` and EG-019 commit `75b59d0` are ancestors; controlled product metadata is consistently `0.12.0`. |
+| Clean checkout | A detached worktree at exact merged `main` completed `scripts/bootstrap.ps1` in 48.3 seconds using Python 3.13.15, uv 0.12.3, Node.js 24.19.0, an isolated Compose project, locked dependencies, PostgreSQL migrations, and Chromium. |
+| Static and backend matrix | Publication (268 text files), metadata, release-static, Compose, Ruff format/lint, mypy (70 source files), and 215 non-integration Python tests passed. |
+| Frontend matrix | ESLint, 37 Vitest tests, eight Chromium Playwright/axe/responsive/theme flows, and the production Vite build passed. |
+| PostgreSQL/reference integration | All 15 integration tests passed against an isolated PostgreSQL 18/pgvector service and the verified local reference-embedding snapshot. |
+| Contract/ADR reconciliation | All accepted ADRs were reviewed and every JSON contract parsed successfully. OpenAPI, stream, corpus, prompt, retrieval, evaluation, review, and release schemas remain present. |
+| Governed retrieval | **Failed.** Fresh Northstar ingestion created 161 chunks and the expected index UUID, but the 36-case gate produced precision@5 `0.005556`, recall@5 `0.027778`, MRR `0.027778`, nDCG@5 `0.027778`, and source coverage `0.027778`. |
+| Exact-main remote CI | **Failed** on the same retrieval gate for the same metrics: [CI run 35444229759](https://github.com/waelantar/evalgate/actions/runs/35444229759). This is linked negative evidence, not a successful release run. |
+| Governed live evidence | EG-015 and EG-018 reviewed artifacts, costs, provider failures, and limitations remain linked from `docs/evaluation/README.md`. They are evaluation evidence, not a generation-quality or deployment claim. |
+| Dependency audit | `npm audit --omit=dev --json` reports zero production vulnerabilities. Full `npm audit --json` reports one high (`js-yaml`) and three moderate Vitest/tooling findings; these remain unresolved and the full dependency gate fails. |
+| Accessibility | Eight Chromium/axe flows pass. Screen-reader behavior, keyboard spot checks, 200% zoom, and forced-colors/high-contrast rows in `docs/accessibility/EG-013B-manual-review.md` remain pending human review. |
+| Container scan | **Unavailable.** Neither Trivy nor Grype is installed. A `waived_tool_unavailable` record is not an acceptable first-stable-release scan. |
+| Image and SBOM | Only the earlier local `evalgate-api:0.9.0` candidate image/SBOM exists. No `0.12.0` or `1.0.0` release image, matching digest, final scan, or release-attached SBOM was created. |
 
-The relevant machine-readable contracts are the versioned OpenAPI, stream, corpus, retrieval,
-evaluation, prompt, and release schemas under `contracts/`. Accepted architecture decisions are
-indexed in [ADRs](../adr/README.md); their application boundaries, PostgreSQL-only, hybrid
-retrieval, reference embedding, SSE, evaluation, corpus, public-mode, deferred-hosting, and
-OpenRouter decisions agree with the current R3 code and documentation.
+## Retrieval regression diagnosis
+
+EG-018 generalized the corpus loader and changed chunk ordinal assignment from the original
+per-document section ordinal to `len(chunks)`, a corpus-global ordinal. PostgreSQL evidence UUIDs
+are UUIDv5 values derived from index UUID, document UUID, chunk ordinal, and content hash. The
+Northstar corpus text, index UUID, and ranking policy stayed stable, but almost every evidence UUID
+after the first document changed. `contracts/evaluation/golden-v1.json` correctly retained the
+reviewed IDs, so the gate exposed the mismatch instead of silently accepting a new baseline.
+
+This is not repaired on the documentation-only EG-014 branch. [EG-020](../backlog/EG-020-northstar-evidence-identity.md)
+owns the narrow fix and must preserve both the original Northstar identities and the accepted
+Kubernetes showcase identities. Updating the dataset or baseline to match the regression is
+explicitly forbidden.
 
 ## Release-blocking gaps
 
-1. **Container vulnerability scan:** the current evidence is `waived_tool_unavailable`, not a
-   scan. Install and run either Trivy or Grype locally, review every finding, and ensure no
-   severity-critical or severity-high finding remains unresolved. A tool-availability waiver
-   cannot be accepted for the first stable release.
-2. **Manual accessibility review:** the [EG-013B record](../accessibility/EG-013B-manual-review.md)
-   still has pending screen-reader checks, 200% zoom, and forced-colors/high-contrast review. A
-   human reviewer must complete and date these rows before a WCAG-related release claim.
-3. **Remote CI evidence:** the repository has a pinned, secret-free PR workflow, but no linked
-   successful remote CI run is available in this local evidence record. Before publishing, record
-   the successful run URL/commit and confirm its immutable retrieval artifact.
-4. **Product experience manual review:** EG-019 implements the neutral light/dark theme,
-   responsive controls, and truthful governed-data onboarding at `0.12.0`. Browser upload, accounts,
-   and hosted storage remain unavailable roadmap lanes pending a separate architecture/security ADR.
-   Manual accessibility checks remain part of gate 2.
-5. **Real-world showcase merge:** EG-018 is implemented and locally verified at `0.11.0` with a
-   pinned CC BY 4.0 Kubernetes source, reviewed 18-case dataset, repaired three-model comparison,
-   explicit cost/failure evidence, and weak-quality limitations. It is not release evidence until
-   this branch is reviewed and merged without changing the governed artifacts.
-These are release blockers. The first three require evidence or review; EG-018 and EG-019 require
-owner review and sequential manual merge. None authorizes a code or image-definition change on
-this documentation branch.
+1. **EG-020 / retrieval identity:** restore reviewed Northstar evidence IDs without changing
+   either governed dataset or accepted Kubernetes artifacts; rerun the real reference baseline.
+2. **Successful exact-commit CI:** after EG-020, link a successful secret-free CI run for the exact
+   candidate commit and its immutable retrieval artifact.
+3. **EG-021 / dependency findings:** resolve the one high and three moderate development
+   dependency advisories without unrelated upgrades; the production-only audit being
+   clean does not make the complete release gate green.
+4. **EG-021 / container vulnerability scan:** run Trivy or Grype against the final candidate, review every
+   result, and leave no unresolved high or critical finding. Tool unavailability is not accepted.
+5. **Manual accessibility:** a human must complete and date the screen-reader, keyboard, 200% zoom,
+   and forced-colors checks. Automated axe evidence cannot be substituted.
+6. **Final image evidence:** only after all pre-bump gates pass may EG-014 apply `1.0.0`, rebuild the
+   unchanged accepted image definition, and record matching runtime version, digest, smoke,
+   graceful stop, scan, SBOM, and consistency evidence.
 
-## Security, privacy, operations, and limitations
+## Commands and outcomes
 
-- [Threat model](../security/threat-model.md) and [public-mode policy](../security/public-mode.md)
-  show privileged-route denial, bounded content-free HTTP handling, no browser secret, no public
-  content persistence, and exact provider-endpoint controls. They do not authorize deployment.
-- [Operations evidence](../operations/EG-013C-observability-cost.md) documents bounded,
-  content-free telemetry and process-local public-generation controls. Public live generation is
-  still disabled; host-level limits, hosting, TLS, retention, region, and spend approval remain
-  EG-016 decisions.
-- [R3 runbooks](../runbooks/R3-operational-drills.md) cover shutdown, provider outage/cooldown,
-  reset/restore, rollback, credential rotation, and kill switch. Previous-image rollback remains
-  a documented recovery procedure, not a completed promotion drill, because no stable release
-  digest exists yet.
-- [NOTICE](../../NOTICE.md), [MIT license](../../LICENSE), CC0 corpus text, and the reference-model
-  manifest establish code/corpus/model provenance boundaries. No model artifact is distributed.
+```powershell
+./scripts/bootstrap.ps1
+./scripts/check.ps1
+uv run --python 3.13.15 --locked pytest -m integration
+uv run --python 3.13.15 --locked evalgate-ingest --corpus northstar-operations
+uv run --python 3.13.15 --locked evalgate-evaluate --mode retrieval `
+  --index-version 6932f8da-e71b-533f-ae2b-4c969cd3acd2 `
+  --output ../../artifacts/retrieval-eg014-final.json
+python scripts/check_retrieval_baseline.py `
+  --artifact artifacts/retrieval-eg014-final.json `
+  --baseline contracts/evaluation/retrieval-baseline-v1.json
+npm audit --json
+npm audit --omit=dev --json
+gh run view 35444229759 --log-failed
+```
+
+Bootstrap, static/backend/frontend checks, and integration tests passed. The baseline command and
+full npm audit failed as documented above. The local retrieval artifact was generated only inside
+the disposable trial and is not a release artifact.
+
+## Security, privacy, operations, and claim boundary
+
+- Threat model, public-mode denial, content-free logging, server-side secret handling, bounded
+  controls, and runbooks remain implemented and tested locally; no public ask or deployment is
+  enabled by this record.
+- Kubernetes source provenance, CC BY 4.0 attribution/transformation disclosure, reviewed cases,
+  OpenRouter costs, and failed/weak model results remain explicit. They are not a benchmark or
+  endorsement claim.
+- Browser upload, accounts, workspace tenancy, hosted private storage, cloud resources, and public
+  mutation are not implemented and are not implied by the onboarding UI.
+- No provider call, spending, baseline update, push, merge, tag, release, or deployment occurred in
+  EG-014.
 
 ## Version handoff and recommendation
 
-Do **not** change `0.12.0` directly to `1.0.0`. Review/merge EG-018 and EG-019,
-then independently evidence the scanner, manual-review, and remote-CI gates. Rerun the complete
-matrix, update this record with every new artifact and disposition, and only then apply the
-controlled final version bump described in [`docs/WORKFLOW.md`](../WORKFLOW.md). Rebuild the
-unchanged accepted image as `1.0.0`, regenerate its smoke/SBOM/scan/digest evidence, and prepare a
-final release record. No tag, release, push, or deployment is authorized by this record.
+**No release. Keep `0.12.0`.** Review and merge this audit, complete EG-020 as `0.12.1`,
+complete EG-021 as `0.12.2`, finish human accessibility review, and obtain successful exact-commit
+CI. Then rerun EG-014 from clean accepted `main`. Only an all-green pre-release matrix may perform
+the controlled `0.12.2 -> 1.0.0` bump and final image evidence sequence.
