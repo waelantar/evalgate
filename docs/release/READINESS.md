@@ -1,15 +1,15 @@
 # R3 release-readiness record
 
 - Candidate: first stable R3 release
-- Candidate product version: `0.10.0` (EG-017 product-experience candidate)
+- Candidate product version: `0.11.0` (EG-018 real-world-showcase candidate)
 - Requested target: `1.0.0`
-- Review date: 2026-09-13
+- Review date: 2026-09-19
 - Status: **blocked; do not tag, publish, deploy, or claim a `1.0.0` release**
 - Publication state: not pushed, not deployed, and not released
 
 This is the EG-014 evidence index. It reconciles the R3 checklist in `BLUEPRINT.md` section 18
 without turning planned or waived work into completed assurance. The controlled product-version
-surfaces now record the `0.10.0` EG-017 candidate; no final `1.0.0` image was built because the release gates below are
+surfaces now record the `0.11.0` EG-018 candidate; no final `1.0.0` image was built because the release gates below are
 not all satisfied.
 
 ## Repeatable local evidence
@@ -44,12 +44,11 @@ OpenRouter decisions agree with the current R3 code and documentation.
    successful remote CI run is available in this local evidence record. Before publishing, record
    the successful run URL/commit and confirm its immutable retrieval artifact.
 4. **Product experience manual review:** EG-017 implements the responsive, human-readable product
-   shell and finite client recovery states in the `0.10.0` candidate. Its manual accessibility
-   checks remain part of the manual-review gate above; no broader accessibility claim is made.
-5. **Real-world showcase:** the current governed corpus is intentionally synthetic. Complete EG-018
-   with an immutable, license-compatible real-world documentation subset, truthful attribution,
-   authored-question disclosure, comparable-model controls, human review, and limitations.
-
+   shell and finite client recovery states. Its manual accessibility checks remain part of the
+   manual-review gate above; no broader accessibility claim is made.
+5. **Real-world showcase merge:** EG-018 is implemented and locally verified at `0.11.0` with a   pinned CC BY 4.0 Kubernetes source, reviewed 18-case dataset, repaired three-model comparison,
+   explicit cost/failure evidence, and weak-quality limitations. It is not release evidence until
+   this branch is reviewed and merged without changing the governed artifacts.
 These are release blockers. The first three require evidence or review; the last two require their
 separately scoped implementation branches. None authorizes a code or image-definition change on
 this documentation branch.
@@ -72,7 +71,7 @@ this documentation branch.
 
 ## Version handoff and recommendation
 
-Do **not** change `0.10.0` directly to `1.0.0`. Complete EG-018 (`0.11.0`),
+Do **not** change `0.11.0` directly to `1.0.0`. Review/merge EG-018,
 then independently evidence the scanner, manual-review, and remote-CI gates. Rerun the complete
 matrix, update this record with every new artifact and disposition, and only then apply the
 controlled final version bump described in [`docs/WORKFLOW.md`](../WORKFLOW.md). Rebuild the

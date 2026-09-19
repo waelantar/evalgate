@@ -2,7 +2,7 @@
 
 EvalGate helps AI application teams detect retrieval, grounding, and citation regressions before release.
 
-The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, explainable hybrid retrieval, a grounded-answer core, versioned answer streaming, deterministic evaluation gates, and local read-only answer and evaluation inspection workbenches. The status table below is the source of truth.
+The repository currently contains the approved production blueprint, reproducible engineering foundation, provider-neutral application boundary, governed corpus ingestion, explainable hybrid retrieval, a grounded-answer core, versioned answer streaming, deterministic evaluation gates, a product-grade local inspection/results experience, and a pinned real-world Kubernetes documentation showcase with governed multi-model evidence. The status table below is the source of truth.
 
 | Capability | Status |
 |---|---|
@@ -15,7 +15,7 @@ The repository currently contains the approved production blueprint, reproducibl
 | Product experience | Implemented and locally verified: original local SVG identity, responsive Overview/Inspect/Evaluations/System-evidence shell, friendly bounded source selection, and finite recoverable client states |
 | Evaluation gate and results UI | Implemented and locally verified; governed live-generation evidence is protected/manual and limitation-heavy, not a quality-success claim |
 | Public-mode application security and operations | Implemented application boundary, browser-safety automation, redacted telemetry, controls, local image, and runbooks; no hosting or deployment authorization |
-| R3 release | Blocked at `0.10.0`; EG-017 product experience is implemented on this branch, while EG-018 real-world showcase, scanner, manual accessibility, and remote-CI evidence still precede final release evidence |
+| R3 release | Blocked at `0.11.0`; EG-017 product experience and EG-018 real-world showcase are implemented locally; scanner, manual accessibility, remote-CI linkage, and EG-014 reconciliation still precede final release evidence |
 | MCP adapter | Deferred until R3 is accepted |
 | Public deployment | Not selected or deployed |
 

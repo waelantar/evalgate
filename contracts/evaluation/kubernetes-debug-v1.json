@@ -1,0 +1,260 @@
+{
+    "schema_version":  "1.0",
+    "dataset_key":  "kubernetes-debug-v1",
+    "dataset_version":  "1.0.0",
+    "cases":  [
+                  {
+                      "case_id":  "k8s-dev-01",
+                      "split":  "development",
+                      "question":  "When checking a Kubernetes cluster, what is the first command suggested for verifying expected nodes are registered and ready?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "d528f593-77d1-5325-a8d0-f9382d967fd5"
+                                                ],
+                      "supported_claims":  [
+                                               "node-registration-ready-check"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-02",
+                      "split":  "development",
+                      "question":  "Which log files should an operator inspect for kube-apiserver and kubelet troubleshooting?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "97459edc-b9c1-5fa6-9612-2e209630548e",
+                                                    "bdb4ba40-6b2a-50d5-8db7-9d662ea412eb"
+                                                ],
+                      "supported_claims":  [
+                                               "control-plane-log-locations",
+                                               "worker-node-log-locations"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-03",
+                      "split":  "development",
+                      "question":  "What does the Kubernetes audit policy define and where is it passed to kube-apiserver?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "cf59d348-0f17-5fcc-8623-994c768b3d77"
+                                                ],
+                      "supported_claims":  [
+                                               "audit-policy-rules",
+                                               "audit-policy-file-flag"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-04",
+                      "split":  "development",
+                      "question":  "How does Kubernetes audit log truncation behave when an event exceeds the configured size?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "2d663517-2277-5e95-ade1-1e33b16eae29"
+                                                ],
+                      "supported_claims":  [
+                                               "audit-log-truncation"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-05",
+                      "split":  "development",
+                      "question":  "Which crictl command pattern is shown for getting logs from a container?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "a43251a4-7ab2-5a27-96ba-dd723cc0a707"
+                                                ],
+                      "supported_claims":  [
+                                               "crictl-container-logs"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-06",
+                      "split":  "development",
+                      "question":  "When using kubectl debug node, where is the host root filesystem mounted inside the debugging pod?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "2ae94be0-2a2a-576e-bcec-03d03033d53b"
+                                                ],
+                      "supported_claims":  [
+                                               "kubectl-debug-host-root-mount"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-07",
+                      "split":  "development",
+                      "question":  "What does the local debugging guide say Telepresence lets a developer do with a remote Kubernetes service?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "8a455e88-16af-509b-829e-255147fa4871",
+                                                    "85dccc88-5539-55c2-9c82-3dbdeccd693d"
+                                                ],
+                      "supported_claims":  [
+                                               "telepresence-local-development",
+                                               "telepresence-traffic-proxying"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-08",
+                      "split":  "development",
+                      "question":  "What is Node Problem Detector used for, and what general kinds of problems can problem daemons report?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "6c28d903-2c0d-5a7c-9081-37c6c8498471",
+                                                    "906c9e4c-ec9f-5bbe-b4f4-23e28a667d75"
+                                                ],
+                      "supported_claims":  [
+                                               "node-problem-detector-purpose",
+                                               "problem-daemon-reporting"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-09",
+                      "split":  "development",
+                      "question":  "What are the two pipeline categories described for monitoring Kubernetes resource usage?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "8ae6b67a-9ce4-54fb-831e-d4234cb92d0c",
+                                                    "aa36e5be-b5ff-53b4-9a0d-cc7f7450af7b"
+                                                ],
+                      "supported_claims":  [
+                                               "resource-metrics-pipeline-category",
+                                               "full-metrics-pipeline-category"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-10",
+                      "split":  "development",
+                      "question":  "What role does Metrics Server play in the Kubernetes resource metrics pipeline?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "bb82cd58-f434-5dae-be82-966fe6cb2505"
+                                                ],
+                      "supported_claims":  [
+                                               "metrics-server-role"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-11",
+                      "split":  "development",
+                      "question":  "Which sources does the topology management guide suggest checking when troubleshooting TopologyAffinityError?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "8e27fac9-6030-5f28-b800-8c272832d3cd",
+                                                    "1b387077-f6bc-57bc-a225-deed115b349c"
+                                                ],
+                      "supported_claims":  [
+                                               "topology-troubleshooting-sources",
+                                               "topology-affinity-error-check"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-dev-12",
+                      "split":  "development",
+                      "question":  "What TLS-related kubectl checks does the troubleshooting guide point an operator toward?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "6b9cdaa5-c87f-51b1-acdd-e34cb9fd078d"
+                                                ],
+                      "supported_claims":  [
+                                               "kubectl-tls-checks"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-cal-01",
+                      "split":  "calibration",
+                      "question":  "What exact retention period should every Kubernetes cluster use for audit logs?",
+                      "answerability":  "unanswerable",
+                      "relevant_evidence_ids":  [
+
+                                                ],
+                      "supported_claims":  [
+
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-cal-02",
+                      "split":  "calibration",
+                      "question":  "Which cloud vendor is required by these docs for fixing all node network partitions?",
+                      "answerability":  "unanswerable",
+                      "relevant_evidence_ids":  [
+
+                                                ],
+                      "supported_claims":  [
+
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-cal-03",
+                      "split":  "calibration",
+                      "question":  "What private company owns the production cluster described in these troubleshooting docs?",
+                      "answerability":  "unanswerable",
+                      "relevant_evidence_ids":  [
+
+                                                ],
+                      "supported_claims":  [
+
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-reg-01",
+                      "split":  "regression",
+                      "question":  "If an operator suspects a node is unreachable and kubectl itself may be misconfigured, which evidence should they inspect from both guides?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "3209a318-f59e-506f-9835-753c667461e1",
+                                                    "68aca30e-55af-533d-b2e8-23b12c235fe3",
+                                                    "8e26f58c-c825-5af9-a048-00f1a37a15fb"
+                                                ],
+                      "supported_claims":  [
+                                               "unreachable-node-debugging",
+                                               "kubectl-setup-verification",
+                                               "kubeconfig-check"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-reg-02",
+                      "split":  "regression",
+                      "question":  "Is crictl limited to Docker-only debugging, or is it described as a CRI-oriented tool?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "e57938e6-e8d6-5873-a264-e8fca49b4ef4",
+                                                    "61faca5b-67cb-5007-8d0c-eb4fc3e2d0fd"
+                                                ],
+                      "supported_claims":  [
+                                               "crictl-cri-oriented",
+                                               "crictl-installation"
+                                           ],
+                      "review_state":  "reviewed"
+                  },
+                  {
+                      "case_id":  "k8s-reg-03",
+                      "split":  "regression",
+                      "question":  "For Windows node networking problems, which evidence distinguishes general network troubleshooting from Flannel-specific checks?",
+                      "answerability":  "answerable",
+                      "relevant_evidence_ids":  [
+                                                    "11cde2c6-6996-5c24-92c2-2bd5ac4fdcf2",
+                                                    "e5464812-f53f-58d7-af46-7f92fa3477ec"
+                                                ],
+                      "supported_claims":  [
+                                               "windows-network-troubleshooting",
+                                               "windows-flannel-troubleshooting"
+                                           ],
+                      "review_state":  "reviewed"
+                  }
+              ]
+}

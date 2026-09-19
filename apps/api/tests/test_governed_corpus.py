@@ -40,3 +40,20 @@ def test_zero_token_count_is_rejected() -> None:
         chunk_declared_corpus(corpus, tokenizer=ZeroTokenizer())
 
     assert captured.value.code is IngestionErrorCode.CORPUS_INVALID
+
+
+def test_kubernetes_debug_corpus_has_attributed_reconstructive_chunks() -> None:
+    corpus = load_declared_corpus_by_key("kubernetes-debug-cluster")
+    chunked = chunk_declared_corpus(corpus, tokenizer=WhitespaceTokenizer())
+    documents = {document.source_key: document for document in corpus.documents}
+
+    assert corpus.version == "1.0.0"
+    assert len(corpus.documents) == 11
+    assert len(chunked.chunks) == 77
+    assert {document.license_id for document in corpus.documents} == {"CC-BY-4.0"}
+    assert all("Kubernetes website" in document.provenance for document in corpus.documents)
+    assert all(0 < chunk.token_count <= 512 for chunk in chunked.chunks)
+    assert all(
+        documents[chunk.source_key].content[chunk.source_start : chunk.source_end] == chunk.content
+        for chunk in chunked.chunks
+    )

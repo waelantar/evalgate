@@ -10,10 +10,10 @@ from pathlib import Path
 from sqlalchemy import create_engine
 
 from evalgate.adapters.bundled_corpus import (
-    CHUNKING_POLICY_SHA256,
-    CHUNKING_VERSION,
     LEXICAL_CONFIG_SHA256,
     chunk_declared_corpus,
+    chunking_policy_sha256_for_corpus,
+    chunking_version_for_corpus,
     load_declared_corpus_by_key,
 )
 from evalgate.adapters.fastembed_reference import FastEmbedReferenceEmbedding
@@ -58,8 +58,8 @@ async def ingest(*, corpus_key: str, settings: Settings) -> dict[str, object]:
             chunks=chunked.chunks,
             embedding=embedding,
             repository=PostgresCorpusRepository(engine),
-            chunking_version=CHUNKING_VERSION,
-            chunking_policy_sha256=CHUNKING_POLICY_SHA256,
+            chunking_version=chunking_version_for_corpus(corpus.corpus_key),
+            chunking_policy_sha256=chunking_policy_sha256_for_corpus(corpus.corpus_key),
             lexical_config_sha256=LEXICAL_CONFIG_SHA256,
         )
     finally:

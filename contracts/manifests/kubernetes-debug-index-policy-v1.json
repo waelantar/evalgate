@@ -1,0 +1,10 @@
+{
+    "schema_version":  "1.0",
+    "chunking_version":  "kubernetes-debug-heading-v1",
+    "normalization":  "strict UTF-8; NFC; CRLF/CR to LF; exactly one terminal LF",
+    "offset_unit":  "Python Unicode code-point index into normalized source",
+    "chunking":  "each H2 or H3 begins a semantic section; sections over 512 tokens split at blank-line paragraph boundaries into consecutive reconstructive parts; deeper headings remain in their parent",
+    "section_key":  "source_key plus unique ASCII heading slug, with part-N suffix only for split sections",
+    "token_count":  "FastEmbed tokenizer count; each chunk is at most 512 tokens",
+    "lexical_regconfig":  "pg_catalog.simple"
+}

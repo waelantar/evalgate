@@ -91,3 +91,6 @@ USD 0.004046, under the USD 4.14 stop limit. Human pass rate and citation recall
 0.180556. The run is honest negative/limited evidence for this provider posture: most failures were
 malformed output, provider timeout, or provider unavailable, and only three repetitions reached a
 valid advisory judge label.
+## EG-018 Kubernetes showcase live comparison
+
+The EG-018 protected run compares three approved OpenRouter models against the pinned Kubernetes debug-cluster dataset with the same corpus, index, prompt policy, schema, temperature, and one repetition per case. The tracked summary is `docs/evaluation/EG-018-live-comparison.md`; review records under `docs/evaluation/reviews/` pin the ignored local artifacts by SHA-256. The result is limitation-heavy evidence for the governed comparison path, not a benchmark, model recommendation, deployment claim, or baseline replacement.

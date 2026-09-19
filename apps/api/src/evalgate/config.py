@@ -47,6 +47,8 @@ class Settings(BaseSettings):
     openrouter_model: str = "deepseek/deepseek-v4-flash"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
+    openrouter_provider_only: str = ""
+    openrouter_provider_order: str = ""
     live_eval_budget_usd: float = Field(default=4.60, gt=0)
     live_eval_stop_usd: float = Field(default=4.14, gt=0)
     allowed_origins: str = "http://localhost:5173"

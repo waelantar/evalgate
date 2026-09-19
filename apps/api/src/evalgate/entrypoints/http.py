@@ -656,7 +656,7 @@ def create_app(
                 InspectionCatalogItem(
                     **dict(row),
                     label=(
-                        f"{str(row['corpus_key']).replace('-', ' ').title()} · "
+                        f"{str(row['corpus_key']).replace('-', ' ').title()} - "
                         f"{row['corpus_version']}"
                     ),
                 )

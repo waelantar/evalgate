@@ -1,0 +1,107 @@
+{
+    "schema_version":  "1.0",
+    "corpus_key":  "kubernetes-debug-cluster",
+    "version":  "1.0.0",
+    "license":  "CC-BY-4.0",
+    "documents":  [
+                      {
+                          "source_key":  "k8s-troubleshooting-clusters",
+                          "title":  "Troubleshooting Clusters",
+                          "path":  "documents/_index.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "49ff9759d3b209df845e65ee0b7d514f2a7d01fb92d078ea4c328b071a206396",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/_index.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-auditing",
+                          "title":  "Auditing",
+                          "path":  "documents/audit.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "ccbf7fc7bdbd269bc7bde48b41e65404bc2fffb21d3bcad5e6423a1e42b00d09",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/audit.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-crictl-debugging",
+                          "title":  "Debugging Kubernetes nodes with crictl",
+                          "path":  "documents/crictl.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "eff8b4a33e3546f54f71f895b132f6fb1c406b34ee2d6cba19714b2e73d822bb",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/crictl.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-kubectl-node-debug",
+                          "title":  "Debugging Kubernetes Nodes With Kubectl",
+                          "path":  "documents/kubectl-node-debug.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "c3059eea9e1453702d9843dfc1589c7fa5f9dcfc476f932d1eb170f791484c42",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/kubectl-node-debug.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-local-debugging",
+                          "title":  "Developing and debugging services locally using telepresence",
+                          "path":  "documents/local-debugging.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "e2f76d4d20513bf85eb25031503dbce1cc8c8b768cb8cbf8f6496dcbe98ac428",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/local-debugging.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-monitor-node-health",
+                          "title":  "Monitor Node Health",
+                          "path":  "documents/monitor-node-health.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "5e06ec9faf813e140042a4d5fcf0f18972e1e0555efbfb339092f611ab0b403d",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/monitor-node-health.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-resource-metrics-pipeline",
+                          "title":  "Resource metrics pipeline",
+                          "path":  "documents/resource-metrics-pipeline.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "a82183f5e71101cd9141978caa02e3ecb5c6ce09b6b08616c07e3592700d3512",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/resource-metrics-pipeline.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-resource-monitoring-tools",
+                          "title":  "Tools for Monitoring Resources",
+                          "path":  "documents/resource-usage-monitoring.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "f124147011bd2954a44544daa06295969041ea82b0b1ba352488530fe8a7b75b",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/resource-usage-monitoring.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-topology-management",
+                          "title":  "Troubleshooting Topology Management",
+                          "path":  "documents/topology.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "118e26a42870f5964fc90774ecf85f4006390d5661699edbc06ef418a87a2465",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/topology.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-troubleshoot-kubectl",
+                          "title":  "Troubleshooting kubectl",
+                          "path":  "documents/troubleshoot-kubectl.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "286225de2b08282929183598d09110fbcad403240c6c2085b0a6a1479a164305",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/troubleshoot-kubectl.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      },
+                      {
+                          "source_key":  "k8s-windows-debugging",
+                          "title":  "Windows debugging tips",
+                          "path":  "documents/windows.md",
+                          "media_type":  "text/markdown",
+                          "license":  "CC-BY-4.0",
+                          "sha256":  "169314b9445dbaf0a25cf2516f50a99fc5ec0c99cecd9ee622805436fb73e015",
+                          "provenance":  "Kubernetes website content/en/docs/tasks/debug/debug-cluster/windows.md at commit aa4e9e6dee49106155072a44ef997b91722243ec; CC BY 4.0; no endorsement."
+                      }
+                  ]
+}

@@ -1,0 +1,26 @@
+{
+    "schema_version":  "1.0",
+    "source":  "kubernetes/website",
+    "upstream_repository":  "https://github.com/kubernetes/website",
+    "upstream_commit":  "aa4e9e6dee49106155072a44ef997b91722243ec",
+    "approved_path":  "content/en/docs/tasks/debug/debug-cluster/",
+    "approved_files":  [
+                           "_index.md",
+                           "audit.md",
+                           "crictl.md",
+                           "kubectl-node-debug.md",
+                           "local-debugging.md",
+                           "monitor-node-health.md",
+                           "resource-metrics-pipeline.md",
+                           "resource-usage-monitoring.md",
+                           "topology.md",
+                           "troubleshoot-kubectl.md",
+                           "windows.md"
+                       ],
+    "license":  "CC-BY-4.0",
+    "license_url":  "https://creativecommons.org/licenses/by/4.0/",
+    "attribution":  "Kubernetes documentation is copyright The Kubernetes Authors and licensed under CC BY 4.0.",
+    "transformations":  "strict UTF-8, Unicode NFC normalization, CRLF/CR converted to LF, Kubernetes site-root Markdown links converted to absolute https://kubernetes.io/docs/... URLs, exactly one terminal LF; no semantic edits.",
+    "exclusions":  "No runtime crawling, images, generated API reference, broad mirror, personal data, or endorsement/trademark implication.",
+    "trademark_no_endorsement":  "Kubernetes is a trademark of The Linux Foundation. EvalGate is not endorsed by or affiliated with Kubernetes, CNCF, or The Linux Foundation."
+}

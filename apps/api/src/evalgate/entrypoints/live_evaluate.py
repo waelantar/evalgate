@@ -19,7 +19,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from evalgate import __version__
 from evalgate.adapters.openrouter_generation import (
-    OPENROUTER_MODEL,
     OpenRouterGenerationAdapter,
     OpenRouterGenerationConfig,
     OpenRouterGenerationError,
@@ -174,8 +173,16 @@ def _retrieved_evidence_ids(result: AnswerResult) -> list[str]:
     return [str(item.evidence.evidence_id) for item in result.evidence]
 
 
+def _model_run_slug(model: str) -> str:
+    return model.replace("/", "-").replace(".", "-")
+
+
 def _prepared_evidence_ids(prepared_evidence: Any) -> list[str]:
     return [str(item.evidence.evidence_id) for item in prepared_evidence]
+
+
+def _unique_ordered(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(values))
 
 
 def _answer_failure_status(error: AnswerError) -> str:
@@ -355,9 +362,9 @@ async def build_live_generation_artifact(
                         "repetition": repetition,
                         "answer_status": result.status.value,
                         "retrieved_evidence_ids": _retrieved_evidence_ids(result),
-                        "citation_evidence_ids": [
-                            str(item.evidence_id) for item in result.citations
-                        ],
+                        "citation_evidence_ids": _unique_ordered(
+                            [str(item.evidence_id) for item in result.citations]
+                        ),
                         "generation_usage": answer_usage,
                         "judge_decision": judge_decision,
                         "judge_reason_code": judge_reason_code,
@@ -391,10 +398,11 @@ async def build_live_generation_artifact(
         prompt_sha256 = answer_policy_content_sha256(policy)
         finished_at = datetime.now(UTC)
         repetition_count = len(human_passes)
+        model_slug = _model_run_slug(settings.openrouter_model)
         return {
             "schema_version": "1.0",
             "run": {
-                "run_key": f"golden-{dataset_version}-openrouter-deepseek-v4-flash",
+                "run_key": f"{dataset_version}-openrouter-{model_slug}",
                 "mode": "generation",
                 "status": "completed",
                 "started_at": started_at.isoformat(),
@@ -407,8 +415,8 @@ async def build_live_generation_artifact(
                 "dataset_manifest_sha256": dataset_sha256,
                 "policy_version": policy.version,
                 "prompt_sha256": prompt_sha256,
-                "generation_model": OPENROUTER_MODEL,
-                "judge_model": OPENROUTER_MODEL,
+                "generation_model": settings.openrouter_model,
+                "judge_model": settings.openrouter_model,
             },
             "environment": {
                 "os": platform.system(),
@@ -468,7 +476,13 @@ def _render_markdown(artifact: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _build_openrouter_adapters(settings: Settings) -> tuple[GenerationPort, GenerationPort]:
+def _provider_routes(value: str) -> tuple[str, ...]:
+    return tuple(item.strip() for item in value.split(",") if item.strip())
+
+
+def _build_openrouter_adapters(
+    settings: Settings, *, reasoning_effort: str | None = "high"
+) -> tuple[GenerationPort, GenerationPort]:
     if settings.openrouter_api_key is None:
         raise ValueError("EVALGATE_OPENROUTER_API_KEY is required")
     base_config = OpenRouterGenerationConfig(
@@ -478,6 +492,10 @@ def _build_openrouter_adapters(settings: Settings) -> tuple[GenerationPort, Gene
         timeout_seconds=settings.openrouter_timeout_seconds,
         budget_usd=settings.live_eval_budget_usd,
         stop_usd=settings.live_eval_stop_usd,
+        reasoning_effort=reasoning_effort,
+        request_title="EvalGate EG-018 governed live evaluation",
+        provider_only=_provider_routes(settings.openrouter_provider_only),
+        provider_order=_provider_routes(settings.openrouter_provider_order),
     )
     judge_config = OpenRouterGenerationConfig(
         api_key=settings.openrouter_api_key,
@@ -487,8 +505,12 @@ def _build_openrouter_adapters(settings: Settings) -> tuple[GenerationPort, Gene
         budget_usd=settings.live_eval_budget_usd,
         stop_usd=settings.live_eval_stop_usd,
         max_output_tokens=300,
+        reasoning_effort=reasoning_effort,
+        request_title="EvalGate EG-018 governed live judge",
         response_schema_name="evalgate_live_judge",
         response_schema=_JUDGE_SCHEMA,
+        provider_only=_provider_routes(settings.openrouter_provider_only),
+        provider_order=_provider_routes(settings.openrouter_provider_order),
     )
     return OpenRouterGenerationAdapter(base_config), OpenRouterGenerationAdapter(judge_config)
 
@@ -504,9 +526,16 @@ def main() -> None:
     parser.add_argument("--markdown", type=Path, default=None)
     parser.add_argument("--repetitions", type=int, default=2)
     parser.add_argument("--max-cases", type=int, default=None)
+    parser.add_argument(
+        "--disable-reasoning",
+        action="store_true",
+        help="Omit the optional OpenRouter reasoning parameter for cross-model compatibility.",
+    )
     args = parser.parse_args()
     settings = Settings()
-    generation, judge = _build_openrouter_adapters(settings)
+    generation, judge = _build_openrouter_adapters(
+        settings, reasoning_effort=None if args.disable_reasoning else "high"
+    )
     artifact = asyncio.run(
         build_live_generation_artifact(
             dataset_path=args.dataset,

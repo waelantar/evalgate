@@ -140,4 +140,15 @@ describe('inspection workbench', () => {
     expect(document.querySelector('img')).toBeNull()
     expect(document.querySelector('a[href^="javascript:"]')).toBeNull()
   })
+
+  it('renders the read-only Kubernetes showcase with source limitations', async () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('link', { name: 'Showcase' }))
+
+    expect(await screen.findByRole('heading', { name: /Kubernetes debug documentation/ })).toBeInTheDocument()
+    expect(screen.getByText('11 Markdown files')).toBeInTheDocument()
+    expect(screen.getByText('18 reviewed cases')).toBeInTheDocument()
+    expect(screen.getByText(/not a public benchmark/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /run/i })).not.toBeInTheDocument()
+  })
 })

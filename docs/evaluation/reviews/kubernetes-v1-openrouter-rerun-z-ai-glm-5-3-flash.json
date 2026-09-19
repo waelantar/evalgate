@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "artifact_sha256": "6c573150b0f5b2c9d9974d9845ca9300152f3cfe7f805f568a7ce6cf72895150",
+  "dataset_manifest_sha256": "023efed1e9188ef5704f1d6485f9df0bff1c1db4c53c25f2d92a0aa9ba0a37b4",
+  "decision": "approved",
+  "reviewer_role": "repository-maintainer",
+  "reviewed_at": "2026-09-18T15:15:00Z"
+}
