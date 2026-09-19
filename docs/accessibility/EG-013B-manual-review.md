@@ -2,10 +2,10 @@
 
 ## Scope and evidence boundary
 
-This record covers the supported local inspection and read-only evaluation-results views in
-EvalGate `0.10.0`. EG-017 extends the automated evidence to the persistent product shell,
-friendly source selector, direct routes, and finite timeout recovery. It documents the evidence
-gathered for EG-013B/EG-017; it is not a WCAG
+This record covers the supported local inspection and read-only evaluation-results views. The
+automated suite was rerun successfully on merged EvalGate `0.12.0` and covers the persistent
+product shell, friendly source selector, direct routes, finite timeout recovery, responsive menu,
+and theme persistence. It documents automated evidence for EG-013B/EG-017/EG-019; it is not a WCAG
 conformance claim or a substitute for a formal accessibility audit.
 
 ## Executed automated browser review

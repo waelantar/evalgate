@@ -1,6 +1,6 @@
 # EG-019: Product-shell polish and governed data onboarding
 
-- Status: Implemented and locally verified at `0.12.0`; pending owner review and sequential manual merge after EG-018
+- Status: Merged to `main` at `0.12.0`; product-shell checks pass, while EG-014 release gates remain open
 - Branch: `feat/eg-019-product-shell-onboarding`
 - Depends on: EG-018 merged to `main`
 - Release: R3

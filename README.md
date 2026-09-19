@@ -7,15 +7,15 @@ The repository currently contains the approved production blueprint, reproducibl
 | Capability | Status |
 |---|---|
 | Production blueprint | Approved |
-| Repository/tooling foundation | Implemented and locally verified from a clean checkout; remote CI run still needs release-record linkage |
+| Repository/tooling foundation | Implemented and locally verified from a clean checkout; exact merged-main CI is linked and currently fails the governed retrieval gate |
 | Provider ports and reference identity | Implemented and locally verified with fixtures and the pinned local reference runtime |
 | PostgreSQL schema and migration readiness | Implemented and locally verified with migrations, real integration tests, and readiness checks |
-| Corpus, ingestion, and hybrid retrieval | Implemented and locally verified; fresh 36-case reference retrieval evidence passes the immutable reviewed baseline |
+| Corpus, ingestion, and hybrid retrieval | Implemented, but the merged `0.12.0` candidate currently changes reviewed Northstar evidence UUIDs and fails the 36-case retrieval baseline; EG-020 is required |
 | Grounded answers, SSE, and inspection UI | Implemented and locally verified with contracts, browser/E2E checks, and server-derived citations; no public live provider claim |
 | Product experience | Implemented and locally verified: original local SVG identity, responsive Overview/Inspect/Evaluations/System-evidence shell, friendly bounded source selection, and finite recoverable client states |
 | Evaluation gate and results UI | Implemented and locally verified; governed live-generation evidence is protected/manual and limitation-heavy, not a quality-success claim |
 | Public-mode application security and operations | Implemented application boundary, browser-safety automation, redacted telemetry, controls, local image, and runbooks; no hosting or deployment authorization |
-| R3 release | Blocked at `0.12.0`; EG-017 product experience, EG-018 real-world showcase, and EG-019 product-shell/onboarding are implemented locally; scanner, manual accessibility, remote-CI linkage, and EG-014 reconciliation still precede final release evidence |
+| R3 release | Blocked at `0.12.0`; EG-017/018/019 are merged, but the Northstar retrieval gate and exact-main CI fail; EG-020/021, human accessibility review, and final image evidence remain |
 | MCP adapter | Deferred until R3 is accepted |
 | Public deployment | Not selected or deployed |
 
