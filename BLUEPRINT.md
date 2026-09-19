@@ -112,7 +112,7 @@ The first credible public product slice contains the governed corpora, idempoten
 | R4 - Integration | MCP stdio adapter | R3 cannot be delayed by R4 |
 | R5 - Optional public demo | One portable deployment with bounded live access | Explicit hosting, privacy, security, and budget approval |
 
-The serialized product-version plan is owned by the backlog and branch workflow: EG-017 and EG-018 advance the pre-stable R3 product from `0.9.0` to `0.10.0` and `0.11.0`; R3 becomes the first stable `1.0.0` only when EG-014 then verifies every release gate. The additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
+The serialized product-version plan is owned by the backlog and branch workflow: EG-017, EG-018, and EG-019 advance the pre-stable R3 product from `0.9.0` to `0.10.0`, `0.11.0`, and `0.12.0`; R3 becomes the first stable `1.0.0` only when EG-014 then verifies every release gate. The additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
 
 ## 4. Success measures and quality gates
 
@@ -791,6 +791,7 @@ flowchart LR
     EG016[EG-016 Optional public deployment]
     EG017[EG-017 Product experience]
     EG018[EG-018 Real-world showcase]
+    EG019[EG-019 Product shell and onboarding]
 
     EG001 --> EG002
     EG002 --> EG003
@@ -820,7 +821,8 @@ flowchart LR
     EG015 --> EG013D
     EG013D --> EG017
     EG017 --> EG018
-    EG018 --> EG014
+    EG018 --> EG019
+    EG019 --> EG014
     EG014 --> EG012
     EG014 --> EG016
 ```
@@ -849,15 +851,16 @@ Detailed implementation briefs live under `docs/backlog/`. Each brief must state
 | EG-013B | Accessibility and browser-content safety across answer/results flows | EG-008, EG-011 | R3 | M |
 | EG-013C | Redacted observability and provider-neutral cost controls | EG-010, EG-011 | R3 | M |
 | EG-013D | Operational runbooks, `0.9.0` release-candidate image, scans, and SBOM | EG-013A, EG-013B, EG-013C, EG-015 | R3 | L |
-| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015, EG-017, EG-018 | R3 | M |
+| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015, EG-017, EG-018, EG-019 | R3 | M |
 | EG-015 | Governed live generation/judge suite and calibrated claims | EG-006, EG-009 | R3 | L |
 | EG-016 | Optional single-host deployment, access posture, limits, smoke, and rollback | EG-014 | R5 | L |
 | EG-017 | Product-grade responsive shell, visual identity, guided evidence flow, human-readable identities, and recoverable UI errors | EG-011, EG-013A, EG-013B, initial EG-014 audit | R3 | L |
 | EG-018 | Pinned licensed real-world documentation showcase and governed comparable multi-model evidence | EG-017 | R3 | L |
+| EG-019 | Neutral light/dark product shell, responsive controls, and truthful governed-data onboarding map | EG-018 | R3 | M |
 
-EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. The initial EG-014 audit exposed both assurance gaps and product-experience gaps; EG-017 and EG-018 close the latter on separate reviewable branches before EG-014 finalization. EG-014 may then change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
+EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. The initial EG-014 audit exposed both assurance gaps and product-experience gaps; EG-017, EG-018, and EG-019 close the latter on separate reviewable branches before EG-014 finalization. EG-014 may then change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
 
-Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-017 and EG-018 add roughly 5-9 days for product experience, licensed-source governance, model comparability, review, and evidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, UI recovery behavior, cross-model comparability, CI integration, and public hardening carry the most variance.
+Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-017 through EG-019 add roughly 7-12 days for product experience, licensed-source governance, model comparability, onboarding truthfulness, review, and evidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, UI recovery behavior, cross-model comparability, CI integration, and public hardening carry the most variance.
 
 ### 14.3 Definition of ready
 
@@ -946,6 +949,7 @@ Remaining owner decisions are limited to external resources and legal/financial 
 | G-08, FR-09/10 | EG-011, EG-012 | OpenAPI consumer tests, MCP in-memory and stdio tests |
 | G-09, FR-13 | EG-017 | Responsive browser tests, accessible navigation, human-identity contract tests, finite failure/recovery E2E |
 | G-10, FR-14 | EG-018 | Immutable-source/license validation, model capability record, repeatable multi-model artifact, human review |
+| G-03/09, FR-13, NFR-05/06 | EG-019 | Theme, responsive-navigation, shared-control, truthful-onboarding, and browser accessibility tests |
 | NFR-01 | EG-001, EG-002 | Import-boundary test and architecture review |
 | NFR-06 | EG-008, EG-013B | Automated axe/keyboard tests and manual release review |
 
@@ -1011,4 +1015,4 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 through EG-011 are merged and locally verified: they establish the locked foundation, provider-neutral ports, PostgreSQL/pgvector schema, original governed corpus and idempotent ingestion, explainable hybrid retrieval, grounded cited answers, frozen POST/fetch/SSE streaming, inspection UI, 36-case evaluation, immutable retrieval baseline/known-bad regression gate, and read-only results workbench. EG-015 is merged with the separately governed OpenRouter live-evaluation path; its reviewed artifact is limitation-heavy and advisory, not a generation-quality success claim. EG-013A through EG-013D are merged with public-mode application hardening, browser-safety automation, redacted operational controls, and a local `0.9.0` non-root release-candidate image/SBOM/runbooks. EG-014's initial local reconciliation passes repeatable code, integration, retrieval, and image smoke evidence but retains `0.9.0`: EG-017 product experience, EG-018 real-world showcase, a real container scan, completed human accessibility review, and linked successful remote CI evidence still block R3. Nothing is tagged, released, pushed, or deployed.
+EG-001 through EG-011 are merged and locally verified: they establish the locked foundation, provider-neutral ports, PostgreSQL/pgvector schema, original governed corpus and idempotent ingestion, explainable hybrid retrieval, grounded cited answers, frozen POST/fetch/SSE streaming, inspection UI, 36-case evaluation, immutable retrieval baseline/known-bad regression gate, and read-only results workbench. EG-015 is merged with the separately governed OpenRouter live-evaluation path; its reviewed artifact is limitation-heavy and advisory, not a generation-quality success claim. EG-013A through EG-013D are merged with public-mode application hardening, browser-safety automation, redacted operational controls, and a local `0.9.0` non-root release-candidate image/SBOM/runbooks. EG-014's initial local reconciliation passes repeatable code, integration, retrieval, and image smoke evidence but retains `0.9.0`: EG-017 product experience, EG-018 real-world showcase, EG-019 product-shell/onboarding refinement, a real container scan, completed human accessibility review, and linked successful remote CI evidence still block R3. Nothing is tagged, released, pushed, or deployed.

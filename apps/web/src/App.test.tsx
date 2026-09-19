@@ -34,6 +34,8 @@ describe('inspection workbench', () => {
     stream.hold = false
     stream.release?.()
     stream.release = null
+    window.localStorage.clear()
+    delete document.documentElement.dataset.theme
     search.evidence = [{ rank: 1, evidence_id: 'ev-1', document_id: 'doc-1', source_key: 'fixture', title: 'Runbook', license_id: 'internal', provenance: 'fixture', section_key: 'intro', source_start: 0, source_end: 10, content: 'Verified evidence', content_sha256: 'hash', lexical_rank: 1, vector_rank: null, rrf_score: 1 }]
   })
 
@@ -151,4 +153,20 @@ describe('inspection workbench', () => {
     expect(screen.getByText(/not a public benchmark/i)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /run/i })).not.toBeInTheDocument()
   })
-})
+
+  it('persists night mode and labels hosted data capabilities as unavailable', async () => {
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to night mode' }))
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(window.localStorage.getItem('evalgate-theme')).toBe('dark')
+
+    fireEvent.click(screen.getByRole('link', { name: 'Bring data' }))
+    expect(await screen.findByRole('heading', { name: 'How a real user changes the source material.' })).toBeInTheDocument()
+    expect(screen.getByText('Self-serve browser upload')).toBeInTheDocument()
+    expect(screen.getByText('Account workspace')).toBeInTheDocument()
+    expect(screen.getByText('Hosted private storage')).toBeInTheDocument()
+    expect(screen.getByText(/does not accept arbitrary uploads yet/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /upload/i })).not.toBeInTheDocument()
+    expect(document.querySelector('input[type="file"]')).toBeNull()
+  })})
