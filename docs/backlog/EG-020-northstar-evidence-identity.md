@@ -1,6 +1,6 @@
 # EG-020: Restore Northstar evidence identity and retrieval gate
 
-- Status: Planned from the EG-014 release-blocking finding
+- Status: Implemented and locally verified; awaiting owner review, merge, and exact-commit CI
 - Branch: `fix/eg-020-northstar-evidence-identity`
 - Depends on: EG-019 merged to `main`
 - Release: R3
@@ -10,9 +10,10 @@
 
 ## Outcome
 
-The original Northstar corpus again produces the immutable evidence UUIDs reviewed by the
-36-case golden dataset, while the accepted Kubernetes showcase identities and artifacts remain
-unchanged. A fresh database passes the real reference-embedding retrieval regression gate.
+The original Northstar corpus again produces deterministic evidence UUIDs for the 36-case golden
+dataset. Kubernetes production chunks and historical artifacts remain unchanged, while ADR-0013
+corrects invalid reviewed mappings to the accepted 75-chunk identity. A fresh database passes the
+real reference-embedding retrieval regression gate.
 
 ## Problem statement
 
@@ -27,29 +28,31 @@ instead of the reviewed baseline range.
 ## Scope
 
 - Restore the original Northstar per-document ordinal and deterministic evidence UUID contract.
-- Preserve Kubernetes debug-cluster chunk content, section keys, ordinals, evidence UUIDs,
-  reviewed dataset, live artifacts, and review records exactly.
+- Preserve Kubernetes debug-cluster chunk content, section keys, ordinals, live artifacts, and
+  review records; correct only invalid reviewed dataset evidence mappings under ADR-0013.
 - Add a focused regression test that proves every Northstar golden relevant-evidence UUID exists
   in the freshly chunked corpus and every Kubernetes reviewed relevant-evidence UUID remains valid.
+- Apply the owner-approved ADR-0013 evidence-ID-only dataset corrections (1.0.1); preserve
+  questions, labels, source/chunk content, baseline thresholds, and historical live artifacts.
 - Run fresh PostgreSQL ingestion plus the 36-case reference retrieval gate before and after the
   controlled patch bump.
 
 ## Non-goals
 
-- Updating either reviewed dataset, accepting a new baseline, changing chunk content/policy,
+- Changing questions, labels, source/chunk content, the retrieval baseline, chunking policy,
   re-running paid models, changing retrieval ranking, fixing dependency advisories, release
   finalization, deployment, or unrelated refactoring.
 
 ## Acceptance evidence
 
-- [ ] A focused test fails on merged `0.12.0` because reviewed Northstar UUIDs are missing.
-- [ ] Northstar produces 161 chunks and all non-empty `golden-v1.json` evidence UUIDs resolve.
-- [ ] Kubernetes produces 75 chunks and all non-empty `kubernetes-debug-v1.json` evidence UUIDs
-      resolve without changing governed artifacts or review records.
-- [ ] Fresh-database ingestion remains transactional and idempotent for both corpora.
-- [ ] The real reference-embedding retrieval artifact passes
+- [x] A focused test fails on merged `0.12.0` because reviewed Northstar UUIDs are missing.
+- [x] Northstar produces 161 chunks and all non-empty `golden-v1.json` evidence UUIDs resolve.
+- [x] Kubernetes produces 75 chunks and all non-empty `kubernetes-debug-v1.json` evidence UUIDs
+      resolve without changing source/chunk content, historical artifacts, or review records.
+- [x] Fresh-database ingestion remains transactional and idempotent for both corpora.
+- [x] The real reference-embedding retrieval artifact passes
       `scripts/check_retrieval_baseline.py` without modifying the baseline.
-- [ ] `scripts/check.ps1` and all 15 PostgreSQL/reference integration tests pass before applying
+- [x] `scripts/check.ps1` and all 16 PostgreSQL/reference integration tests pass before applying
       the controlled `0.12.1` version and all version-bound checks pass afterward.
 
 ## Expected file ownership
@@ -61,8 +64,9 @@ instead of the reviewed baseline range.
 
 ## Stop conditions
 
-- The fix would change Northstar source/chunk content, either reviewed dataset/baseline, any
-  Kubernetes governed artifact, or require a new identity policy/ADR.
+- The fix would change source/chunk content, the retrieval baseline, historical live
+  artifacts/reviews,
+  questions/labels, ranking, or any governed field beyond the ADR-0013 evidence mappings.
 - The retrieval gate still fails after reviewed evidence identity is restored.
 
 ## Copy-paste coding-agent brief
@@ -72,11 +76,11 @@ instead of the reviewed baseline range.
 > `AGENTS.md`, ADR-0003, ADR-0006, ADR-0007, ADR-0012, EG-018, EG-019, the EG-014 readiness
 > finding, and this story. First add a focused failing test proving that all reviewed Northstar and
 > Kubernetes evidence UUIDs resolve from freshly chunked corpora. Restore Northstar's original
-> per-document ordinal semantics while preserving the Kubernetes chunk/evidence identities
-> exactly. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not edit either dataset, the retrieval baseline, live artifacts/reviews, chunk text,
-> policies, ranking, or unrelated code. Run focused tests, `scripts/check.ps1`, all 15 integration
+> per-document ordinal semantics while preserving Kubernetes production chunks and historical
+> artifacts. Apply only the owner-approved ADR-0013 evidence-ID mapping corrections. Implement only cases explicitly required by this story, accepted contracts/ADRs, or an observed failing test. Do not invent speculative edge cases, future-proof abstractions, new dependencies/frameworks, opportunistic refactors, later-story work, or silent contract/architecture decisions; stop and report instead. Do not edit questions, labels, the retrieval baseline, live artifacts/reviews, chunk text,
+> policies, ranking, or unrelated code. Run focused tests, `scripts/check.ps1`, all 16 integration
 > tests, and a fresh-database real reference retrieval gate. Only after all pass, apply the patch
 > bump `0.12.0 -> 0.12.1` through the controlled surfaces and rerun version-bound checks. Do not
 > merge, push, deploy, spend, call a provider, tag/release, fix dependency advisories, or start
-> EG-014. Stop on any governed-artifact change or remaining baseline failure. Finish with exact
+> EG-014. Stop on any unapproved governed-artifact change or remaining baseline failure. Finish with exact
 > UUID invariants, files, commands/results, version evidence, limitations, and suggested commit.

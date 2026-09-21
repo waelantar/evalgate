@@ -4,6 +4,10 @@ All notable changes will be documented here. The project uses Semantic Versionin
 
 ## [Unreleased]
 
+### Fixed
+
+- Restored Northstar per-document evidence ordinals while retaining Kubernetes corpus-global ordinals, and corrected reviewed dataset evidence mappings to deterministic production chunk identities.
+
 ### Added
 
 - Approved production blueprint.

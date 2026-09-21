@@ -13,6 +13,10 @@ the R3 checklist in `BLUEPRINT.md` section 18 without treating a passing unit/E2
 that the governed retrieval, security, accessibility, CI, and final-image gates passed. Because
 multiple release gates fail, product metadata remains `0.12.0`; no final `1.0.0` image was built.
 
+## EG-020 follow-up (2026-09-21)
+
+EG-020 is locally verified at product version `0.12.1`. Northstar produces 161 chunks, Kubernetes produces 75, every reviewed dataset `1.0.1` evidence UUID resolves, both corpora ingest idempotently into fresh PostgreSQL, all 16 integration tests pass, and the unchanged 36-case retrieval baseline passes. ADR-0013 records the evidence-ID-only governance correction. This closes the local retrieval blocker; exact-commit CI, EG-021, manual accessibility review, and final image evidence remain open.
+
 ## Start conditions and repeatable evidence
 
 | Gate | Evidence and result |

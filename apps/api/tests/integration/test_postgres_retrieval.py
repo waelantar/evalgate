@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import math
 import os
 from collections.abc import Sequence
 from pathlib import Path
 from time import perf_counter
-from uuid import UUID
+from uuid import UUID, uuid5
 
 import pytest
 from alembic import command
@@ -222,6 +223,51 @@ def _reference_snapshot() -> Path:
             pytest.fail("required retrieval test has no verified snapshot")
         pytest.skip("EVALGATE_REFERENCE_EMBEDDING_SNAPSHOT is required")
     return Path(value)
+
+
+def test_reviewed_evidence_ids_resolve_for_both_governed_corpora() -> None:
+    embedding = FastEmbedReferenceEmbedding.from_verified_snapshot(
+        manifest_path=REFERENCE_MANIFEST,
+        snapshot_path=_reference_snapshot(),
+    )
+    repository_root = API_ROOT.parents[1]
+    specifications = (
+        (
+            "northstar-operations",
+            "golden-v1.json",
+            UUID("6932f8da-e71b-533f-ae2b-4c969cd3acd2"),
+            161,
+        ),
+        (
+            "kubernetes-debug-cluster",
+            "kubernetes-debug-v1.json",
+            UUID("fe3b7d3e-727c-5973-b871-aaa6308bae6a"),
+            75,
+        ),
+    )
+
+    for corpus_key, dataset_name, index_id, expected_chunk_count in specifications:
+        corpus = load_declared_corpus_by_key(corpus_key)
+        chunks = chunk_declared_corpus(corpus, tokenizer=embedding).chunks
+        dataset = json.loads(
+            (repository_root / "contracts" / "evaluation" / dataset_name).read_text(
+                encoding="utf-8"
+            )
+        )
+        reviewed_ids = {
+            evidence_id
+            for case in dataset["cases"]
+            for evidence_id in case["relevant_evidence_ids"]
+        }
+        chunk_ids = {
+            str(
+                uuid5(index_id, f"chunk:{chunk.document_id}:{chunk.ordinal}:{chunk.content_sha256}")
+            )
+            for chunk in chunks
+        }
+
+        assert len(chunks) == expected_chunk_count
+        assert reviewed_ids <= chunk_ids
 
 
 def test_governed_reference_index_is_stable_with_finite_exact_latency(database_url: str) -> None:

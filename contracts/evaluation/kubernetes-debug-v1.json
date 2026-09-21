@@ -1,7 +1,7 @@
 {
     "schema_version":  "1.0",
     "dataset_key":  "kubernetes-debug-v1",
-    "dataset_version":  "1.0.0",
+    "dataset_version":  "1.0.1",
     "cases":  [
                   {
                       "case_id":  "k8s-dev-01",
@@ -22,8 +22,8 @@
                       "question":  "Which log files should an operator inspect for kube-apiserver and kubelet troubleshooting?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "97459edc-b9c1-5fa6-9612-2e209630548e",
-                                                    "bdb4ba40-6b2a-50d5-8db7-9d662ea412eb"
+                                                    "30dbd8cb-dfde-514f-972a-1e246d0493e2",
+                                                    "07bba7dc-58d1-5a95-be9e-d6da1d208512"
                                                 ],
                       "supported_claims":  [
                                                "control-plane-log-locations",
@@ -37,7 +37,7 @@
                       "question":  "What does the Kubernetes audit policy define and where is it passed to kube-apiserver?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "cf59d348-0f17-5fcc-8623-994c768b3d77"
+                                                    "96901830-b5b8-5e31-9fce-6593f4e97c2f"
                                                 ],
                       "supported_claims":  [
                                                "audit-policy-rules",
@@ -51,7 +51,7 @@
                       "question":  "How does Kubernetes audit log truncation behave when an event exceeds the configured size?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "2d663517-2277-5e95-ade1-1e33b16eae29"
+                                                    "6da88f33-25ac-559b-9ee1-89ae704d09a3"
                                                 ],
                       "supported_claims":  [
                                                "audit-log-truncation"
@@ -64,7 +64,7 @@
                       "question":  "Which crictl command pattern is shown for getting logs from a container?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "a43251a4-7ab2-5a27-96ba-dd723cc0a707"
+                                                    "1ec0dde2-2017-51a5-9de7-84fe12b16cf4"
                                                 ],
                       "supported_claims":  [
                                                "crictl-container-logs"
@@ -77,7 +77,7 @@
                       "question":  "When using kubectl debug node, where is the host root filesystem mounted inside the debugging pod?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "2ae94be0-2a2a-576e-bcec-03d03033d53b"
+                                                    "27cbfec9-b8da-51f1-9de1-77586f001007"
                                                 ],
                       "supported_claims":  [
                                                "kubectl-debug-host-root-mount"
@@ -90,8 +90,8 @@
                       "question":  "What does the local debugging guide say Telepresence lets a developer do with a remote Kubernetes service?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "8a455e88-16af-509b-829e-255147fa4871",
-                                                    "85dccc88-5539-55c2-9c82-3dbdeccd693d"
+                                                    "b263b5f7-a643-54cb-97ae-9155d8327591",
+                                                    "e8c72bbb-220e-59d6-aaf6-aeb993470404"
                                                 ],
                       "supported_claims":  [
                                                "telepresence-local-development",
@@ -105,8 +105,8 @@
                       "question":  "What is Node Problem Detector used for, and what general kinds of problems can problem daemons report?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "6c28d903-2c0d-5a7c-9081-37c6c8498471",
-                                                    "906c9e4c-ec9f-5bbe-b4f4-23e28a667d75"
+                                                    "785ae859-d7cf-5f79-9be8-29c9f50f30de",
+                                                    "d0cf211f-0209-52d5-a0e8-47163370898c"
                                                 ],
                       "supported_claims":  [
                                                "node-problem-detector-purpose",
@@ -120,8 +120,8 @@
                       "question":  "What are the two pipeline categories described for monitoring Kubernetes resource usage?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "8ae6b67a-9ce4-54fb-831e-d4234cb92d0c",
-                                                    "aa36e5be-b5ff-53b4-9a0d-cc7f7450af7b"
+                                                    "ed0856d5-77d9-5db5-a3c4-1f7031302d13",
+                                                    "57447842-4767-5831-9c32-ca18ab5599e5"
                                                 ],
                       "supported_claims":  [
                                                "resource-metrics-pipeline-category",
@@ -135,7 +135,7 @@
                       "question":  "What role does Metrics Server play in the Kubernetes resource metrics pipeline?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "bb82cd58-f434-5dae-be82-966fe6cb2505"
+                                                    "e51dfa4d-d9ce-5656-8d7d-4925e337caf2"
                                                 ],
                       "supported_claims":  [
                                                "metrics-server-role"
@@ -148,8 +148,8 @@
                       "question":  "Which sources does the topology management guide suggest checking when troubleshooting TopologyAffinityError?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "8e27fac9-6030-5f28-b800-8c272832d3cd",
-                                                    "1b387077-f6bc-57bc-a225-deed115b349c"
+                                                    "fbc4a10b-4cfc-5411-8e01-404881a8801f",
+                                                    "a8e9d9bf-0c3e-5fc9-b905-af8cfbac06dc"
                                                 ],
                       "supported_claims":  [
                                                "topology-troubleshooting-sources",
@@ -163,7 +163,7 @@
                       "question":  "What TLS-related kubectl checks does the troubleshooting guide point an operator toward?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "6b9cdaa5-c87f-51b1-acdd-e34cb9fd078d"
+                                                    "ea87a9b1-f3c8-5794-b577-0684a7d37caf"
                                                 ],
                       "supported_claims":  [
                                                "kubectl-tls-checks"
@@ -215,9 +215,9 @@
                       "question":  "If an operator suspects a node is unreachable and kubectl itself may be misconfigured, which evidence should they inspect from both guides?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "3209a318-f59e-506f-9835-753c667461e1",
-                                                    "68aca30e-55af-533d-b2e8-23b12c235fe3",
-                                                    "8e26f58c-c825-5af9-a048-00f1a37a15fb"
+                                                    "87e8c6e5-d976-531d-86aa-566af0f4fdfd",
+                                                    "a883106f-646e-5ce4-b9d9-e40def4fafa6",
+                                                    "60370c4e-2340-5ecf-9daa-4f5687f7e5dd"
                                                 ],
                       "supported_claims":  [
                                                "unreachable-node-debugging",
@@ -232,8 +232,8 @@
                       "question":  "Is crictl limited to Docker-only debugging, or is it described as a CRI-oriented tool?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "e57938e6-e8d6-5873-a264-e8fca49b4ef4",
-                                                    "61faca5b-67cb-5007-8d0c-eb4fc3e2d0fd"
+                                                    "02a867dd-bd6e-57fd-ab9c-3229afe45018",
+                                                    "d43bbfff-bd8c-596e-acb7-8c808e4c89b1"
                                                 ],
                       "supported_claims":  [
                                                "crictl-cri-oriented",
@@ -247,8 +247,8 @@
                       "question":  "For Windows node networking problems, which evidence distinguishes general network troubleshooting from Flannel-specific checks?",
                       "answerability":  "answerable",
                       "relevant_evidence_ids":  [
-                                                    "11cde2c6-6996-5c24-92c2-2bd5ac4fdcf2",
-                                                    "e5464812-f53f-58d7-af46-7f92fa3477ec"
+                                                    "ffbdb7d9-282f-5af8-b04f-58f6859ea5e4",
+                                                    "e660f14d-0331-55b7-a27c-39bb31f8f7ba"
                                                 ],
                       "supported_claims":  [
                                                "windows-network-troubleshooting",
