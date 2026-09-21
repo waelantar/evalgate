@@ -80,6 +80,7 @@ class CorpusDefinition:
     chunking_version: str
     policy_manifest: Path
     expected_policy: dict[str, object]
+    corpus_global_ordinals: bool = False
     require_exact_layout: bool = True
 
 
@@ -113,6 +114,7 @@ CORPUS_DEFINITIONS: dict[tuple[str, str], CorpusDefinition] = {
         chunking_version=KUBERNETES_DEBUG_CHUNKING_VERSION,
         policy_manifest=KUBERNETES_DEBUG_POLICY_MANIFEST,
         expected_policy=_EXPECTED_KUBERNETES_DEBUG_INDEX_POLICY,
+        corpus_global_ordinals=True,
     ),
 }
 DECLARED_CORPORA: dict[tuple[str, str], Path] = {
@@ -402,6 +404,7 @@ def chunk_declared_corpus(corpus: DeclaredCorpus, *, tokenizer: TokenCounter) ->
             )
         doc_id = document_id(corpus, document)
         used_slugs: set[str] = set()
+        document_chunk_ordinal = 0
         for ordinal, match in enumerate(matches):
             section_end = (
                 matches[ordinal + 1].start()
@@ -430,7 +433,11 @@ def chunk_declared_corpus(corpus: DeclaredCorpus, *, tokenizer: TokenCounter) ->
                     CorpusChunk(
                         document_id=doc_id,
                         source_key=document.source_key,
-                        ordinal=len(chunks),
+                        ordinal=(
+                            len(chunks)
+                            if definition.corpus_global_ordinals
+                            else document_chunk_ordinal
+                        ),
                         section_key=f"{document.source_key}:{section_slug}",
                         source_start=source_start,
                         source_end=source_end,
@@ -439,6 +446,7 @@ def chunk_declared_corpus(corpus: DeclaredCorpus, *, tokenizer: TokenCounter) ->
                         token_count=token_count,
                     )
                 )
+                document_chunk_ordinal += 1
     if not definition.min_chunks <= len(chunks) <= definition.max_chunks:
         raise _error(
             IngestionErrorCode.CORPUS_INVALID,

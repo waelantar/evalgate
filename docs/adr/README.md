@@ -16,5 +16,6 @@ ADRs capture decisions that are expensive or unsafe to change silently. The blue
 | [0010](0010-defer-external-services.md) | Defer provider and host selection | Accepted |
 | [0011](0011-openrouter-live-evaluation.md) | OpenRouter DeepSeek live evaluation | Accepted for EG-015 |
 | [0012](0012-kubernetes-debug-showcase-source.md) | Kubernetes debug documentation showcase source | Accepted for EG-018 source gate |
+| [0013](0013-production-evidence-identity.md) | Bind reviewed evidence IDs to production chunking | Accepted for EG-020 |
 
 Use [0000-template.md](0000-template.md) for a new decision. Never rewrite an accepted ADR to hide history; supersede it with a new ADR.
