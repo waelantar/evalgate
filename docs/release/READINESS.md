@@ -17,6 +17,17 @@ multiple release gates fail, product metadata remains `0.12.0`; no final `1.0.0`
 
 EG-020 is locally verified at product version `0.12.1`. Northstar produces 161 chunks, Kubernetes produces 75, every reviewed dataset `1.0.1` evidence UUID resolves, both corpora ingest idempotently into fresh PostgreSQL, all 16 integration tests pass, and the unchanged 36-case retrieval baseline passes. ADR-0013 records the evidence-ID-only governance correction. This closes the local retrieval blocker; exact-commit CI, EG-021, manual accessibility review, and final image evidence remain open.
 
+## EG-021 follow-up (2026-09-22)
+
+EG-021 is locally verified at pre-stable product version `0.12.2`. Full and production-only npm
+audits and the hashed Python lock audit report zero findings. The pinned Trivy `0.74.0` actionable
+scan of image `sha256:494a1359ef7bfdcd664eaf19061b25c856e39e96dc721871359a143ae2b2ed66`
+reports zero fixable HIGH/CRITICAL findings; the separate all-findings report retains 44
+upstream-unfixed HIGH findings (43 `affected`, one `fix_deferred`). The candidate runs non-root,
+passes live/ready/graceful-stop smoke, and has an exact CycloneDX SBOM. This closes the local
+dependency and container-scan blockers under the owner-approved actionable-risk policy; it does
+not claim a vulnerability-free image or a release.
+
 ## Start conditions and repeatable evidence
 
 | Gate | Evidence and result |
@@ -49,20 +60,13 @@ owns the narrow fix and must preserve both the original Northstar identities and
 Kubernetes showcase identities. Updating the dataset or baseline to match the regression is
 explicitly forbidden.
 
-## Release-blocking gaps
+## Remaining release-blocking gaps
 
-1. **EG-020 / retrieval identity:** restore reviewed Northstar evidence IDs without changing
-   either governed dataset or accepted Kubernetes artifacts; rerun the real reference baseline.
-2. **Successful exact-commit CI:** after EG-020, link a successful secret-free CI run for the exact
-   candidate commit and its immutable retrieval artifact.
-3. **EG-021 / dependency findings:** resolve the one high and three moderate development
-   dependency advisories without unrelated upgrades; the production-only audit being
-   clean does not make the complete release gate green.
-4. **EG-021 / container vulnerability scan:** run Trivy or Grype against the final candidate, review every
-   result, and leave no unresolved high or critical finding. Tool unavailability is not accepted.
-5. **Manual accessibility:** a human must complete and date the screen-reader, keyboard, 200% zoom,
+1. **Successful exact-commit CI:** after EG-021 is merged, link a successful secret-free CI run for
+   the exact candidate commit and its immutable retrieval artifact.
+2. **Manual accessibility:** a human must complete and date the screen-reader, keyboard, 200% zoom,
    and forced-colors checks. Automated axe evidence cannot be substituted.
-6. **Final image evidence:** only after all pre-bump gates pass may EG-014 apply `1.0.0`, rebuild the
+3. **Final image evidence:** only after all pre-bump gates pass may EG-014 apply `1.0.0`, rebuild the
    unchanged accepted image definition, and record matching runtime version, digest, smoke,
    graceful stop, scan, SBOM, and consistency evidence.
 
@@ -103,7 +107,7 @@ the disposable trial and is not a release artifact.
 
 ## Version handoff and recommendation
 
-**No release. Keep `0.12.0`.** Review and merge this audit, complete EG-020 as `0.12.1`,
-complete EG-021 as `0.12.2`, finish human accessibility review, and obtain successful exact-commit
-CI. Then rerun EG-014 from clean accepted `main`. Only an all-green pre-release matrix may perform
+**No release. Keep pre-stable `0.12.2` after EG-021 is merged.** Finish the human accessibility
+review and obtain successful exact-commit CI. Then rerun EG-014 from clean accepted `main`.
+Only an all-green pre-release matrix may perform
 the controlled `0.12.2 -> 1.0.0` bump and final image evidence sequence.
