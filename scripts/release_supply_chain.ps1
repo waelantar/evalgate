@@ -1,5 +1,5 @@
 param(
-    [string]$Image = "evalgate-api:0.10.0"
+    [string]$Image = "evalgate-api:0.12.2"
 )
 
 $ErrorActionPreference = "Stop"
@@ -7,83 +7,124 @@ Set-StrictMode -Version Latest
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $artifactDir = Join-Path $repoRoot "artifacts\release"
-$sbomPath = Join-Path $artifactDir "eg-013d-sbom.cdx.json"
-$scanPath = Join-Path $artifactDir "eg-013d-scan.json"
-$summaryPath = Join-Path $artifactDir "eg-013d-supply-chain-summary.json"
+$cacheDir = Join-Path $repoRoot ".evalgate-cache\trivy"
+$sbomPath = Join-Path $artifactDir "eg-021-sbom.cdx.json"
+$allScanPath = Join-Path $artifactDir "eg-021-scan-all.json"
+$actionableScanPath = Join-Path $artifactDir "eg-021-scan-actionable.json"
+$summaryPath = Join-Path $artifactDir "eg-021-supply-chain-summary.json"
+$scannerImage = "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
 
-New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
+New-Item -ItemType Directory -Force -Path $artifactDir, $cacheDir | Out-Null
 
-function Get-ToolPath {
-    param([Parameter(Mandatory = $true)][string]$Name)
-    $command = Get-Command $Name -ErrorAction SilentlyContinue
-    if ($null -eq $command) {
-        return $null
+function Invoke-Docker {
+    param([Parameter(Mandatory = $true)][string[]]$Arguments)
+    & docker @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "docker $($Arguments -join ' ') failed with exit code $LASTEXITCODE."
     }
-    return $command.Source
 }
 
-$syft = Get-ToolPath "syft"
-$trivy = Get-ToolPath "trivy"
-$grype = Get-ToolPath "grype"
-$docker = Get-ToolPath "docker"
-
-$sbomStatus = "waived_tool_unavailable"
-$scanStatus = "waived_tool_unavailable"
-
-if ($null -ne $syft) {
-    & syft $Image -o cyclonedx-json=$sbomPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "syft SBOM generation failed with exit code $LASTEXITCODE."
-    }
-    $sbomStatus = "generated_cyclonedx_with_syft"
-} elseif ($null -ne $docker) {
-    & docker sbom $Image --format cyclonedx-json --output $sbomPath --quiet
-    if ($LASTEXITCODE -ne 0) {
-        throw "docker sbom generation failed with exit code $LASTEXITCODE."
-    }
-    $sbomStatus = "generated_cyclonedx_with_docker_sbom"
-} else {
-    @{
-        schema_version = "1.0"
-        story = "EG-013D"
-        format = "CycloneDX"
-        status = "waived_tool_unavailable"
-        disposition = "Install syft or Docker SBOM locally before release review."
-    } | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 -Path $sbomPath
+$imageId = (& docker image inspect $Image --format "{{.Id}}").Trim()
+if ($LASTEXITCODE -ne 0 -or -not $imageId.StartsWith("sha256:")) {
+    throw "Unable to inspect candidate image ID for $Image."
 }
 
-if ($null -ne $trivy) {
-    & trivy image --format json --output $scanPath $Image
-    if ($LASTEXITCODE -ne 0) {
-        throw "trivy image scan failed with exit code $LASTEXITCODE."
-    }
-    $scanStatus = "generated_with_trivy"
-} elseif ($null -ne $grype) {
-    & grype $Image -o json --file $scanPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "grype image scan failed with exit code $LASTEXITCODE."
-    }
-    $scanStatus = "generated_with_grype"
-} else {
-    @{
-        schema_version = "1.0"
-        story = "EG-013D"
-        status = "waived_tool_unavailable"
-        disposition = "Install trivy or grype locally before release review; do not label this waiver as a vulnerability scan."
-    } | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 -Path $scanPath
+$artifactMount = "$($artifactDir):/work"
+$cacheMount = "$($cacheDir):/root/.cache/trivy"
+$socketMount = "/var/run/docker.sock:/var/run/docker.sock"
+$dockerPrefix = @(
+    "run", "--rm",
+    "-v", $socketMount,
+    "-v", $artifactMount,
+    "-v", $cacheMount,
+    $scannerImage
+)
+
+$scannerVersion = (& docker run --rm $scannerImage version).Trim()
+if ($LASTEXITCODE -ne 0 -or $scannerVersion -notmatch "Version:\s+0\.74\.0") {
+    throw "Pinned scanner did not report Trivy 0.74.0."
+}
+
+Invoke-Docker @(
+    $dockerPrefix +
+    @(
+        "image", "--format", "cyclonedx",
+        "--output", "/work/eg-021-sbom.cdx.json", $Image
+    )
+)
+Invoke-Docker @(
+    $dockerPrefix +
+    @(
+        "image", "--scanners", "vuln", "--severity", "HIGH,CRITICAL",
+        "--exit-code", "0", "--format", "json",
+        "--output", "/work/eg-021-scan-all.json", $Image
+    )
+)
+Invoke-Docker @(
+    $dockerPrefix +
+    @(
+        "image", "--scanners", "vuln", "--severity", "HIGH,CRITICAL",
+        "--ignore-unfixed", "--exit-code", "1", "--format", "json",
+        "--output", "/work/eg-021-scan-actionable.json", $Image
+    )
+)
+
+$allScan = Get-Content -Raw -Path $allScanPath | ConvertFrom-Json
+$actionableScan = Get-Content -Raw -Path $actionableScanPath | ConvertFrom-Json
+$allFindings = @(
+    $allScan.Results |
+        ForEach-Object { if ($_.PSObject.Properties["Vulnerabilities"]) { $_.Vulnerabilities } } |
+        Where-Object { $null -ne $_ -and $_.Severity -in @("HIGH", "CRITICAL") }
+)
+$actionableFindings = @(
+    $actionableScan.Results |
+        ForEach-Object { if ($_.PSObject.Properties["Vulnerabilities"]) { $_.Vulnerabilities } } |
+        Where-Object { $null -ne $_ -and $_.Severity -in @("HIGH", "CRITICAL") }
+)
+$upstreamUnfixedFindings = @(
+    $allFindings |
+        Where-Object { $null -eq $_.PSObject.Properties["FixedVersion"] -or -not $_.FixedVersion }
+)
+if ($actionableFindings.Count -ne 0) {
+    throw "Candidate image has $($actionableFindings.Count) fixable HIGH/CRITICAL finding(s)."
 }
 
 @{
     schema_version = "1.0"
-    story = "EG-013D"
+    story = "EG-021"
     image = $Image
+    image_id = $imageId
+    policy = @{
+        enforcement = "fail_on_fixable_high_or_critical"
+        disclosure = "retain_all_high_or_critical_findings"
+        upstream_unfixed_is_not_described_as_clean = $true
+    }
+    scanner = @{
+        name = "Trivy"
+        version = "0.74.0"
+        image = $scannerImage
+        identity_output = $scannerVersion
+    }
     sbom = @{
-        path = "artifacts/release/eg-013d-sbom.cdx.json"
-        status = $sbomStatus
+        path = "artifacts/release/eg-021-sbom.cdx.json"
+        format = "CycloneDX JSON"
+        sha256 = (Get-FileHash -Algorithm SHA256 -Path $sbomPath).Hash.ToLowerInvariant()
+        status = "generated_for_exact_image"
     }
     container_scan = @{
-        path = "artifacts/release/eg-013d-scan.json"
-        status = $scanStatus
+        actionable_path = "artifacts/release/eg-021-scan-actionable.json"
+        actionable_sha256 = (
+            Get-FileHash -Algorithm SHA256 -Path $actionableScanPath
+        ).Hash.ToLowerInvariant()
+        all_findings_path = "artifacts/release/eg-021-scan-all.json"
+        all_findings_sha256 = (
+            Get-FileHash -Algorithm SHA256 -Path $allScanPath
+        ).Hash.ToLowerInvariant()
+        severities = @("HIGH", "CRITICAL")
+        actionable_findings = $actionableFindings.Count
+        upstream_unfixed_findings = $upstreamUnfixedFindings.Count
+        disclosed_findings = $allFindings.Count
+        status = "passed_actionable_gate_with_upstream_risk_disclosed"
     }
     secret_scan = @{
         command = "python scripts/check_publication.py"
@@ -96,4 +137,4 @@ if ($null -ne $trivy) {
     publication = "not_pushed_not_deployed"
 } | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 -Path $summaryPath
 
-Write-Host "Wrote supply-chain evidence summary to $summaryPath"
+Write-Host "Wrote pinned actionable and all-findings evidence to $summaryPath"

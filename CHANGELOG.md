@@ -7,9 +7,11 @@ All notable changes will be documented here. The project uses Semantic Versionin
 ### Fixed
 
 - Restored Northstar per-document evidence ordinals while retaining Kubernetes corpus-global ordinals, and corrected reviewed dataset evidence mappings to deterministic production chunk identities.
+- Closed recorded npm and Python development advisory paths, refreshed the pinned Python base,
+  and added pinned Trivy actionable enforcement plus complete upstream-unfixed risk disclosure for
+  the pre-stable candidate, plus stabilized the browser timeout harness under full-suite load.
 
 ### Added
-
 - Approved production blueprint.
 - Reproducible repository and local development foundation.
 - Provider-neutral embedding, generation, clock, and identity ports with explicit deterministic fixtures.

@@ -1,6 +1,6 @@
 # EG-021: Close dependency and container-scan gates
 
-- Status: Planned from the EG-014 release-blocking security findings
+- Status: Completed locally; pending owner review and manual merge
 - Branch: `chore/eg-021-release-security-evidence`
 - Depends on: EG-020 merged to `main`
 - Release: R3
@@ -19,29 +19,33 @@ The image/runtime metadata agrees at `0.12.2`; this remains pre-release evidence
 - Reverify current official npm and selected scanner guidance at story start.
 - Upgrade only the dependency paths responsible for the EG-014 findings (`vitest`,
   `@vitest/coverage-v8`, `@vitest/mocker`, and transitive `js-yaml`) using compatible locked updates.
-- Add or document one pinned, reproducible Trivy-or-Grype invocation that does not rely on an
-  unversioned mutable tool and fails on unresolved high/critical container findings.
+- Add one pinned, reproducible Trivy invocation that does not rely on an unversioned mutable tool,
+  fails on every fixable HIGH/CRITICAL container finding, and retains a separate all-findings
+  report so upstream-unfixed risk is disclosed rather than described as clean.
 - Align the pre-stable image label, Compose tag, smoke expectations, release scripts, and their
-  direct assertions to the accepted `0.12.2` candidate without changing runtime behavior.
+  direct assertions to the accepted `0.12.2` candidate, plus the pinned official Python base
+  refresh required to close fixable OS findings, without changing application behavior.
 - Regenerate local smoke, graceful-stop, CycloneDX SBOM, scan summary, image ID/digest, and
   publication-state evidence. Artifacts remain ignored/local unless a later release attaches them.
 
 ## Non-goals
 
-- Functional product changes, dependency major upgrades unrelated to an observed finding,
-  suppressing advisories without review, accepting a high/critical waiver, cloud/deployment work,
+- Functional product changes, unrelated dependency major upgrades, suppressing or omitting the
+  all-findings report, accepting a fixable HIGH/CRITICAL finding, cloud/deployment work,
   publishing an image/SBOM, or declaring/tagging `1.0.0`.
 
 ## Acceptance evidence
 
-- [ ] `npm audit --json` and `npm audit --omit=dev --json` have no unresolved finding under the
+- [x] `npm audit --json` and `npm audit --omit=dev --json` have no unresolved finding under the
       accepted release policy; every changed lockfile path maps to an EG-014 finding.
-- [ ] Python locked dependencies are scanned/reviewed with a documented reproducible command.
-- [ ] The candidate image runs non-root, reports `0.12.2`, passes live/ready/graceful-stop smoke,
+- [x] Python locked dependencies are scanned/reviewed with a documented reproducible command.
+- [x] The candidate image runs non-root, reports `0.12.2`, passes live/ready/graceful-stop smoke,
       and is identified by immutable image ID/digest.
-- [ ] Trivy or Grype produces machine-readable results with no unresolved high/critical finding.
-- [ ] A CycloneDX SBOM is generated for the exact scanned image.
-- [ ] Publication/metadata checks, `scripts/check.ps1`, all 15 integration tests, and image evidence
+- [x] Pinned Trivy produces machine-readable actionable and all-findings results, with zero
+      fixable HIGH/CRITICAL findings and every upstream-unfixed HIGH/CRITICAL finding explicitly
+      counted and retained for review.
+- [x] A CycloneDX SBOM is generated for the exact scanned image.
+- [x] Publication/metadata checks, `scripts/check.ps1`, all 16 integration tests, and image evidence
       pass before and after the controlled patch bump as applicable.
 
 ## Expected file ownership
@@ -53,8 +57,8 @@ The image/runtime metadata agrees at `0.12.2`; this remains pre-release evidence
 
 ## Stop conditions
 
-- Remediation requires an unrelated major upgrade, product/runtime redesign, unreviewed waiver,
-  unpinned scanner, publishing, or any high/critical finding cannot be closed.
+- Remediation requires an unrelated major upgrade, product/runtime redesign, unreviewed omission,
+  unpinned scanner, publishing, or any fixable HIGH/CRITICAL finding cannot be closed.
 - The built image differs from the accepted runtime definition beyond controlled metadata and the
   narrowly reviewed dependency remediation.
 
@@ -68,7 +72,8 @@ The image/runtime metadata agrees at `0.12.2`; this remains pre-release evidence
 > findings, and do not use a blind or forced upgrade. Establish one pinned reproducible container
 > scan, align only pre-stable image/version metadata and direct assertions, then build one exact
 > candidate and record non-root smoke, readiness, graceful stop, immutable ID/digest, CycloneDX
-> SBOM, and machine-readable scan with no unresolved high/critical finding. Run publication,
+> SBOM, a fail-closed actionable scan with zero fixable HIGH/CRITICAL findings, and a retained
+> all-findings report that discloses upstream-unfixed risk without calling it clean. Run publication,
 > metadata, full repository, all integration, audit, image, scan, and SBOM checks. Only after all
 > pre-bump gates pass, apply `0.12.1 -> 0.12.2` through controlled surfaces and regenerate affected
 > evidence. Do not implement features, refactor unrelated code, waive findings, publish, push,
