@@ -32,9 +32,9 @@ First complete the safe pre-bump implementation checks and resolve their finding
 - OpenAPI product metadata, runtime health metadata, and their direct assertions;
 - `CHANGELOG.md` under `Unreleased`, plus release evidence when the owning story requires it.
 
-Discover and inspect the exact occurrences; never use a repository-wide version replacement. API-major paths, stream/event schemas, corpus/index/dataset/prompt versions, evaluation-artifact schemas, image digests, and deployment revisions are independent identifiers. After the bump, rerun the complete required checks and regenerate affected final evidence. If a final gate fails, restore the predecessor metadata in the story branch and report the blocker; a failed, blocked, or abandoned story consumes no version. Coding agents never tag or publish a release.
+Discover and inspect the exact occurrences; never use a repository-wide version replacement. API-major paths, stream/event schemas, corpus/index/dataset/prompt versions, evaluation-artifact schemas, image digests, and deployment revisions are independent identifiers. After the bump, rerun the complete required checks and regenerate affected final evidence. If a final gate fails, restore the predecessor metadata in the story branch and report the blocker; a failed, blocked, or abandoned story consumes no version. Coding agents do not tag or publish during ordinary story execution; release publication requires explicit owner direction after green CI.
 
-When an artifact embeds the product version, run pre-bump implementation checks first, apply the declared version, then build and validate the final version-bearing artifact. Only post-bump evidence is acceptance evidence for that artifact. EG-013D therefore produces the `0.9.0` release candidate; EG-017, EG-018, EG-019, EG-020, EG-021, and EG-022 advance the reviewed pre-stable product to `0.10.0`, `0.11.0`, `0.12.0`, `0.12.1`, `0.12.2`, and `0.12.3`; EG-014 conditionally establishes `1.0.0` and rebuilds/scans the final image from unchanged accepted definitions.
+When an artifact embeds the product version, run pre-bump implementation checks first, apply the declared version, then build and validate the final version-bearing artifact. Only post-bump evidence is acceptance evidence for that artifact. EG-013D therefore produces the `0.9.0` release candidate; EG-017, EG-018, EG-019, EG-020, EG-021, and EG-022 advance the reviewed pre-stable product to `0.10.0`, `0.11.0`, `0.12.0`, `0.12.1`, `0.12.2`, and `0.12.3`; EG-014 establishes `1.0.0` only after every R3 gate passes and rebuilds/scans the final image from unchanged accepted definitions.
 
 EG-016 is deliberately different: it does not bump the product or rebuild the image. It promotes the already accepted and scanned R3 `1.0.0` digest and records deployment revision, environment, digest, and verification time separately. Any required runtime change stops EG-016 and becomes a separately reviewed patch release.
 
@@ -72,7 +72,7 @@ The coding agent must finish with:
 5. security, privacy, accessibility, operations, and rollback notes;
 6. assumptions, limitations, and unresolved decisions;
 7. a suggested Conventional Commit message;
-8. the predecessor, bump type, target, synchronized version surfaces, and confirmation that no tag/release was created;
+8. the predecessor, bump type, target, synchronized version surfaces, and confirmation that no tag/release was created unless the owner explicitly directed a release task;
 9. an explicit statement that it did not merge, push, or delete the branch; if an EG-015/EG-016 gate was approved, exact external actions and cost, otherwise confirmation that it did not deploy or call a paid provider.
 
 Then inspect the diff and history:

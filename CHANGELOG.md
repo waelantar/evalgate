@@ -4,6 +4,8 @@ All notable changes will be documented here. The project uses Semantic Versionin
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-24
+
 ### Fixed
 
 - Prevented long immutable revisions and source paths from forcing Showcase beyond the 320px layout viewport, with all-primary-route regression coverage.

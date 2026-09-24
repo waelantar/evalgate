@@ -1023,12 +1023,14 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 through EG-021 are merged at pre-stable `0.12.2`; EG-022 prepares the locally verified
-`0.12.3` candidate for owner review and merge. Exact-main CI for the accepted predecessor, clean
-bootstrap, static, format/lint/type, 215 API unit, 37 web unit, eight Chromium/axe, production build,
-16 PostgreSQL/reference integration tests, the unchanged 36-case retrieval baseline, dependency
-audits, non-root image smoke, CycloneDX SBOM, and pinned Trivy actionable scan pass. ADR-0014 records
-the explicit decision to block fixable HIGH/CRITICAL findings while disclosing upstream-unfixed HIGH
-findings. EG-015 and EG-018 remain limitation-heavy evidence, not generation-quality claims. EG-022
-closes the observed 320px Showcase overflow; the required human screen-reader, keyboard, 200% zoom,
-and forced-colors review remains incomplete. Nothing is tagged, released, pushed, or deployed.
+EG-001 through EG-022 are merged into the accepted R3 predecessor at `0.12.3`, and EG-014 prepares
+the first stable `1.0.0` release from that base. The release branch passes clean bootstrap/static
+metadata gates, format/lint/type checks, 215 API unit tests, 37 web unit tests, eight Chromium/axe
+flows, the production build, all 16 PostgreSQL/reference integration tests, the unchanged 36-case
+retrieval baseline, npm and Python dependency audits, non-root image smoke, CycloneDX SBOM generation,
+and the pinned Trivy actionable scan. ADR-0014 records the explicit decision to block fixable
+HIGH/CRITICAL findings while disclosing upstream-unfixed HIGH/CRITICAL findings. The repository owner
+reported the manual accessibility review as passed on 2026-09-24 using Chrome, Windows Narrator,
+200% zoom, and Windows High Contrast. EG-015 and EG-018 remain limitation-heavy evidence, not
+generation-quality claims. No public deployment or public image publication is implied by the
+`1.0.0` source release.

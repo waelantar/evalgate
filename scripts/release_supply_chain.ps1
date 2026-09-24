@@ -1,5 +1,5 @@
 param(
-    [string]$Image = "evalgate-api:0.12.3"
+    [string]$Image = "evalgate-api:1.0.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -8,10 +8,10 @@ Set-StrictMode -Version Latest
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $artifactDir = Join-Path $repoRoot "artifacts\release"
 $cacheDir = Join-Path $repoRoot ".evalgate-cache\trivy"
-$sbomPath = Join-Path $artifactDir "eg-022-sbom.cdx.json"
-$allScanPath = Join-Path $artifactDir "eg-022-scan-all.json"
-$actionableScanPath = Join-Path $artifactDir "eg-022-scan-actionable.json"
-$summaryPath = Join-Path $artifactDir "eg-022-supply-chain-summary.json"
+$sbomPath = Join-Path $artifactDir "eg-014-final-sbom.cdx.json"
+$allScanPath = Join-Path $artifactDir "eg-014-final-scan-all.json"
+$actionableScanPath = Join-Path $artifactDir "eg-014-final-scan-actionable.json"
+$summaryPath = Join-Path $artifactDir "eg-014-final-supply-chain-summary.json"
 $scannerImage = "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
 
 New-Item -ItemType Directory -Force -Path $artifactDir, $cacheDir | Out-Null
@@ -49,7 +49,7 @@ Invoke-Docker @(
     $dockerPrefix +
     @(
         "image", "--format", "cyclonedx",
-        "--output", "/work/eg-022-sbom.cdx.json", $Image
+        "--output", "/work/eg-014-final-sbom.cdx.json", $Image
     )
 )
 Invoke-Docker @(
@@ -57,7 +57,7 @@ Invoke-Docker @(
     @(
         "image", "--scanners", "vuln", "--severity", "HIGH,CRITICAL",
         "--exit-code", "0", "--format", "json",
-        "--output", "/work/eg-022-scan-all.json", $Image
+        "--output", "/work/eg-014-final-scan-all.json", $Image
     )
 )
 Invoke-Docker @(
@@ -65,7 +65,7 @@ Invoke-Docker @(
     @(
         "image", "--scanners", "vuln", "--severity", "HIGH,CRITICAL",
         "--ignore-unfixed", "--exit-code", "1", "--format", "json",
-        "--output", "/work/eg-022-scan-actionable.json", $Image
+        "--output", "/work/eg-014-final-scan-actionable.json", $Image
     )
 )
 
@@ -91,7 +91,7 @@ if ($actionableFindings.Count -ne 0) {
 
 @{
     schema_version = "1.0"
-    story = "EG-022"
+    story = "EG-014"
     image = $Image
     image_id = $imageId
     policy = @{
@@ -106,17 +106,17 @@ if ($actionableFindings.Count -ne 0) {
         identity_output = $scannerVersion
     }
     sbom = @{
-        path = "artifacts/release/eg-022-sbom.cdx.json"
+        path = "artifacts/release/eg-014-final-sbom.cdx.json"
         format = "CycloneDX JSON"
         sha256 = (Get-FileHash -Algorithm SHA256 -Path $sbomPath).Hash.ToLowerInvariant()
         status = "generated_for_exact_image"
     }
     container_scan = @{
-        actionable_path = "artifacts/release/eg-022-scan-actionable.json"
+        actionable_path = "artifacts/release/eg-014-final-scan-actionable.json"
         actionable_sha256 = (
             Get-FileHash -Algorithm SHA256 -Path $actionableScanPath
         ).Hash.ToLowerInvariant()
-        all_findings_path = "artifacts/release/eg-022-scan-all.json"
+        all_findings_path = "artifacts/release/eg-014-final-scan-all.json"
         all_findings_sha256 = (
             Get-FileHash -Algorithm SHA256 -Path $allScanPath
         ).Hash.ToLowerInvariant()

@@ -28,7 +28,7 @@ EG-001 is the one exception: it creates the initial `main` foundation. After tha
 | 13d | [EG-020](EG-020-northstar-evidence-identity.md) Northstar evidence identity | `fix/eg-020-northstar-evidence-identity` | EG-019 | R3 | Patch `0.12.0 -> 0.12.1` | `gpt-5.6-sol` / medium |
 | 13e | [EG-021](EG-021-release-security-evidence.md) release security evidence | `chore/eg-021-release-security-evidence` | EG-020 | R3 | Patch `0.12.1 -> 0.12.2` | `gpt-5.6-sol` / medium |
 | 13f | [EG-022](EG-022-showcase-reflow.md) Showcase mobile reflow | `fix/eg-022-showcase-reflow` | EG-014 audit rerun | R3 | Patch `0.12.2 -> 0.12.3` | `gpt-5.6-terra` / low |
-| 14 | [EG-014](EG-014-release-evidence.md) release finalization | `docs/eg-014-release-final` | EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, EG-021, EG-022 | R3 | First stable `0.12.3 -> 1.0.0`, gates permitting | `gpt-5.6-terra` / medium |
+| 14 | [EG-014](EG-014-release-evidence.md) release finalization | `release/eg-014-1.0.0` | EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, EG-021, EG-022 | R3 | First stable `0.12.3 -> 1.0.0`, gates permitting | `gpt-5.6-terra` / medium |
 | After R3 | [EG-012](EG-012-mcp-adapter.md) MCP adapter | `feat/eg-012-mcp-adapter` | EG-014 | R4 | Minor `1.0.0 -> 1.1.0` | `gpt-5.5` / medium |
 | Optional | [EG-016](EG-016-public-deployment.md) public deployment | `feat/eg-016-public-deployment` | EG-014 and explicit approval | R5 | No bump; promote R3 `1.0.0` digest | `gpt-5.5` / high |
 
@@ -37,7 +37,7 @@ EG-003 starts only after EG-002 verifies and merges the reference embedding iden
 Literal version targets assume the table's acceptance order. The merged initial EG-014 audit did not
 consume `1.0.0`; it recorded blockers while retaining `0.9.0`. EG-017, EG-018, and EG-019 form the
 reviewed product-experience/showcase/onboarding path. EG-020 restores the Northstar evidence identity
-regressed by the generalized EG-018 chunk ordinal; EG-021 then closes dependency and container-scan evidence before EG-014 finalization. The shared version step is
+regressed by the generalized EG-018 chunk ordinal; EG-021 closes dependency and container-scan evidence, EG-022 closes the final mobile reflow blocker, and EG-014 finalizes the first stable release. The shared version step is
 serialized even if non-overlapping implementation work is investigated in parallel. A stale
 predecessor is a stop condition: preserve the declared bump kind, but update the plan before editing
 any version surface. Failed or abandoned work consumes no version.

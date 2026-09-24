@@ -30,14 +30,14 @@ def main() -> int:
         "USER 10001:10001",
         "HEALTHCHECK",
         "/health/live",
-        'LABEL org.opencontainers.image.version="0.12.3"',
+        'LABEL org.opencontainers.image.version="1.0.0"',
         'CMD ["evalgate-api"]',
         "/usr/local/bin/python -m pip uninstall --yes pip",
     ):
         if required not in dockerfile:
             failures.append(f"Dockerfile: missing {required}")
-    if "profiles: [\"release\"]" not in compose or "image: evalgate-api:0.12.3" not in compose:
-        failures.append("compose.yaml: 0.12.3 release profile image definition is missing")
+    if "profiles: [\"release\"]" not in compose or "image: evalgate-api:1.0.0" not in compose:
+        failures.append("compose.yaml: 1.0.0 release profile image definition is missing")
     if "condition: service_healthy" not in compose:
         failures.append("compose.yaml: API must wait for healthy PostgreSQL")
     for forbidden in ("docker push", "kubectl", "terraform", "opentofu"):
@@ -56,9 +56,9 @@ def main() -> int:
         '"--severity", "high,critical"',
         '"--ignore-unfixed"',
         '"--exit-code", "1"',
-        "eg-022-scan-actionable.json",
-        "eg-022-scan-all.json",
-        "eg-022-sbom.cdx.json",
+        "eg-014-final-scan-actionable.json",
+        "eg-014-final-scan-all.json",
+        "eg-014-final-sbom.cdx.json",
     ):
         if required not in supply_script.lower():
             failures.append(f"scripts/release_supply_chain.ps1: missing {required}")
