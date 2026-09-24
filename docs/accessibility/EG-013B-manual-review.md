@@ -3,7 +3,7 @@
 ## Scope and evidence boundary
 
 This record covers the supported local inspection and read-only evaluation-results views. The
-automated suite was rerun successfully on merged EvalGate `0.12.0` and covers the persistent
+automated suite was rerun successfully on merged EvalGate `0.12.2` and covers the persistent
 product shell, friendly source selector, direct routes, finite timeout recovery, responsive menu,
 and theme persistence. It documents automated evidence for EG-013B/EG-017/EG-019; it is not a WCAG
 conformance claim or a substitute for a formal accessibility audit.
@@ -40,6 +40,20 @@ represented as completed by the coding agent.
 | Citation navigation | Chromium, keyboard only | Activating a citation moves focus to its evidence article, with visible focus styling. | Automated coverage; human spot-check pending. |
 | Zoom and reflow | Chromium at 200% browser zoom and 320 CSS pixels | No loss of content or controls and no required horizontal page scrolling. | 320-pixel automated; 200% manual review pending. |
 | Contrast and reduced motion | Chromium with forced-colors/high-contrast setting and `prefers-reduced-motion: reduce` | Text, controls, and focus indicators remain distinguishable; citation navigation avoids smooth movement when reduced motion is requested. | Reduced motion automated; forced-colors review pending. |
+
+## EG-014 browser audit update (2026-09-24)
+
+Browser-use/CDP inspection found one release-blocking responsive defect outside the existing E2E
+coverage. At a 320-by-720 CSS-pixel viewport, Overview, Inspect, Bring data, Evaluations, and System
+evidence have no document-level horizontal overflow and expose the compact menu. Showcase does
+overflow: the document is 367 CSS pixels wide because process-list content extends beyond the
+viewport. Its comparison tables are intentionally contained in their own horizontal scrollers and
+are not the cause of the page-level failure. A 200%-zoom equivalent did not overflow in the sampled
+desktop viewport, and forced-colors emulation activated, but those observations do not replace the
+human review rows above.
+
+The Showcase reflow defect and every still-pending human row block the WCAG/release claim. EG-014
+does not change product CSS, mark these rows complete, or waive them.
 
 ## Content-safety policy
 

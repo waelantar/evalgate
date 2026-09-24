@@ -128,7 +128,9 @@ The serialized product-version plan is owned by the backlog and branch workflow:
 - Baselines never update automatically.
 - Public mode disables ingestion and evaluation-trigger endpoints.
 - Public questions, answers, chunks, authorization headers, provider keys, and raw IP addresses are not logged.
-- No unresolved severity-critical or severity-high security finding is accepted at release.
+- No fixable severity-critical or severity-high security finding is accepted at release. Every
+  upstream-unfixed HIGH/CRITICAL finding remains disclosed and requires an explicit owner decision;
+  the image is never described as vulnerability-free (ADR-0014).
 
 ### 4.2 Measured budgets
 
@@ -932,6 +934,7 @@ Remaining owner decisions are limited to external resources and legal/financial 
 | Provider outage or drift | Medium | Medium | Typed errors, version recording, cooldown, no silent fixture fallback | Model/version changes -> new governed baseline |
 | Public cost abuse | Medium | High | Layered caps, provider account limit, kill switch | Allowance/budget alert -> disable generation |
 | Dependency or action compromise | Low/Medium | High | Locks, action pins, scans, SBOM, least privilege | Critical advisory -> block build/release |
+| Upstream base-image vulnerability has no available fix | Medium | High | Fail fixable HIGH/CRITICAL findings; retain the complete report and explicit owner decision under ADR-0014 | Fix becomes available, CRITICAL appears, or disclosure is missing -> block release |
 | Blueprint and implementation diverge | Medium | High | Traceability, ADR-first changes, release reconciliation | Contract/status mismatch -> block R3 |
 | Technical identities and dense evidence make the product unusable for newcomers | Medium | High | Human-readable names first, progressive disclosure, guided flow, usability and responsive tests | A primary workflow requires UUID/SHA interpretation -> block R3 |
 | Real-world showcase loses provenance or compares incompatible model capabilities | Medium | High | Immutable source revision, attribution/license manifest, common capability contract, fixed settings, explicit exclusions | Source/license drift or unsupported output contract -> stop the run and review |
@@ -1019,4 +1022,12 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 through EG-019 are merged. The `0.12.0` candidate passes clean bootstrap, static, format/lint/type, 215 API unit, 37 web unit, eight Chromium/axe, production-build, and 15 PostgreSQL/reference integration checks. EG-015 and EG-018 retain governed, limitation-heavy live evidence rather than a generation-quality claim. The final EG-014 audit nevertheless blocks R3: generalized EG-018 chunk ordinals changed reviewed Northstar evidence UUIDs, so exact-main CI and an isolated local 36-case retrieval run fail at `0.027778` recall/MRR/source coverage; full npm audit reports one high and three moderate development-tool findings; Trivy/Grype evidence is absent; and human accessibility rows remain pending. EG-020 owns the identity fix at `0.12.1`, EG-021 owns dependency/container-scan evidence at `0.12.2`, and EG-014 may establish `1.0.0` only after those and every remaining gate pass. Nothing is tagged, released, pushed by EG-014, or deployed.
+EG-001 through EG-021 are merged at pre-stable `0.12.2`. Exact-main CI, clean bootstrap, static,
+format/lint/type, 215 API unit, 37 web unit, eight Chromium/axe, production build, 16 PostgreSQL/reference
+integration tests, the unchanged 36-case retrieval baseline, dependency audits, non-root image smoke,
+CycloneDX SBOM, and pinned Trivy actionable scan pass. ADR-0014 records the explicit decision to
+block fixable HIGH/CRITICAL findings while disclosing 44 upstream-unfixed HIGH findings. EG-015 and
+EG-018 remain limitation-heavy evidence, not generation-quality claims. The 2026-09-24 EG-014 rerun
+still blocks R3 because the Showcase process list causes document-level overflow at 320 CSS pixels
+and the required human screen-reader, keyboard, 200% zoom, and forced-colors review is incomplete.
+Version remains `0.12.2`; nothing is tagged, released, pushed by EG-014, or deployed.
