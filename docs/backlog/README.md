@@ -27,7 +27,8 @@ EG-001 is the one exception: it creates the initial `main` foundation. After tha
 | 13c | [EG-019](EG-019-product-shell-onboarding.md) product shell/onboarding | `feat/eg-019-product-shell-onboarding` | EG-018 | R3 | Minor `0.11.0 -> 0.12.0` | `gpt-5.6-terra` / medium |
 | 13d | [EG-020](EG-020-northstar-evidence-identity.md) Northstar evidence identity | `fix/eg-020-northstar-evidence-identity` | EG-019 | R3 | Patch `0.12.0 -> 0.12.1` | `gpt-5.6-sol` / medium |
 | 13e | [EG-021](EG-021-release-security-evidence.md) release security evidence | `chore/eg-021-release-security-evidence` | EG-020 | R3 | Patch `0.12.1 -> 0.12.2` | `gpt-5.6-sol` / medium |
-| 14 | [EG-014](EG-014-release-evidence.md) release finalization | `docs/eg-014-release-final` | EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, EG-021 | R3 | First stable `0.12.2 -> 1.0.0`, gates permitting | `gpt-5.6-terra` / medium |
+| 13f | [EG-022](EG-022-showcase-reflow.md) Showcase mobile reflow | `fix/eg-022-showcase-reflow` | EG-014 audit rerun | R3 | Patch `0.12.2 -> 0.12.3` | `gpt-5.6-terra` / low |
+| 14 | [EG-014](EG-014-release-evidence.md) release finalization | `docs/eg-014-release-final` | EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, EG-021, EG-022 | R3 | First stable `0.12.3 -> 1.0.0`, gates permitting | `gpt-5.6-terra` / medium |
 | After R3 | [EG-012](EG-012-mcp-adapter.md) MCP adapter | `feat/eg-012-mcp-adapter` | EG-014 | R4 | Minor `1.0.0 -> 1.1.0` | `gpt-5.5` / medium |
 | Optional | [EG-016](EG-016-public-deployment.md) public deployment | `feat/eg-016-public-deployment` | EG-014 and explicit approval | R5 | No bump; promote R3 `1.0.0` digest | `gpt-5.5` / high |
 

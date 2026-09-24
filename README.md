@@ -7,15 +7,15 @@ The repository currently contains the approved production blueprint, reproducibl
 | Capability | Status |
 |---|---|
 | Production blueprint | Approved |
-| Repository/tooling foundation | Implemented and locally verified through EG-021; exact merged-main CI `35735809199` passed all five jobs |
+| Repository/tooling foundation | Implemented and locally verified through EG-022; exact merged-main CI `35735809199` remains the latest accepted remote run |
 | Provider ports and reference identity | Implemented and locally verified with fixtures and the pinned local reference runtime |
 | PostgreSQL schema and migration readiness | Implemented and locally verified with migrations, real integration tests, and readiness checks |
-| Corpus, ingestion, and hybrid retrieval | Implemented and locally verified at `0.12.2`: reviewed Northstar and Kubernetes evidence IDs resolve, ingestion is idempotent, and the unchanged 36-case retrieval baseline passes |
+| Corpus, ingestion, and hybrid retrieval | Implemented and locally verified at `0.12.3`: reviewed Northstar and Kubernetes evidence IDs resolve, ingestion is idempotent, and the unchanged 36-case retrieval baseline passes |
 | Grounded answers, SSE, and inspection UI | Implemented and locally verified with contracts, browser/E2E checks, and server-derived citations; no public live provider claim |
-| Product experience | Implemented and locally verified for the automated suite; the Showcase process list has a known 320px page-overflow defect pending a narrow follow-up |
+| Product experience | Implemented and locally verified: every primary route fits the 320px layout viewport; wide evidence tables retain bounded local scrolling |
 | Evaluation gate and results UI | Implemented and locally verified; governed live-generation evidence is protected/manual and limitation-heavy, not a quality-success claim |
 | Public-mode application security and operations | Implemented application boundary, browser-safety automation, redacted telemetry, controls, local image, and runbooks; no hosting or deployment authorization |
-| R3 release | Pre-stable `0.12.2` is locally verified; Showcase 320px reflow and human accessibility review block the conditional EG-014 `1.0.0` bump |
+| R3 release | Pre-stable `0.12.3` is locally verified; only the human accessibility review blocks the conditional EG-014 `1.0.0` bump |
 | MCP adapter | Deferred until R3 is accepted |
 | Public deployment | Not selected or deployed |
 
