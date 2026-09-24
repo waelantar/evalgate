@@ -3,7 +3,7 @@
 ## Scope and evidence boundary
 
 This record covers the supported local inspection and read-only evaluation-results views. The
-automated suite was rerun successfully on merged EvalGate `0.12.2` and covers the persistent
+automated suite was rerun successfully on EvalGate `0.12.3` and covers the persistent
 product shell, friendly source selector, direct routes, finite timeout recovery, responsive menu,
 and theme persistence. It documents automated evidence for EG-013B/EG-017/EG-019; it is not a WCAG
 conformance claim or a substitute for a formal accessibility audit.
@@ -43,17 +43,17 @@ represented as completed by the coding agent.
 
 ## EG-014 browser audit update (2026-09-24)
 
-Browser-use/CDP inspection found one release-blocking responsive defect outside the existing E2E
-coverage. At a 320-by-720 CSS-pixel viewport, Overview, Inspect, Bring data, Evaluations, and System
-evidence have no document-level horizontal overflow and expose the compact menu. Showcase does
-overflow: the document is 367 CSS pixels wide because process-list content extends beyond the
-viewport. Its comparison tables are intentionally contained in their own horizontal scrollers and
-are not the cause of the page-level failure. A 200%-zoom equivalent did not overflow in the sampled
-desktop viewport, and forced-colors emulation activated, but those observations do not replace the
-human review rows above.
+Browser-use/CDP inspection originally found one release-blocking responsive defect outside the
+existing E2E coverage: long revision/path text made Showcase 367 CSS pixels wide at a 320px
+viewport. EG-022 adds intrinsic-size containment and safe wrapping to flow cards. The expanded
+Playwright test now verifies Overview, Inspect, Bring data, Evaluations, Showcase, and System
+evidence at 320 by 720 CSS pixels; every document fits its layout viewport and the intentionally
+wide comparison tables retain their own bounded scrollers. A 200%-zoom equivalent did not overflow
+in the sampled desktop viewport, and forced-colors emulation activated, but those observations do
+not replace the human review rows above.
 
-The Showcase reflow defect and every still-pending human row block the WCAG/release claim. EG-014
-does not change product CSS, mark these rows complete, or waive them.
+The automated Showcase reflow blocker is closed. Every still-pending human row continues to block
+the WCAG/release claim and is not marked complete or waived by EG-022.
 
 ## Content-safety policy
 

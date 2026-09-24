@@ -112,7 +112,7 @@ The first credible public product slice contains the governed corpora, idempoten
 | R4 - Integration | MCP stdio adapter | R3 cannot be delayed by R4 |
 | R5 - Optional public demo | One portable deployment with bounded live access | Explicit hosting, privacy, security, and budget approval |
 
-The serialized product-version plan is owned by the backlog and branch workflow: EG-017, EG-018, EG-019, EG-020, and EG-021 advance the pre-stable R3 product from `0.9.0` to `0.10.0`, `0.11.0`, `0.12.0`, `0.12.1`, and `0.12.2`; R3 becomes the first stable `1.0.0` only when EG-014 then verifies every release gate. The additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
+The serialized product-version plan is owned by the backlog and branch workflow: EG-017, EG-018, EG-019, EG-020, EG-021, and EG-022 advance the pre-stable R3 product from `0.9.0` to `0.10.0`, `0.11.0`, `0.12.0`, `0.12.1`, `0.12.2`, and `0.12.3`; R3 becomes the first stable `1.0.0` only when EG-014 then verifies every release gate. The additive R4 MCP adapter is the next minor release, nominally `1.1.0`. R5 promotes an already accepted image digest and does not manufacture a new application version.
 
 ## 4. Success measures and quality gates
 
@@ -855,7 +855,7 @@ Detailed implementation briefs live under `docs/backlog/`. Each brief must state
 | EG-013B | Accessibility and browser-content safety across answer/results flows | EG-008, EG-011 | R3 | M |
 | EG-013C | Redacted observability and provider-neutral cost controls | EG-010, EG-011 | R3 | M |
 | EG-013D | Operational runbooks, `0.9.0` release-candidate image, scans, and SBOM | EG-013A, EG-013B, EG-013C, EG-015 | R3 | L |
-| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, EG-021 | R3 | M |
+| EG-014 | Fresh-checkout trial, documentation reconciliation, final `1.0.0` image/digest and release evidence | EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, EG-021, EG-022 | R3 | M |
 | EG-015 | Governed live generation/judge suite and calibrated claims | EG-006, EG-009 | R3 | L |
 | EG-016 | Optional single-host deployment, access posture, limits, smoke, and rollback | EG-014 | R5 | L |
 | EG-017 | Product-grade responsive shell, visual identity, guided evidence flow, human-readable identities, and recoverable UI errors | EG-011, EG-013A, EG-013B, initial EG-014 audit | R3 | L |
@@ -863,10 +863,11 @@ Detailed implementation briefs live under `docs/backlog/`. Each brief must state
 | EG-019 | Neutral light/dark product shell, responsive controls, and truthful governed-data onboarding map | EG-018 | R3 | M |
 | EG-020 | Restore immutable Northstar evidence identity and the real retrieval gate without changing governed artifacts | EG-019 | R3 | S |
 | EG-021 | Close dependency advisories and produce reproducible candidate image scan/SBOM evidence | EG-020 | R3 | M |
+| EG-022 | Close Showcase mobile reflow blocker and verify the `0.12.3` candidate | EG-014 audit rerun | R3 | S |
 
-EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. The initial EG-014 audit exposed both assurance gaps and product-experience gaps; EG-017, EG-018, and EG-019 close the latter on separate reviewable branches. The final audit found a Northstar evidence-identity regression, which EG-020 must fix without changing governed datasets or baselines. EG-021 then closes the dependency and container-scan gaps before EG-014 finalization. EG-014 may then change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
+EG-013 is an epic split into four independently reviewable briefs: EG-013A application security/public mode, EG-013B accessibility and browser-content safety, EG-013C observability and cost controls, and EG-013D operational runbooks, release-candidate image scanning, and SBOM. No one pull request implements the whole epic. The initial EG-014 audit exposed both assurance gaps and product-experience gaps; EG-017, EG-018, and EG-019 close the latter on separate reviewable branches. The final audit found a Northstar evidence-identity regression, which EG-020 fixes without changing governed datasets or baselines. EG-021 closes the dependency and container-scan gaps, and the subsequent EG-014 audit's observed 320px Showcase overflow returns to the narrow EG-022 product-fix story. EG-014 may then change only controlled product-version metadata before rebuilding the final `1.0.0` image from those unchanged accepted definitions; any required product or image-definition fix blocks the release and returns to a separate story.
 
-Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-017 through EG-021 add roughly 9-14 days for product experience, licensed-source governance, model comparability, onboarding truthfulness, review, and evidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, UI recovery behavior, cross-model comparability, CI integration, and public hardening carry the most variance.
+Expected effort for EG-001 through EG-011 and EG-013 through EG-015 is 17-28 ideal engineering days at the defined evidence quality, with medium confidence. EG-017 through EG-022 add roughly 9-15 days for product experience, licensed-source governance, model comparability, onboarding truthfulness, review, responsive closure, and evidence. EG-012 adds roughly 1-2 days; optional EG-016 adds roughly 2-4 days after hosting approval. These are planning ranges, not delivery promises. Corpus/golden authoring, streaming cancellation, safe browser rendering, UI recovery behavior, cross-model comparability, CI integration, and public hardening carry the most variance.
 
 ### 14.3 Definition of ready
 
@@ -1022,12 +1023,12 @@ Minor implementation details may evolve within an accepted story when contracts 
 
 This blueprint authorizes R1 foundation work and the R2 critical path. It does not authorize cloud spending, a public deployment, external provider calls, baseline acceptance, or generation-quality claims. Those actions remain behind their named gates.
 
-EG-001 through EG-021 are merged at pre-stable `0.12.2`. Exact-main CI, clean bootstrap, static,
-format/lint/type, 215 API unit, 37 web unit, eight Chromium/axe, production build, 16 PostgreSQL/reference
-integration tests, the unchanged 36-case retrieval baseline, dependency audits, non-root image smoke,
-CycloneDX SBOM, and pinned Trivy actionable scan pass. ADR-0014 records the explicit decision to
-block fixable HIGH/CRITICAL findings while disclosing 44 upstream-unfixed HIGH findings. EG-015 and
-EG-018 remain limitation-heavy evidence, not generation-quality claims. The 2026-09-24 EG-014 rerun
-still blocks R3 because the Showcase process list causes document-level overflow at 320 CSS pixels
-and the required human screen-reader, keyboard, 200% zoom, and forced-colors review is incomplete.
-Version remains `0.12.2`; nothing is tagged, released, pushed by EG-014, or deployed.
+EG-001 through EG-021 are merged at pre-stable `0.12.2`; EG-022 prepares the locally verified
+`0.12.3` candidate for owner review and merge. Exact-main CI for the accepted predecessor, clean
+bootstrap, static, format/lint/type, 215 API unit, 37 web unit, eight Chromium/axe, production build,
+16 PostgreSQL/reference integration tests, the unchanged 36-case retrieval baseline, dependency
+audits, non-root image smoke, CycloneDX SBOM, and pinned Trivy actionable scan pass. ADR-0014 records
+the explicit decision to block fixable HIGH/CRITICAL findings while disclosing upstream-unfixed HIGH
+findings. EG-015 and EG-018 remain limitation-heavy evidence, not generation-quality claims. EG-022
+closes the observed 320px Showcase overflow; the required human screen-reader, keyboard, 200% zoom,
+and forced-colors review remains incomplete. Nothing is tagged, released, pushed, or deployed.

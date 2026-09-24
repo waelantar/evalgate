@@ -118,11 +118,20 @@ test('keeps unsafe answer content inert and moves keyboard focus to cited eviden
   await expect(page.locator('#evidence-ev-1')).toBeFocused()
 })
 
-test('reflows at 320 CSS pixels with reduced motion requested', async ({ page }) => {
+test('reflows every primary route at 320 CSS pixels with reduced motion requested', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 320, height: 720 })
   await routeResults(page, 'empty')
   await routeAnswerAndEvidence(page)
+
+  for (const path of ['/', '/inspect', '/data', '/evaluations', '/showcase', '/system-evidence']) {
+    await page.goto(path)
+    const viewport = await page.evaluate<{ viewportWidth: number; scrollWidth: number }>(
+      '({ viewportWidth: window.innerWidth, scrollWidth: document.documentElement.scrollWidth })',
+    )
+    expect(viewport.scrollWidth, `${path} must not create page-level horizontal scrolling`).toBeLessThanOrEqual(viewport.viewportWidth)
+  }
+
   await page.goto('/')
   await page.getByRole('button', { name: 'Inspect an answer' }).click()
   await expect(page.getByLabel('Evidence source')).toBeVisible()

@@ -6,6 +6,7 @@ All notable changes will be documented here. The project uses Semantic Versionin
 
 ### Fixed
 
+- Prevented long immutable revisions and source paths from forcing Showcase beyond the 320px layout viewport, with all-primary-route regression coverage.
 - Restored Northstar per-document evidence ordinals while retaining Kubernetes corpus-global ordinals, and corrected reviewed dataset evidence mappings to deterministic production chunk identities.
 - Closed recorded npm and Python development advisory paths, refreshed the pinned Python base,
   and added pinned Trivy actionable enforcement plus complete upstream-unfixed risk disclosure for
