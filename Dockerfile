@@ -6,7 +6,7 @@ FROM ${PYTHON_BASE_IMAGE} AS api
 
 LABEL org.opencontainers.image.title="EvalGate API"
 LABEL org.opencontainers.image.description="Governed RAG evaluation API release-candidate runtime"
-LABEL org.opencontainers.image.version="0.12.3"
+LABEL org.opencontainers.image.version="1.0.0"
 LABEL org.opencontainers.image.source="https://example.invalid/evalgate-local-only"
 
 ENV PYTHONDONTWRITEBYTECODE=1

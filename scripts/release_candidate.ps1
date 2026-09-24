@@ -1,5 +1,5 @@
 param(
-    [string]$Image = "evalgate-api:0.12.3",
+    [string]$Image = "evalgate-api:1.0.0",
     [string]$ApiPort = "8012",
     [switch]$KeepRunning
 )
@@ -9,7 +9,7 @@ Set-StrictMode -Version Latest
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $artifactDir = Join-Path $repoRoot "artifacts\release"
-$smokePath = Join-Path $artifactDir "eg-022-smoke.json"
+$smokePath = Join-Path $artifactDir "eg-014-final-smoke.json"
 
 New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
 
@@ -34,7 +34,7 @@ $previousNoDefaultAttestations = $env:BUILDX_NO_DEFAULT_ATTESTATIONS
 try {
     $env:EVALGATE_API_PORT = $ApiPort
     # Scan the shipped runtime filesystem, not BuildKit metadata for discarded
-    # build stages. EG-022 generates a separate CycloneDX SBOM after the build.
+    # build stages. EG-014 generates a separate CycloneDX SBOM after the build.
     $env:BUILDX_NO_DEFAULT_ATTESTATIONS = "1"
     Invoke-Compose @("--profile", "release", "build", "api")
 
@@ -63,15 +63,15 @@ try {
         try {
             $live = Invoke-RestMethod -Uri $liveUri -TimeoutSec 2
             $ready = Invoke-RestMethod -Uri $readyUri -TimeoutSec 2
-            if ($live.version -eq "0.12.3" -and $ready.status -eq "ready") {
+            if ($live.version -eq "1.0.0" -and $ready.status -eq "ready") {
                 break
             }
         } catch {
             Start-Sleep -Seconds 1
         }
     }
-    if ($null -eq $live -or $live.version -ne "0.12.3") {
-        throw "Liveness smoke did not return EvalGate 0.12.3."
+    if ($null -eq $live -or $live.version -ne "1.0.0") {
+        throw "Liveness smoke did not return EvalGate 1.0.0."
     }
     if ($null -eq $ready -or $ready.status -ne "ready") {
         throw "Readiness smoke did not reach ready state."
@@ -81,8 +81,8 @@ try {
 
     $record = [ordered]@{
         schema_version = "1.0"
-        story = "EG-022"
-        product_version = "0.12.3"
+        story = "EG-014"
+        product_version = "1.0.0"
         image = $Image
         image_id = $imageId
         configured_user = $configuredUser
