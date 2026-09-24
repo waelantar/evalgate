@@ -1,7 +1,7 @@
 # EG-014: R3 release evidence and documentation reconciliation
 
-- Status: Final audit rerun complete at `0.12.0`; release blocked and version retained
-- Branch: `docs/eg-014-release-final`
+- Status: Final audit rerun complete at `0.12.2`; release blocked and version retained
+- Branch: `docs/eg-014-release-final-rerun`
 - Depends on: EG-013D, EG-015, EG-017, EG-018, EG-019, EG-020, and EG-021 merged to `main`
 - Release: R3
 - Version action: First stable release `0.12.2 -> 1.0.0` after EG-020/EG-021, only if every gate passes
@@ -27,11 +27,15 @@ A reviewer can reproduce the product from a clean checkout and verify that bluep
 
 ## Acceptance evidence
 
-- [ ] Fresh-checkout bootstrap and the standard matrix succeed, but the required retrieval gate fails; exact results are linked in `docs/release/READINESS.md`.
+- [x] Bootstrap, the standard matrix, all 16 integrations, and the required 36-case retrieval gate succeed; exact results are linked in `docs/release/READINESS.md`.
 - [x] Every R3 requirement is implemented/verified or explicitly blocks release; no orphan contract or story exists.
 - [x] Retrieval and governed live artifacts plus known-bad rejection are linked with limitations.
 - [x] Security/accessibility/scans/SBOM/runbook/rollback evidence is reconciled with truthful blocker status.
 - [ ] If and only if every gate passes, the final image and runtime report `1.0.0` and the release record identifies its matching digest, scans, and SBOM.
+
+The conditional stable-version criterion remains open. Browser inspection found a 320px Showcase
+reflow failure, and the mandatory human accessibility checklist is incomplete; therefore the
+accepted predecessor `0.12.2` is intentionally retained.
 
 ## Required tests and review
 

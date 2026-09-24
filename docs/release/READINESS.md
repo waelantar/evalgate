@@ -1,83 +1,70 @@
 # R3 release-readiness record
 
 - Candidate: first stable R3 release
-- Audited product version: `0.12.0`
-- Audited merged-main commit: `2fe78860fa4c3787dbd277c79f79dee6d46c6f1e`
+- Audited product version: `0.12.2`
+- Audited merged-main commit: `9ba14d23ac937614473c79f291863d38ece12829`
 - Requested target: `1.0.0`
-- Review date: 2026-09-19
+- Review date: 2026-09-24
 - Status: **blocked; do not tag, publish, deploy, or claim a `1.0.0` release**
 - Publication state: not pushed by EG-014, not deployed, and not released
 
-This is the final EG-014 audit of the merged EG-017, EG-018, and EG-019 candidate. It reconciles
-the R3 checklist in `BLUEPRINT.md` section 18 without treating a passing unit/E2E matrix as proof
-that the governed retrieval, security, accessibility, CI, and final-image gates passed. Because
-multiple release gates fail, product metadata remains `0.12.0`; no final `1.0.0` image was built.
+The EG-014 rerun closes the earlier retrieval, dependency, container-scan, and exact-main CI gaps.
+It does not convert partial accessibility evidence into a conformance claim. Product metadata remains
+`0.12.2` because browser inspection found a 320px Showcase reflow defect and the mandatory human
+accessibility review is incomplete.
 
-## EG-020 follow-up (2026-09-21)
-
-EG-020 is locally verified at product version `0.12.1`. Northstar produces 161 chunks, Kubernetes produces 75, every reviewed dataset `1.0.1` evidence UUID resolves, both corpora ingest idempotently into fresh PostgreSQL, all 16 integration tests pass, and the unchanged 36-case retrieval baseline passes. ADR-0013 records the evidence-ID-only governance correction. This closes the local retrieval blocker; exact-commit CI, EG-021, manual accessibility review, and final image evidence remain open.
-
-## EG-021 follow-up (2026-09-22)
-
-EG-021 is locally verified at pre-stable product version `0.12.2`. Full and production-only npm
-audits and the hashed Python lock audit report zero findings. The pinned Trivy `0.74.0` actionable
-scan of image `sha256:494a1359ef7bfdcd664eaf19061b25c856e39e96dc721871359a143ae2b2ed66`
-reports zero fixable HIGH/CRITICAL findings; the separate all-findings report retains 44
-upstream-unfixed HIGH findings (43 `affected`, one `fix_deferred`). The candidate runs non-root,
-passes live/ready/graceful-stop smoke, and has an exact CycloneDX SBOM. This closes the local
-dependency and container-scan blockers under the owner-approved actionable-risk policy; it does
-not claim a vulnerability-free image or a release.
-
-## Start conditions and repeatable evidence
+## Release-gate evidence
 
 | Gate | Evidence and result |
 | --- | --- |
-| Branch precondition | Clean `main` at `2fe7886`; EG-018 commit `c30e712` and EG-019 commit `75b59d0` are ancestors; controlled product metadata is consistently `0.12.0`. |
-| Clean checkout | A detached worktree at exact merged `main` completed `scripts/bootstrap.ps1` in 48.3 seconds using Python 3.13.15, uv 0.12.3, Node.js 24.19.0, an isolated Compose project, locked dependencies, PostgreSQL migrations, and Chromium. |
-| Static and backend matrix | Publication (268 text files), metadata, release-static, Compose, Ruff format/lint, mypy (70 source files), and 215 non-integration Python tests passed. |
+| Merged-main precondition | Clean starting commit `9ba14d2`; EG-020 and EG-021 are ancestors and product metadata is consistently `0.12.2`. |
+| Bootstrap | `scripts/bootstrap.ps1` completed in 25.6 seconds with Python 3.13.15, uv 0.12.3, Node.js 24.19.0, locked dependencies, healthy PostgreSQL, and current migrations. |
+| Static/backend matrix | Publication (281 text files), metadata, release-static, Compose, Ruff format/lint, mypy (70 source files), and 215 non-integration tests passed. |
 | Frontend matrix | ESLint, 37 Vitest tests, eight Chromium Playwright/axe/responsive/theme flows, and the production Vite build passed. |
-| PostgreSQL/reference integration | All 15 integration tests passed against an isolated PostgreSQL 18/pgvector service and the verified local reference-embedding snapshot. |
-| Contract/ADR reconciliation | All accepted ADRs were reviewed and every JSON contract parsed successfully. OpenAPI, stream, corpus, prompt, retrieval, evaluation, review, and release schemas remain present. |
-| Governed retrieval | **Failed.** Fresh Northstar ingestion created 161 chunks and the expected index UUID, but the 36-case gate produced precision@5 `0.005556`, recall@5 `0.027778`, MRR `0.027778`, nDCG@5 `0.027778`, and source coverage `0.027778`. |
-| Exact-main remote CI | **Failed** on the same retrieval gate for the same metrics: [CI run 35444229759](https://github.com/waelantar/evalgate/actions/runs/35444229759). This is linked negative evidence, not a successful release run. |
-| Governed live evidence | EG-015 and EG-018 reviewed artifacts, costs, provider failures, and limitations remain linked from `docs/evaluation/README.md`. They are evaluation evidence, not a generation-quality or deployment claim. |
-| Dependency audit | `npm audit --omit=dev --json` reports zero production vulnerabilities. Full `npm audit --json` reports one high (`js-yaml`) and three moderate Vitest/tooling findings; these remain unresolved and the full dependency gate fails. |
-| Accessibility | Eight Chromium/axe flows pass. Screen-reader behavior, keyboard spot checks, 200% zoom, and forced-colors/high-contrast rows in `docs/accessibility/EG-013B-manual-review.md` remain pending human review. |
-| Container scan | **Unavailable.** Neither Trivy nor Grype is installed. A `waived_tool_unavailable` record is not an acceptable first-stable-release scan. |
-| Image and SBOM | Only the earlier local `evalgate-api:0.9.0` candidate image/SBOM exists. No `0.12.0` or `1.0.0` release image, matching digest, final scan, or release-attached SBOM was created. |
+| PostgreSQL/reference integration | All 16 integration tests passed with the verified local reference snapshot. |
+| Governed retrieval | Northstar ingestion produced the accepted 161 chunks/index identity; the unchanged 36-case baseline passed. Local artifact SHA-256: `ca6de1ad632ce65d9d8061c0ecec503a577540700b3119ef2413e2c810d71c66`. |
+| Exact-main remote CI | All five jobs passed for exact commit `9ba14d2`: [CI run 35735809199](https://github.com/waelantar/evalgate/actions/runs/35735809199). |
+| Dependency audits | Full npm, production-only npm, and the hashed locked Python set with pip-audit 2.10.1 report zero known findings. |
+| Candidate image | Rebuilt unchanged as `evalgate-api:0.12.2`, image ID `sha256:494a1359ef7bfdcd664eaf19061b25c856e39e96dc721871359a143ae2b2ed66`; UID/GID `10001:10001`, live/ready checks, migration status, and graceful stop passed. |
+| SBOM and container scan | Pinned Trivy 0.74.0 generated an exact-image CycloneDX SBOM. The actionable scan has zero fixable HIGH/CRITICAL findings. The complete report discloses 44 upstream-unfixed HIGH findings. ADR-0014 records the owner-approved policy and claim boundary. |
+| Browser structure | Every primary route has one H1, named interactive controls, direct navigation, and compact-menu behavior. Overview, Inspect, Bring data, Evaluations, and System evidence have no document-level overflow at 320px. |
+| Responsive Showcase | **Failed.** At 320-by-720 CSS pixels, the Showcase document is 367px wide because process-list content exceeds the viewport. Comparison tables remain correctly scroll-contained. |
+| Manual accessibility | **Incomplete.** Human screen-reader status/cancellation/error review, keyboard spot checks, 200% zoom, and forced-colors/high-contrast review remain pending in `docs/accessibility/EG-013B-manual-review.md`. |
 
-## Retrieval regression diagnosis
+## Security decision and exact local evidence
 
-EG-018 generalized the corpus loader and changed chunk ordinal assignment from the original
-per-document section ordinal to `len(chunks)`, a corpus-global ordinal. PostgreSQL evidence UUIDs
-are UUIDv5 values derived from index UUID, document UUID, chunk ordinal, and content hash. The
-Northstar corpus text, index UUID, and ranking policy stayed stable, but almost every evidence UUID
-after the first document changed. `contracts/evaluation/golden-v1.json` correctly retained the
-reviewed IDs, so the gate exposed the mismatch instead of silently accepting a new baseline.
+ADR-0014 reconciles the blueprint with the explicit EG-021 owner decision: release fails on fixable
+HIGH/CRITICAL container findings, retains the complete HIGH/CRITICAL report, requires an explicit
+decision for upstream-unfixed risk, and never describes the image as vulnerability-free.
 
-This is not repaired on the documentation-only EG-014 branch. [EG-020](../backlog/EG-020-northstar-evidence-identity.md)
-owns the narrow fix and must preserve both the original Northstar identities and the accepted
-Kubernetes showcase identities. Updating the dataset or baseline to match the regression is
-explicitly forbidden.
+- Scanner: `aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969` (Trivy 0.74.0)
+- CycloneDX SBOM SHA-256: `d6e0bb47a81986d576938f85f3a65ae2f0d1d3b71ec6d383cd4cf5b70184a26b`
+- Actionable scan SHA-256: `26f5b9d7fd9fe1e530417b38e8add10924056e92b09b33a6b3f4d2ffc3769dc4`
+- All-findings scan SHA-256: `102cf799bb075ea4ce602c2ccd193640fac5e12f4ffda012fc22d3ad7fbab7bd`
+- Result: zero actionable findings; 44 disclosed upstream-unfixed HIGH findings; no clean-image claim
 
-## Remaining release-blocking gaps
+These are local, uncommitted generated artifacts. EG-014 did not push an image, SBOM, scan, tag, or
+release. A future final `1.0.0` image must regenerate all version-bearing evidence after every
+pre-bump gate passes.
 
-1. **Successful exact-commit CI:** after EG-021 is merged, link a successful secret-free CI run for
-   the exact candidate commit and its immutable retrieval artifact.
-2. **Manual accessibility:** a human must complete and date the screen-reader, keyboard, 200% zoom,
-   and forced-colors checks. Automated axe evidence cannot be substituted.
-3. **Final image evidence:** only after all pre-bump gates pass may EG-014 apply `1.0.0`, rebuild the
-   unchanged accepted image definition, and record matching runtime version, digest, smoke,
-   graceful stop, scan, SBOM, and consistency evidence.
+## Governed-evidence and claim boundary
 
-## Commands and outcomes
+- The reviewed Northstar retrieval gate is current and passes without a baseline change.
+- EG-015 and EG-018 live-provider artifacts remain historical, limitation-heavy evidence. The
+  Kubernetes artifacts bound to dataset `1.0.0` do not prove current `1.0.1` model quality.
+- Fixture answers demonstrate local contract mechanics only.
+- Browser upload, accounts, workspace tenancy, hosted private storage, cloud resources, and public
+  mutation are not implemented or implied.
+- No public deployment or hosted URL exists.
+
+## Commands executed
 
 ```powershell
-./scripts/bootstrap.ps1
-./scripts/check.ps1
-uv run --python 3.13.15 --locked pytest -m integration
-uv run --python 3.13.15 --locked evalgate-ingest --corpus northstar-operations
-uv run --python 3.13.15 --locked evalgate-evaluate --mode retrieval `
+.\scripts\bootstrap.ps1
+.\scripts\check.ps1
+uv run --directory apps/api --python 3.13.15 --locked pytest -m integration
+uv run --directory apps/api --python 3.13.15 --locked evalgate-ingest --corpus northstar-operations
+uv run --directory apps/api --python 3.13.15 --locked evalgate-evaluate --mode retrieval `
   --index-version 6932f8da-e71b-533f-ae2b-4c969cd3acd2 `
   --output ../../artifacts/retrieval-eg014-final.json
 python scripts/check_retrieval_baseline.py `
@@ -85,29 +72,18 @@ python scripts/check_retrieval_baseline.py `
   --baseline contracts/evaluation/retrieval-baseline-v1.json
 npm audit --json
 npm audit --omit=dev --json
-gh run view 35444229759 --log-failed
+uvx --from pip-audit==2.10.1 pip-audit --require-hashes --disable-pip -r <locked-export>
+.\scripts\release_candidate.ps1
+.\scripts\release_supply_chain.ps1
+gh run view 35735809199
 ```
 
-Bootstrap, static/backend/frontend checks, and integration tests passed. The baseline command and
-full npm audit failed as documented above. The local retrieval artifact was generated only inside
-the disposable trial and is not a release artifact.
+All commands above passed after Docker Desktop was restarted. Browser-use/CDP then exposed the
+Showcase reflow failure; it is recorded rather than fixed on this documentation-only branch.
 
-## Security, privacy, operations, and claim boundary
+## Release recommendation and handoff
 
-- Threat model, public-mode denial, content-free logging, server-side secret handling, bounded
-  controls, and runbooks remain implemented and tested locally; no public ask or deployment is
-  enabled by this record.
-- Kubernetes source provenance, CC BY 4.0 attribution/transformation disclosure, reviewed cases,
-  OpenRouter costs, and failed/weak model results remain explicit. They are not a benchmark or
-  endorsement claim.
-- Browser upload, accounts, workspace tenancy, hosted private storage, cloud resources, and public
-  mutation are not implemented and are not implied by the onboarding UI.
-- No provider call, spending, baseline update, push, merge, tag, release, or deployment occurred in
-  EG-014.
-
-## Version handoff and recommendation
-
-**No release. Keep pre-stable `0.12.2` after EG-021 is merged.** Finish the human accessibility
-review and obtain successful exact-commit CI. Then rerun EG-014 from clean accepted `main`.
-Only an all-green pre-release matrix may perform
-the controlled `0.12.2 -> 1.0.0` bump and final image evidence sequence.
+**No stable release yet. Keep `0.12.2`.** Make one narrow responsive fix with regression coverage,
+then have a human complete and date the accessibility checklist. Rerun EG-014 from accepted `main`.
+Only an all-green pre-release matrix may perform the controlled `0.12.2 -> 1.0.0` metadata bump and
+final image evidence sequence.
